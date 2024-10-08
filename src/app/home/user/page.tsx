@@ -1,8 +1,8 @@
 "use client"
 import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+// import { Button } from "@/components/ui/button"
+// import { Input } from "@/components/ui/input"
+// import { Textarea } from "@/components/ui/textarea"
 import Sidebar from '@/app/home/user/Sidebar'
 import ComposeEmail from '@/app/home/user/ComposeEmail'
 import OutreachCampaign from '@/app/home/user/OutreachCampaign'
@@ -29,7 +29,7 @@ export default function ColdOutreachUI() {
   const [emailSubject, setEmailSubject] = useState<string>('')
   const [emailTemplate, setEmailTemplate] = useState<string>('')
   const [prospects, setProspects] = useState<Prospect[]>(dummyData)
-  const [emailList, setEmailList] = useState<string>('')
+  // const [emailList, setEmailList] = useState<string>('')
 
   const saveTemplate = () => {
     console.log("Template saved:", { subject: emailSubject, body: emailTemplate })
@@ -51,7 +51,7 @@ export default function ColdOutreachUI() {
   }
 
   const handleEmailListChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setEmailList(e.target.value)
+    // setEmailList(e.target.value)
     setProspects([...dummyData, ...parseEmails(e.target.value)])
   }
 
