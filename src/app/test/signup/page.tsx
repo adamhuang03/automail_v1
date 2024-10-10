@@ -13,7 +13,7 @@ export default function LoginComponent() {
   return (
     <main className="flex flex-1 justify-center">
       <Button variant="outline" onClick={handleSignUp}>Sign Up</Button>
-      <Button variant="outline" onClick={() => handleSocialLogin('google')}>
+      <Button variant="outline" onClick={() => handleSocialLogin('google', true)}>
         Sign in with Google
       </Button>
     </main>

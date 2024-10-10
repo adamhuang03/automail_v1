@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Github, Loader2 } from 'lucide-react'
 
 // Initialize the Supabase client
-const supabase = createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY')
+import { supabase } from '@/lib/db/supabase'
 
 export default function LoginComponent() {
   const [email, setEmail] = useState('')
