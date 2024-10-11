@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,6 +18,7 @@ export default function LoginComponent() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter(); // The updated hook for navigation
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,12 +40,26 @@ export default function LoginComponent() {
   const handleSocialLogin = async (provider: 'google' | 'github') => {
     setLoading(true)
     setError(null)
-    
-    const { error } = await supabase.auth.signInWithOAuth({ provider })
-    
-    if (error) {
-      setError(error.message)
-    }
+
+    // First check if the user is already signed in
+    const { data: session } = await supabase.auth.getSession();
+
+    // if (session) {
+    //   router.replace('/home/user');
+    // } else {
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback` // Ensure they return to the app after login
+        }
+      });
+      
+      if (error) {
+        setError(error.message)
+      }
+      
+    // }
     
     setLoading(false)
   }
@@ -69,7 +85,8 @@ export default function LoginComponent() {
   }
 
   return (
-    <Card className="w-[350px]">
+    <div className='flex justify-center mt-[120px]'>
+      <Card className="w-[350px]">
       <CardHeader>
         <CardTitle>Login</CardTitle>
         <CardDescription>Sign in to your account</CardDescription>
@@ -120,5 +137,7 @@ export default function LoginComponent() {
         )}
       </CardContent>
     </Card>
+    </div>
+    
   )
 }
