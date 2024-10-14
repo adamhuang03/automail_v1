@@ -50,7 +50,7 @@ export default function RegistrationPage() {
     setName('')
     setUsername('')
     setRole('')
-    router.push('/home/user')
+    router.push('/home')
   }
 
   useEffect(() => {
