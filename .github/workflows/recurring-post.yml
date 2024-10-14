@@ -1,0 +1,15 @@
+name: Schedule Multiple POST Requests
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # Every 5 mins is the smallest interval
+
+jobs:
+  send_requests:
+    runs-on: ubuntu-latest
+    steps:
+    # First POST request
+    - name: Execute Email
+      run: |
+        curl -X POST https://automail-v1.vercel.app/api/send-scheduled-emails/ \
+        -H "Content-Type: application/json"
