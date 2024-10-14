@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { supabase } from '@/lib/db/supabase'
 import { Session, User } from '@supabase/supabase-js';
+import { getCookie } from '@/utils/getCookie'
 
 export default function RegistrationPage() {
   const [name, setName] = useState('')
@@ -65,6 +66,16 @@ export default function RegistrationPage() {
       } else {
         console.log(data)
         setRolePreList(data);
+      }
+
+      const accessToken: string | null = getCookie('sb-access-token');
+      const refreshToken: string | null = getCookie('sb-refresh-token');
+
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+            access_token: accessToken ,
+            refresh_token: refreshToken
+          });
       }
 
       const { data: { session } } = await supabase.auth.getSession();
