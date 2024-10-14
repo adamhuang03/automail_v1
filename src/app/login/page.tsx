@@ -56,7 +56,7 @@ export default function LoginComponent() {
         console.log('Session has expired, please log in again.');
       } else {
         console.log(session.user.id)
-        router.push('/home/user');
+        router.push('/home');
       }
     } else {
       const { error } = await supabase.auth.signInWithOAuth({
