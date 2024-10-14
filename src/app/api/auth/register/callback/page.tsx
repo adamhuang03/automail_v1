@@ -2,7 +2,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // New import for Next.js 13
 import { supabase } from '@/lib/db/supabase';
-import Cookies from 'js-cookie'; // Use js-cookie to manage client-side cookies
 
 export default function AuthCallback() {
   const router = useRouter(); // The updated hook for navigation
@@ -27,19 +26,8 @@ export default function AuthCallback() {
         //   refresh_token: refreshToken
         // });
 
-        Cookies.set('sb-access-token', accessToken, {
-          httpOnly: false, // Can't set httpOnly in client-side cookies
-          secure: true,
-          path: '/',
-          sameSite: 'lax',
-        });
-
-        Cookies.set('sb-refresh-token', refreshToken, {
-          httpOnly: false, // Can't set httpOnly in client-side cookies
-          secure: true,
-          path: '/',
-          sameSite: 'lax',
-        });
+        document.cookie = `sb-access-token=${accessToken}; path=/; secure; samesite=lax`;
+        document.cookie = `sb-refresh-token=${refreshToken}; path=/; secure; samesite=lax`;
 
         router.replace('/onboard');
       } else {
