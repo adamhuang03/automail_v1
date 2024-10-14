@@ -17,7 +17,7 @@ export default function AuthCallback() {
     (async () => {
       let retries = 3; // Try up to 3 times
       let session = null;
-const accessToken = params.get('access_token');
+    const accessToken = params.get('access_token');
     const refreshToken = params.get('refresh_token');
       while (retries > 0 && session === null) {
         const { data } = await supabase.auth.getSession();

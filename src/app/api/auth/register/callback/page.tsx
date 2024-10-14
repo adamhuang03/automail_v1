@@ -10,10 +10,13 @@ export default function AuthCallback() {
     // Parse the URL hash for the access token, refresh token, etc.
     const hash = window.location.hash;
     const params = new URLSearchParams(hash.substring(1));
+    
     window.history.replaceState({}, document.title, window.location.pathname);
 
     const accessToken = params.get('access_token');
     const refreshToken = params.get('refresh_token');
+
+    console.log(params);
 
     (async () => {
       let retries = 3; // Try up to 3 times
@@ -39,7 +42,7 @@ export default function AuthCallback() {
             // localStorage.setItem('refreshToken', refreshToken);
       
             // Redirect to the final destination (e.g., dashboard)
-            router.replace('/onboard');
+            // router.replace('/onboard');
           }
 
         }
@@ -50,7 +53,7 @@ export default function AuthCallback() {
 
       if (!session) {
         console.error('Session not found. Please log in again.');
-        router.replace('/login'); // Redirect if no session is found
+        // router.replace('/login'); // Redirect if no session is found
       }
     })();
     
