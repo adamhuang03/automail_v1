@@ -21,18 +21,17 @@ export default function AuthCallback() {
     (async () => {
       
       if (accessToken && refreshToken) {
-        // const { error } = await supabase.auth.setSession({
-        //   access_token: accessToken ,
-        //   refresh_token: refreshToken
-        // });
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken ,
+          refresh_token: refreshToken
+        });
 
         document.cookie = `sb-access-token=${accessToken}; path=/; secure; samesite=lax`;
         document.cookie = `sb-refresh-token=${refreshToken}; path=/; secure; samesite=lax`;
 
         router.replace('/onboard');
       } else {
-        console.log('na')
-        // router.replace('/login');
+        router.replace('/login');
       }
     })();
   }, [router]);

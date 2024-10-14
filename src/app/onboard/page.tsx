@@ -27,7 +27,12 @@ export default function RegistrationPage() {
     if (/\s/.test(username)) {
       alert("Username should not contain spaces.");
       return; // Prevent form submission if spaces are found
-    }
+    } 
+
+    if (!name || !username || !role) {
+      alert("Please fill all blanks before proceeding.");
+      return; // Prevent form submission if spaces are found
+    } 
 
     // Here you would typically send the data to your backend
     const { error } = await supabase.from('user_profile').insert([
@@ -68,15 +73,15 @@ export default function RegistrationPage() {
         setRolePreList(data);
       }
 
-      const accessToken: string | null = getCookie('sb-access-token');
-      const refreshToken: string | null = getCookie('sb-refresh-token');
+      // const accessToken: string | null = getCookie('sb-access-token');
+      // const refreshToken: string | null = getCookie('sb-refresh-token');
 
-      if (accessToken && refreshToken) {
-        const { error } = await supabase.auth.setSession({
-            access_token: accessToken ,
-            refresh_token: refreshToken
-          });
-      }
+      // if (accessToken && refreshToken) {
+      //   const { error } = await supabase.auth.setSession({
+      //       access_token: accessToken ,
+      //       refresh_token: refreshToken
+      //     });
+      // }
 
       const { data: { session } } = await supabase.auth.getSession();
       console.log(session)
