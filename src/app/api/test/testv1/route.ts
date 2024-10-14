@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  const accessToken = 'ya29.a0AcM612x74X2CiPgSUKpj5v7uaj9OuK6A3wMHWTDUMiK5bYhGSMV3hFEIBTAq0C8AEQ33tXyeU61UXMb9SXLJjksVY8dCODJwpjm3tZS14km3LASEtAO8DRx0rzE7sdvQdtd98g8vdFCcXChImejM9wEgL7Rm9aMLwocwV614aCgYKAVMSARMSFQHGX2MiNsDyWB0RKTl8kDYJXQNCyQ0175';
+  const accessToken = '';
 
   try {
     const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${accessToken}`);

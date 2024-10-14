@@ -24,7 +24,7 @@ const refreshAccessToken = async (refreshToken: string) => {
 
 export async function POST() {
   const newToken = await refreshAccessToken(
-    '1//01bzadh5uxzp4CgYIARAAGAESNwF-L9Ir9M9G8Tg3tJ4pGzHaD1DjIBBm02fW2G_aI88i0LgYDL8Dnt5r9yb5WTLZKsmwuKQJHks'
+    ''
   )
   return NextResponse.json({ message: `${newToken}`}, { status: 200 });
 }

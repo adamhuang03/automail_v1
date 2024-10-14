@@ -20,7 +20,7 @@ export async function POST() {
     
     // Set the access token (this would usually come from your Supabase or session)
     oAuth2Client.setCredentials({
-      access_token: 'ya29.a0AcM612x74X2CiPgSUKpj5v7uaj9OuK6A3wMHWTDUMiK5bYhGSMV3hFEIBTAq0C8AEQ33tXyeU61UXMb9SXLJjksVY8dCODJwpjm3tZS14km3LASEtAO8DRx0rzE7sdvQdtd98g8vdFCcXChImejM9wEgL7Rm9aMLwocwV614aCgYKAVMSARMSFQHGX2MiNsDyWB0RKTl8kDYJXQNCyQ0175',
+      access_token: '',
     });
 
     const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
