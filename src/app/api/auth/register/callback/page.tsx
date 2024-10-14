@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // New import for Next.js 13
 import { supabase } from '@/lib/db/supabase';
-import { cookies } from 'next/headers'; // Import cookies utility
+import Cookies from 'js-cookie'; // Use js-cookie to manage client-side cookies
 
 export default function AuthCallback() {
   const router = useRouter(); // The updated hook for navigation
@@ -22,26 +22,26 @@ export default function AuthCallback() {
     (async () => {
       
       if (accessToken && refreshToken) {
-        const { error } = await supabase.auth.setSession({
-          access_token: accessToken ,
-          refresh_token: refreshToken
-        });
+        // const { error } = await supabase.auth.setSession({
+        //   access_token: accessToken ,
+        //   refresh_token: refreshToken
+        // });
 
-        cookies().set('sb-access-token', accessToken, {
-          httpOnly: true,
-          secure: true,
-          path: '/',
-          sameSite: 'lax',
-        });
-      
-        cookies().set('sb-refresh-token', refreshToken, {
-          httpOnly: true,
+        Cookies.set('sb-access-token', accessToken, {
+          httpOnly: false, // Can't set httpOnly in client-side cookies
           secure: true,
           path: '/',
           sameSite: 'lax',
         });
 
-        // router.replace('/onboard');
+        Cookies.set('sb-refresh-token', refreshToken, {
+          httpOnly: false, // Can't set httpOnly in client-side cookies
+          secure: true,
+          path: '/',
+          sameSite: 'lax',
+        });
+
+        router.replace('/onboard');
       } else {
         console.log('na')
         // router.replace('/login');
