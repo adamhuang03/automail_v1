@@ -68,8 +68,8 @@ export default function LoginComponent() {
             prompt: 'consent',
           },
           redirectTo: loginBool 
-            ? `${window.location.origin}/auth/login/callback`  // Redirect for login
-            : `${window.location.origin}/api/auth/callback/register`  // Redirect for sign up
+            ? `${window.location.origin}/api/auth/login/callback`  // Redirect for login
+            : `${window.location.origin}/api/auth/register/callback`  // Redirect for sign up
         }
       });
     
