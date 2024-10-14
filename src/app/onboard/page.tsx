@@ -49,7 +49,7 @@ export default function RegistrationPage() {
     if (error) {
       console.error('Error:', error)
     } else {
-      console.log('Submitted:', { username, name, role })
+      // console.log('Submitted:', { username, name, role })
     }
 
     // Reset form fields after submission
@@ -69,7 +69,7 @@ export default function RegistrationPage() {
       if (error) {
         console.error(error)
       } else {
-        console.log(data)
+        // console.log(data)
         setRolePreList(data);
       }
 
@@ -84,7 +84,7 @@ export default function RegistrationPage() {
       }
 
       const { data: { session } } = await supabase.auth.getSession();
-      console.log(session)
+      // console.log(session)
       if (session) {
         setUser(session.user)
         setName(session.user?.user_metadata?.full_name)

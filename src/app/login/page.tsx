@@ -49,13 +49,13 @@ export default function LoginComponent() {
       const accessToken = session.access_token;
       const expiresAt = session.expires_at || 0 // Expiration time (in UNIX timestamp)
       
-      console.log('Access token will expire at:', new Date(expiresAt * 1000)); // Convert UNIX timestamp to readable date
-      console.log('Expires in:', session.expires_in, 'seconds'); // Time left before expiration
+      // console.log('Access token will expire at:', new Date(expiresAt * 1000)); // Convert UNIX timestamp to readable date
+      // console.log('Expires in:', session.expires_in, 'seconds'); // Time left before expiration
     
       if (Date.now() >= expiresAt * 1000) {
         console.log('Session has expired, please log in again.');
       } else {
-        console.log(session.user.id)
+        // console.log(session.user.id)
         router.push('/home');
       }
     } else {

@@ -18,7 +18,7 @@ export default function AuthCallback() {
     const providerRefreshToken = params.get('provider_refresh_token');
     const providerToken = params.get('provider_token');
 
-    console.log(params);
+    // console.log(params);
 
     (async () => {
       

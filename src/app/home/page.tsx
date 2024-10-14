@@ -78,7 +78,7 @@ export default function ColdOutreachUI() {
     }])
 
     if (!error) {
-      console.log("Template saved:", { subject: emailSubject, body: emailTemplate })
+      // console.log("Template saved:", { subject: emailSubject, body: emailTemplate })
     } else {
       alert("Issue with saving template, please try again later.")
     }
@@ -180,7 +180,7 @@ export default function ColdOutreachUI() {
       let prospects = firmGroup.prospects
       prospects.forEach(prospect => {
         if (firmEmails && user) {
-          const draft = generateDraft(prospect, firmEmails[firmGroup.firm][0])
+          const draft = generateDraft(prospect, firmGroup.firm)
           data.push({
             status: "Scheduled",
             user_profile_id: user.id,
@@ -195,7 +195,7 @@ export default function ColdOutreachUI() {
         }
       })
     })
-    console.log("Creating drafts for:", data)
+    // console.log("Creating drafts for:", data)
     const { error } = await supabase.from('outreach').insert(data)
     if (error) {
       console.error(error)
@@ -214,8 +214,10 @@ export default function ColdOutreachUI() {
 
     if (error) {
       console.error('Error logging out:', error.message);
+
     } else {
-      console.log('Logged out successfully!');
+      // console.log('Logged out successfully!');
+
       // Redirect or update UI
       router.push('/login'); // Redirect to the login page after logout
     }
@@ -226,7 +228,7 @@ export default function ColdOutreachUI() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session) {
-        console.log(session.user)
+        // console.log(session.user)
         setUser(session.user)  
       }
 
@@ -260,7 +262,7 @@ export default function ColdOutreachUI() {
       //     user_profile!user_profile_id (provider_token, provider_refresh_token)
       // `)
       // .eq('status', 'Scheduled')
-      console.log(new Date().toISOString().slice(0, 16))
+      // console.log(new Date().toISOString().slice(0, 16))
     })();
 
   }, [])
