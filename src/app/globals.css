@@ -2,8 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+/* body {
   font-family: Arial, Helvetica, sans-serif;
+} */
+
+html, body {
+  font-family: 'Open Sans', sans-serif; /* Use the Google Font */
 }
 
 @layer utilities {
