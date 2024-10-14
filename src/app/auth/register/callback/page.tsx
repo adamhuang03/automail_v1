@@ -22,6 +22,7 @@ export default function AuthCallback() {
       while (retries > 0 && session === null) {
         const { data } = await supabase.auth.getSession();
         session = data.session;
+        console.log(data)
 
         if (session) {
 
