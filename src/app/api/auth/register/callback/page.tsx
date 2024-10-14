@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // New import for Next.js 13
 import { supabase } from '@/lib/db/supabase';
+import { cookies } from 'next/headers'; // Import cookies utility
 
 export default function AuthCallback() {
   const router = useRouter(); // The updated hook for navigation
@@ -19,56 +20,33 @@ export default function AuthCallback() {
     console.log(params);
 
     (async () => {
-      let retries = 3; // Try up to 3 times
-      let session = null;
-
-      while (retries > 0 && session === null) {
-        const { data } = await supabase.auth.getSession();
-        session = data.session;
-        console.log(data)
-
-        if (session) {
-
-          if (accessToken && refreshToken) {
-            // Store tokens in cookies or localStorage (based on your app's needs)
-            document.cookie = `accessToken=${accessToken}; path=/; Secure; HttpOnly;`;
-            document.cookie = `refreshToken=${refreshToken}; path=/; Secure; HttpOnly;`;
-            
-            document.cookie = `accessTokenProvider=${session.provider_token}; Secure; HttpOnly; SameSite=Strict;`;
-            document.cookie = `refreshTokenProvider=${session.provider_refresh_token}; Secure; HttpOnly; SameSite=Strict;`;
       
-            // Optionally, store in localStorage instead
-            // localStorage.setItem('accessToken', accessToken);
-            // localStorage.setItem('refreshToken', refreshToken);
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken ,
+          refresh_token: refreshToken
+        });
+
+        cookies().set('sb-access-token', accessToken, {
+          httpOnly: true,
+          secure: true,
+          path: '/',
+          sameSite: 'lax',
+        });
       
-            // Redirect to the final destination (e.g., dashboard)
-            // router.replace('/onboard');
-          }
+        cookies().set('sb-refresh-token', refreshToken, {
+          httpOnly: true,
+          secure: true,
+          path: '/',
+          sameSite: 'lax',
+        });
 
-        }
-
-        retries -= 1;
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retrying
-      }
-
-      if (!session) {
-        console.error('Session not found. Please log in again.');
-        // router.replace('/login'); // Redirect if no session is found
+        // router.replace('/onboard');
+      } else {
+        console.log('na')
+        // router.replace('/login');
       }
     })();
-    
-    // if (accessToken && refreshToken) {
-    //   // Store tokens in cookies or localStorage (based on your app's needs)
-    //   document.cookie = `accessToken=${accessToken}; path=/; Secure; HttpOnly;`;
-    //   document.cookie = `refreshToken=${refreshToken}; path=/; Secure; HttpOnly;`;
-
-    //   // Optionally, store in localStorage instead
-    //   // localStorage.setItem('accessToken', accessToken);
-    //   // localStorage.setItem('refreshToken', refreshToken);
-
-    //   // Redirect to the final destination (e.g., dashboard)
-    //   router.replace('/onboard');
-    // }
   }, [router]);
 
   return <div>Loading...</div>; // Show a loading state while processing the tokens
