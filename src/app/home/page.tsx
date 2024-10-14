@@ -203,9 +203,9 @@ export default function ColdOutreachUI() {
     window.location.reload()
   }
 
-  const generateDraft = (prospect: Prospect, firm: string) => {
-    let subject = emailSubject.replace('[NAME]', prospect.name).replace('[FIRM_NAME]', firm)
-    let body = emailTemplate.replace('[NAME]', prospect.name).replace('[FIRM_NAME]', firm)
+  const generateDraft = (prospect: Prospect, firm: string) => { // First name only
+    let subject = emailSubject.replace('[NAME]', prospect.name.split(' ')[0]).replace('[FIRM_NAME]', firm)
+    let body = emailTemplate.replace('[NAME]', prospect.name.split(' ')[0]).replace('[FIRM_NAME]', firm)
     return { subject, body }
   }
 
