@@ -15,6 +15,8 @@ export default function AuthCallback() {
 
     const accessToken = params.get('access_token');
     const refreshToken = params.get('refresh_token');
+    const providerRefreshToken = params.get('provider_refresh_token');
+    const providerToken = params.get('provider_token');
 
     console.log(params);
 
@@ -28,13 +30,15 @@ export default function AuthCallback() {
 
         document.cookie = `sb-access-token=${accessToken}; path=/; secure; samesite=lax`;
         document.cookie = `sb-refresh-token=${refreshToken}; path=/; secure; samesite=lax`;
+        document.cookie = `sb-provider-refresh-token=${providerRefreshToken}; path=/; secure; samesite=lax`;
+        document.cookie = `sb-provider-token=${providerToken}; path=/; secure; samesite=lax`;
 
         const { data } = await supabase.auth.getSession();
         const session = data.session;
 
         if (session) {
           const { error } = await supabase.from('user_profile')
-          .update({ provider_token: session.provider_token, provider_refresh_token: session.provider_refresh_token})
+          .update({ provider_token: , providerToken: providerRefreshToken})
           .eq('id', session.user.id);
         }
 
