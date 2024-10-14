@@ -11,5 +11,5 @@ jobs:
     # First POST request
     - name: Execute Email
       run: |
-        curl -X POST https://automail-v1.vercel.app/api/send-scheduled-emails/ \
+        curl -X POST https://automail-v1.vercel.app/api/send-scheduled-emails \
         -H "Content-Type: application/json"
