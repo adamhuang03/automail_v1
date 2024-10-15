@@ -70,7 +70,6 @@ export default function ColdOutreachUI() {
 
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
-  const [errorCount, setErrorCount] = useState(0);
 
   const saveTemplate = async () => {
     const { error } = await supabase.from('composed').upsert([{
@@ -177,6 +176,7 @@ export default function ColdOutreachUI() {
       email_generated: string,
       scheduled_datetime_utc: string
     }[] = [];
+    let localErrorCount = 0;
 
     firmGroups.forEach(firmGroup => {
       let prospects = firmGroup.prospects
@@ -184,11 +184,11 @@ export default function ColdOutreachUI() {
         const [firstName, lastName] = prospect.name.split(' ')
         console.log(firstName, lastName)
         if (firstName === undefined || lastName === undefined) {
-          setErrorCount((prev) => prev + 1)
+          localErrorCount++
         } 
       })
     })
-    if (errorCount > 0) {
+    if (localErrorCount > 0) {
       alert('Ensure name includes both first and last name.')
       return
     }
