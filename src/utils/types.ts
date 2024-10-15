@@ -27,13 +27,27 @@ export type Composed = {
     created_at: string
   }
 
-export type Outreach = {
+export type OutreachUser = {
     id: string
     status: string
     user_profile: {
       provider_token: string
       provider_refresh_token: string
     }
+    user_profile_id: string
+    to_name: string
+    to_email: string
+    to_firm: string
+    firm_email_id: number
+    subject_generated: string
+    email_generated: string
+    scheduled_datetime_utc: string
+    created_at: string
+  }
+
+export type Outreach = {
+    id: string
+    status: string
     user_profile_id: string
     to_name: string
     to_email: string

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon } from 'lucide-react'
+import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon, InboxIcon } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -12,9 +12,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 import { supabase } from '@/lib/db/supabase'
 import { User } from '@supabase/supabase-js'
-import { Composed, Outreach } from '@/utils/types'
+import { Composed, OutreachUser } from '@/utils/types'
 import { useRouter } from 'next/navigation'
 import { sendEmail } from '@/utils/sendGmail'
+import { ManagePage } from './managePage'
 
 // const firmEmails: { [key: string]: string } = {
 //   "TD Securities": "tdsecurities.com",
@@ -200,7 +201,7 @@ export default function ColdOutreachUI() {
     if (error) {
       console.error(error)
     }
-    window.location.reload()
+    setActiveTab('manage')
   }
 
   const generateDraft = (prospect: Prospect, firm: string) => { // First name only
@@ -285,7 +286,7 @@ export default function ColdOutreachUI() {
         .select('*')
         .filter('user_profile_id', 'eq', user?.id)
 
-        if (data) {
+        if (data && Object.keys(data).length > 0) {
           setEmailSubject(data[0].subject)
           setEmailTemplate(data[0].composed_template)
         } else {
@@ -324,6 +325,14 @@ export default function ColdOutreachUI() {
           >
             <Mail className="mr-2 h-4 w-4" />
             Outreach
+          </Button>
+          <Button
+            variant={activeTab === 'manage' ? 'outline' : 'ghost'}
+            className="w-full justify-start mb-2"
+            onClick={() => setActiveTab('manage')}
+          >
+            <InboxIcon className="mr-2 h-4 w-4" />
+            Manage
           </Button>
           <Button
             variant={activeTab === 'settings' ? 'outline' : 'ghost'}
@@ -521,6 +530,7 @@ export default function ColdOutreachUI() {
             </div>
           )}
           {activeTab === 'settings' && <div>Settings page goes here</div>}
+          {activeTab === 'manage' && <ManagePage />}
         </main>
       </div>
     </div>

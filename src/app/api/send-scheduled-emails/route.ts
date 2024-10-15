@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { supabase } from '@/lib/db/supabase';
-import { Outreach } from '@/utils/types';
+import { OutreachUser } from '@/utils/types';
 
 const sendEmail = async (oAuth2Client: any, to: string, subject: string, message: string) => {
   const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
@@ -48,7 +48,7 @@ export async function POST() {
   const currentTime = new Date().toISOString().slice(0, 16);
 
   // Fetch scheduled emails
-  const { data: emails, error }: { data: Outreach[] | null; error: any } = await supabase
+  const { data: emails, error }: { data: OutreachUser[] | null; error: any } = await supabase
     .from('outreach')
     .select(`
         *,
