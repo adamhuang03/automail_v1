@@ -70,6 +70,7 @@ export default function ColdOutreachUI() {
 
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
+  const [errorCount, setErrorCount] = useState(0);
 
   const saveTemplate = async () => {
     const { error } = await supabase.from('composed').upsert([{
@@ -176,6 +177,21 @@ export default function ColdOutreachUI() {
       email_generated: string,
       scheduled_datetime_utc: string
     }[] = [];
+
+    firmGroups.forEach(firmGroup => {
+      let prospects = firmGroup.prospects
+      prospects.forEach(prospect => {
+        const [firstName, lastName] = prospect.name.split(' ')
+        console.log(firstName, lastName)
+        if (firstName === undefined || lastName === undefined) {
+          setErrorCount((prev) => prev + 1)
+        } 
+      })
+    })
+    if (errorCount > 0) {
+      alert('Ensure name includes both first and last name.')
+      return
+    }
 
     firmGroups.forEach(firmGroup => {
       let prospects = firmGroup.prospects
@@ -403,7 +419,8 @@ export default function ColdOutreachUI() {
           )}
           {activeTab === 'outreach' && (
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-lg font-semibold mb-4">Outreach Campaign</h2>
+              <h2 className="text-xl font-semibold mb-2">Outreach Campaign</h2>
+              <p className="text-sm text-gray-400 mb-8 italic">Note: Custom emails can be edited on the "Manage" tab after scheduling</p>
               <div className="space-y-8">
                 {firmGroups.map((firmGroup, firmIndex) => (
                   <div key={firmIndex} className="border p-4 rounded-lg">
