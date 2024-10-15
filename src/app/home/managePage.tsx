@@ -74,7 +74,7 @@ export function ManagePage () {
   const handleDeleteDraft = async(id: string) => {
     const { error } = await supabase
     .from('outreach')
-    .delete()
+    .update({status: 'Deleted'})
     .eq('id', id);
     setDraftedEmails((prevRows) => prevRows.filter(row => row.id !== id));
   }
