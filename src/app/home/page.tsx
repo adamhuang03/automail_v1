@@ -182,7 +182,7 @@ export default function ColdOutreachUI() {
       let prospects = firmGroup.prospects
       prospects.forEach(prospect => {
         const [firstName, lastName] = prospect.name.split(' ')
-        console.log(firstName, lastName)
+        // console.log(firstName, lastName)
         if (firstName === undefined || lastName === undefined) {
           localErrorCount++
         } 
@@ -537,7 +537,7 @@ export default function ColdOutreachUI() {
                     </Button> */}
                     <Button onClick={createDrafts}>
                       <Mail className="mr-2 h-4 w-4" />
-                      Schedule Drafts
+                      Schedule Emails
                     </Button>
                   </div>
                   }
@@ -546,7 +546,7 @@ export default function ColdOutreachUI() {
               </div>
             </div>
           )}
-          {activeTab === 'settings' && <div>Settings page goes here</div>}
+          {activeTab === 'settings' && <div>Settings page coming soon!</div>}
           {activeTab === 'manage' && <ManagePage />}
         </main>
       </div>
