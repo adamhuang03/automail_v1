@@ -229,7 +229,17 @@ export default function ColdOutreachUI() {
       
       if (session) {
         // console.log(session.user)
-        setUser(session.user)  
+        const { data, error } = await supabase.from('user_profile')
+        .select('*')
+        .eq('id', session.user.id)
+
+        if (data && data.length > 0) {
+          setUser(session.user)
+        } else {
+          router.push('/onboard')
+        }
+      } else {
+        router.push('/login')
       }
 
       const { data, error } = await supabase.from('firm_email')
@@ -275,9 +285,12 @@ export default function ColdOutreachUI() {
         .select('*')
         .filter('user_profile_id', 'eq', user?.id)
 
-        if (data !== null) {
+        if (data) {
           setEmailSubject(data[0].subject)
           setEmailTemplate(data[0].composed_template)
+        } else {
+          setEmailSubject('')
+          setEmailTemplate('')
         }
       }
 
