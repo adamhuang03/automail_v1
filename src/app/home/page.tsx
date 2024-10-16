@@ -373,7 +373,7 @@ export default function ColdOutreachUI() {
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 p-4">
-          <h1 className="text-2xl font-bold">Coffee Chat Outreach</h1>
+          <h1 className="text-2xl font-bold">Automail-v1</h1>
         </header>
 
         {/* Content Area */}
