@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { supabase } from '@/lib/db/supabase';
 import { OutreachUser } from '@/utils/types';
+// import axios from 'axios';
 
 const sendEmail = async (oAuth2Client: any, to: string, subject: string, message: string) => {
   const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
@@ -24,6 +25,66 @@ const sendEmail = async (oAuth2Client: any, to: string, subject: string, message
     throw new Error(`Error sending email: ${error}`);
   }
 };
+
+const sendEmailWithPdfFromUrl = async (
+  oAuth2Client: any,
+  to: string,
+  subject: string,
+  message: string,
+  pdfUrl: string
+) => {
+  const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+
+  try {
+    // Download the PDF from the URL
+    const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
+    const pdfContent = Buffer.from(response.data).toString('base64');
+    const fileName = 'attachment.pdf'; // You can also derive this from the URL if needed
+
+    // Construct the raw email message with attachment
+    const rawMessage = [
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      'MIME-Version: 1.0',
+      'Content-Type: multipart/mixed; boundary="boundary_example"',
+      '',
+      '--boundary_example',
+      'Content-Type: text/plain; charset="UTF-8"',
+      'Content-Transfer-Encoding: 7bit',
+      '',
+      message, // Email message body
+      '',
+      '--boundary_example',
+      `Content-Type: application/pdf; name="${fileName}"`,
+      'Content-Transfer-Encoding: base64',
+      `Content-Disposition: attachment; filename="${fileName}"`,
+      '',
+      pdfContent, // Base64 encoded PDF content
+      '',
+      '--boundary_example--',
+    ].join('\r\n');
+
+    // Base64 encode the raw message and format it
+    const encodedMessage = Buffer.from(rawMessage)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+
+    // Send the email
+    const result = await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedMessage,
+      },
+    });
+
+    return result.data;
+  } catch (error) {
+    throw new Error(`Error sending email: ${error}`);
+  }
+};
+
 
 const refreshAccessToken = async (refreshToken: string) => {
   const oAuth2Client = new google.auth.OAuth2(

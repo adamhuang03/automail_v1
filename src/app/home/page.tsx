@@ -67,6 +67,7 @@ export default function ColdOutreachUI() {
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
   const [firms, setFirms] = useState<string[] | null>(null)
   const [firmEmails, setFirmEmails] = useState<Record<string, [string, string]> | null>(null)
+  const [addTempMap, setAddTempMap] = useState<{ [id: number]: string }>({});
 
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
@@ -85,8 +86,21 @@ export default function ColdOutreachUI() {
     }
   }
 
+  const utcToLocal = (datetime: string) => {
+    const utcTime = new Date(datetime); // Your original UTC time
+    const localTime = new Date(utcTime.getTime() - utcTime.getTimezoneOffset() * 60000);
+    return localTime.toISOString().slice(0, 16)
+  }
+
   const addFirm = () => {
-    setFirmGroups([...firmGroups, { firm: '', prospects: [{ name: '', email: '', scheduledTime: {utcTime: '', localTime: ''} }] }])
+    const currentDate = utcToLocal(new Date().toISOString())
+    const updatedFirmGroups = [...firmGroups, { firm: '', prospects: [{ name: '', email: '', scheduledTime: {utcTime: '', localTime: currentDate} }] }]
+    setFirmGroups(updatedFirmGroups)
+    const newFirmIndex = updatedFirmGroups.length - 1;
+    setAddTempMap((prev) => ({
+      ...prev,
+      [newFirmIndex]: "1",
+    }))
   }
 
   const removeFirm = (firmIndex: number) => {
@@ -95,8 +109,9 @@ export default function ColdOutreachUI() {
   }
 
   const addProspect = (firmIndex: number) => {
+    const currentDate = utcToLocal(new Date().toISOString())
     const updatedFirmGroups = [...firmGroups]
-    updatedFirmGroups[firmIndex].prospects.push({ name: '', email: '', scheduledTime: {utcTime: '', localTime: ''} })
+    updatedFirmGroups[firmIndex].prospects.push({ name: '', email: '', scheduledTime: {utcTime: '', localTime: currentDate} })
     setFirmGroups(updatedFirmGroups)
   }
 
@@ -135,7 +150,10 @@ export default function ColdOutreachUI() {
         currentProspect.email = ''
       }
 
-    } else if (field === 'scheduledTime' && currentFirmGroup.firm) {
+    } 
+    console.log('here')
+    if (field === 'scheduledTime' && currentFirmGroup.firm) {
+      console.log('here')
     
       const localDate = new Date(value); // Creates a Date object in local time
       const isoString = localDate.toISOString();
@@ -408,10 +426,10 @@ export default function ColdOutreachUI() {
                 <div className="flex justify-between items-center">
                   <div className="flex space-x-2">
                     <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
-                    <Button variant="outline">
+                    {/* <Button variant="outline">
                       <Paperclip className="mr-2 h-4 w-4" />
                       Attach Resume
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               </div>
@@ -452,7 +470,8 @@ export default function ColdOutreachUI() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {firmGroup.prospects.map((prospect, prospectIndex) => (
+                        {firmGroup.prospects.map((prospect, prospectIndex) => {
+                          return (
                           <TableRow key={prospectIndex}>
                             <TableCell>
                               <Input
@@ -468,6 +487,7 @@ export default function ColdOutreachUI() {
                               <Input
                                 type="datetime-local"
                                 value={prospect.scheduledTime.localTime}
+                                disabled={firmGroup.firm === ""}
                                 onChange={(e) => {updateProspect(firmIndex, prospectIndex, 'scheduledTime', e.target.value)}}
                               />
                             </TableCell>
@@ -505,14 +525,32 @@ export default function ColdOutreachUI() {
                               </div>
                             </TableCell>
                           </TableRow>
-                        ))}
+                        )}
+                      )}
                       </TableBody>
                     </Table>
                     <div className="flex justify-between items-center mt-4">
-                      <Button onClick={() => addProspect(firmIndex)}>
-                        <UserPlus className="mr-2 h-4 w-4" />
-                        Add Person
-                      </Button>
+                      <div className='flex'>
+                        <Button onClick={() => {
+                            if (isNaN(Number(addTempMap[firmIndex]))) {
+                              alert("Only numbers are permitted.")
+                            } else {
+                              for (let i = 0; i < Number(addTempMap[firmIndex]); i++) {
+                                addProspect(firmIndex)
+                              }
+                              addTempMap[firmIndex] = "1"
+                            } 
+                          }}>
+                          <UserPlus className="mr-2 h-4 w-4" />
+                          Add Person
+                        </Button>
+                        <Input 
+                          className='ml-4 w-[75px]'
+                          value={addTempMap[firmIndex]}
+                          onChange={(e) => setAddTempMap((prev) => ({...prev, [firmIndex]: e.target.value}))}
+                        />
+
+                      </div>
                       <Button
                         variant="ghost"
                         size="icon"
