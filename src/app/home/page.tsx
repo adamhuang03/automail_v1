@@ -1,10 +1,10 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon, InboxIcon } from 'lucide-react'
+import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon, InboxIcon, EyeIcon } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -16,6 +16,8 @@ import { Composed, OutreachUser } from '@/utils/types'
 import { useRouter } from 'next/navigation'
 import { sendEmail } from '@/utils/sendGmail'
 import { ManagePage } from './managePage'
+import { getFileUrl } from '@/utils/getFile'
+import { v4 as uuidv4 } from 'uuid';
 
 // const firmEmails: { [key: string]: string } = {
 //   "TD Securities": "tdsecurities.com",
@@ -71,6 +73,8 @@ export default function ColdOutreachUI() {
 
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const saveTemplate = async () => {
     const { error } = await supabase.from('composed').upsert([{
@@ -259,9 +263,40 @@ export default function ColdOutreachUI() {
   }
 
   const handleAddResume = async() => {
-    // const { data, error } = await supabase.storage
-    //   .from('resume_link')  // Replace with your actual bucket name
-    //   .upload(filePath, file);
+    setUploading(true)
+
+    const fileExt = file?.name.split('.').pop();
+    const fileName = `${uuidv4()}.${fileExt}`; // Generating a random file name
+    const filePath = `resume/${fileName}`;
+
+    if (file) {
+      const { data, error } = await supabase.storage
+        .from('resume_link')  // Replace with your actual bucket name
+        .upload(filePath, file);
+
+      if (error) {
+        setUploading(false)
+        console.log(error)
+        alert("Code F1: File upload error. Please try again later.")
+        return;
+      } else {
+        const publicUrl = await getFileUrl(filePath, "resume_link")
+
+        const { error } = await supabase.from('composed').upsert([{
+          user_profile_id: user?.id,
+          resume_link_filepath: filePath,
+          resume_link: publicUrl
+        }])
+
+        if (error) {
+          setUploading(false)
+          alert("Code F2: File upload error. Please try again later.")
+          return;
+        }
+      }
+      
+    }
+    setUploading(false)
   }
 
   useEffect(() => {
@@ -429,14 +464,26 @@ export default function ColdOutreachUI() {
                     onChange={(e) => setEmailTemplate(e.target.value)}
                   />
                 </div>
-                <div className="flex justify-between items-center">
-                  <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
-                  <div className="flex space-x-2">
-                    <Input type='file' />
-                    <Button variant="outline">
-                      <Paperclip className="mr-2 h-4 w-4" />
-                      Attach Resume
-                    </Button>
+                <div className="flex justify-between items-start">
+                  <div className="flex">
+                    <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
+                  </div>
+                  <div className="flex flex-col">
+                    <Input 
+                      type='file' 
+                      accept='application/pdf'
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    />
+                    <div className="flex flex-grow mt-2 gap-2 justify-end">
+                      {/* <Button variant="outline" disabled={true}>
+                        <EyeIcon className="mr-2 h-4 w-4" />
+                        View Resume
+                      </Button> */}
+                      <Button variant="outline" onClick={handleAddResume} disabled={!file}>
+                        <Paperclip className="mr-2 h-4 w-4" />
+                        {uploading ? 'Attaching...' : 'Attach Resume '}
+                      </Button>
+                    </div>                    
                   </div>
                 </div>
               </div>
