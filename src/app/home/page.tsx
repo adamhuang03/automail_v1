@@ -266,28 +266,38 @@ export default function ColdOutreachUI() {
   const handleAddResume = async() => {
     setUploading(true)
 
-    // const { data, error } = await supabase
-    //   .storage
-    //   .from('avatars')
-    //   .update('public/avatar1.png', avatarFile, {
-    //     cacheControl: '3600',
-    //     upsert: true
-    //   })
-
     const fileExt = file?.name.split('.').pop();
     const fileName = `${uuidv4()}.${fileExt}`; // Generating a random file name
     const filePath = `resume/${fileName}`;
 
-    if (file) {
+    if (file && resumeFilePath) {
+      const { data, error } = await supabase
+        .storage
+        .from('resume_link')
+        .update(resumeFilePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      if (error) {
+        setUploading(false)
+        setFile(null)
+        alert("Code F3: File replace error. Please try again later.")
+        return;
+      }
+    }
+
+    if (file && !resumeFilePath) {
       const { data, error } = await supabase.storage
         .from('resume_link')  // Replace with your actual bucket name
         .upload(filePath, file);
 
       if (error) {
         setUploading(false)
-        console.log(error)
+        setFile(null)
         alert("Code F1: File upload error. Please try again later.")
         return;
+        
       } else {
         const publicUrl = await getFileUrl(filePath, "resume_link")
 
@@ -299,6 +309,7 @@ export default function ColdOutreachUI() {
 
         if (error) {
           setUploading(false)
+          setFile(null)
           alert("Code F2: File upload error. Please try again later.")
           return;
         }
@@ -306,6 +317,7 @@ export default function ColdOutreachUI() {
       
     }
     setUploading(false)
+    setFile(null)
   }
 
   useEffect(() => {
