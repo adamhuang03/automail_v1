@@ -258,6 +258,12 @@ export default function ColdOutreachUI() {
     }
   }
 
+  const handleAddResume = async() => {
+    // const { data, error } = await supabase.storage
+    //   .from('resume_link')  // Replace with your actual bucket name
+    //   .upload(filePath, file);
+  }
+
   useEffect(() => {
     (async() => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -397,7 +403,7 @@ export default function ColdOutreachUI() {
         {/* Content Area */}
         <main className="flex-1 p-6 overflow-auto">
           {activeTab === 'compose' && (
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-3xl mx-auto">
               <h2 className="text-lg font-semibold mb-4">Compose Email Template</h2>
               <div className="space-y-4">
                 <div>
@@ -424,12 +430,13 @@ export default function ColdOutreachUI() {
                   />
                 </div>
                 <div className="flex justify-between items-center">
+                  <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
                   <div className="flex space-x-2">
-                    <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
-                    {/* <Button variant="outline">
+                    <Input type='file' />
+                    <Button variant="outline">
                       <Paperclip className="mr-2 h-4 w-4" />
                       Attach Resume
-                    </Button> */}
+                    </Button>
                   </div>
                 </div>
               </div>
