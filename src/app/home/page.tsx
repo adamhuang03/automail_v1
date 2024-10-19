@@ -66,6 +66,7 @@ export default function ColdOutreachUI() {
   const [activeTab, setActiveTab] = useState('compose')
   const [emailSubject, setEmailSubject] = useState('')
   const [emailTemplate, setEmailTemplate] = useState('')
+  const [resumeFilePath, setResumeFilePath] = useState<string | null>(null)
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
   const [firms, setFirms] = useState<string[] | null>(null)
   const [firmEmails, setFirmEmails] = useState<Record<string, [string, string]> | null>(null)
@@ -265,6 +266,14 @@ export default function ColdOutreachUI() {
   const handleAddResume = async() => {
     setUploading(true)
 
+    // const { data, error } = await supabase
+    //   .storage
+    //   .from('avatars')
+    //   .update('public/avatar1.png', avatarFile, {
+    //     cacheControl: '3600',
+    //     upsert: true
+    //   })
+
     const fileExt = file?.name.split('.').pop();
     const fileName = `${uuidv4()}.${fileExt}`; // Generating a random file name
     const filePath = `resume/${fileName}`;
@@ -364,9 +373,11 @@ export default function ColdOutreachUI() {
         if (data && Object.keys(data).length > 0) {
           setEmailSubject(data[0].subject)
           setEmailTemplate(data[0].composed_template)
+          setResumeFilePath(data[0].resume_link_filepath)
         } else {
           setEmailSubject('')
           setEmailTemplate('')
+          setResumeFilePath(null)
         }
       }
 
