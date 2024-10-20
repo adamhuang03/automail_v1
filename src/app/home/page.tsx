@@ -67,6 +67,7 @@ export default function ColdOutreachUI() {
   const [emailSubject, setEmailSubject] = useState('')
   const [emailTemplate, setEmailTemplate] = useState('')
   const [resumeFilePath, setResumeFilePath] = useState<string | null>(null)
+  const [resumeFileUrl, setResumeFileUrl] = useState<string | null>(null)
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
   const [firms, setFirms] = useState<string[] | null>(null)
   const [firmEmails, setFirmEmails] = useState<Record<string, [string, string]> | null>(null)
@@ -386,10 +387,12 @@ export default function ColdOutreachUI() {
           setEmailSubject(data[0].subject)
           setEmailTemplate(data[0].composed_template)
           setResumeFilePath(data[0].resume_link_filepath)
+          setResumeFileUrl(data[0].resume_link)
         } else {
           setEmailSubject('')
           setEmailTemplate('')
           setResumeFilePath(null)
+          setResumeFileUrl(null)
         }
       }
 
@@ -498,10 +501,16 @@ export default function ColdOutreachUI() {
                       onChange={(e) => setFile(e.target.files?.[0] || null)}
                     />
                     <div className="flex flex-grow mt-2 gap-2 justify-end">
-                      {/* <Button variant="outline" disabled={true}>
+                      <Button 
+                        variant="outline" 
+                        disabled={!resumeFileUrl}
+                        onClick={() => window.open(
+                          resumeFileUrl || '', '_blank', 'noopener,noreferrer'
+                        )}
+                      >
                         <EyeIcon className="mr-2 h-4 w-4" />
                         View Resume
-                      </Button> */}
+                      </Button>
                       <Button variant="outline" onClick={handleAddResume} disabled={!file}>
                         <Paperclip className="mr-2 h-4 w-4" />
                         {uploading ? 'Attaching...' : 'Attach Resume '}
