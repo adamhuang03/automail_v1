@@ -39,9 +39,9 @@ const sendEmailWithPdfFromUrl = async (
     // Download the PDF from the URL
     const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
     const pdfContent = Buffer.from(response.data).toString('base64');
-    const fileName = 'attachment.pdf'; // You can also derive this from the URL if needed
+    const fileName = pdfUrl.split('/').pop(); // You can also derive this from the URL if needed
 
-    console.error(response, pdfContent)
+    console.error(fileName)
 
     // Construct the raw email message with attachment
     const rawMessage = [
@@ -64,6 +64,7 @@ const sendEmailWithPdfFromUrl = async (
       pdfContent, // Base64 encoded PDF content
       '',
       '--boundary_example--',
+      '', // could be causing the <end>
     ].join('\r\n');
 
     // Base64 encode the raw message and format it

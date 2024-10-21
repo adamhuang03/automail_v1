@@ -269,9 +269,10 @@ export default function ColdOutreachUI() {
   const handleAddResume = async() => {
     setUploading(true)
 
-    const fileExt = file?.name.split('.').pop();
-    const fileName = `${uuid()}.${fileExt}`; // Generating a random file name
-    const filePath = `resume/${fileName}`;
+    // const fileExt = file?.name.split('.').pop();
+    // const fileName = `${uuid()}.${fileExt}`; // Generating a random file name
+    const filePath = `resume/${user?.id}/${file?.name}`;
+
 
     if (file && resumeFilePath) {
       // const { data, error } = await supabase
