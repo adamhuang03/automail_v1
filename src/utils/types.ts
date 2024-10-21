@@ -32,6 +32,9 @@ export type OutreachUser = {
     id: string
     status: string
     user_profile: {
+      composed: {
+        resume_link: string
+      }
       provider_token: string
       provider_refresh_token: string
     }
