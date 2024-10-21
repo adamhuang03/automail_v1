@@ -106,7 +106,8 @@ export default function ColdOutreachUI() {
 
   const addFirm = () => {
     const currentDate = utcToLocal(new Date().toISOString())
-    const updatedFirmGroups = [...firmGroups, { firm: '', prospects: [{ name: '', email: '', scheduledTime: {utcTime: '', localTime: currentDate} }] }]
+    const currentDateUtc = new Date(currentDate).toISOString().slice(0, 16);
+    const updatedFirmGroups = [...firmGroups, { firm: '', prospects: [{ name: '', email: '', scheduledTime: {utcTime: currentDateUtc, localTime: currentDate} }] }]
     setFirmGroups(updatedFirmGroups)
     const newFirmIndex = updatedFirmGroups.length - 1;
     setAddTempMap((prev) => ({
