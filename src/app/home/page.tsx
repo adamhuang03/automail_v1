@@ -80,6 +80,7 @@ export default function ColdOutreachUI() {
   const [fileNameTemp, setFileNameTemp] = useState<string>('')
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
+  const [availTemplate, setAvailTemplate] = useState<boolean>(false)
 
   const saveTemplate = async () => {
     const { error } = await supabase.from('composed').upsert([{
@@ -90,6 +91,7 @@ export default function ColdOutreachUI() {
 
     if (!error) {
       // console.log("Template saved:", { subject: emailSubject, body: emailTemplate })
+      setAvailTemplate(true)
       alert("Template has been saved!")
     } else {
       alert("Issue with saving template, please try again later.")
@@ -271,6 +273,12 @@ export default function ColdOutreachUI() {
   const handleAddResume = async() => {
     setUploading(true)
 
+    if (!availTemplate) {
+      alert("Please save a template before proceeding.")
+      setUploading(false)
+      return;
+    }
+
     // const fileExt = file?.name.split('.').pop();
     // const fileName = `${uuid()}.${fileExt}`; // Generating a random file name
     const filePath = `resume/${user?.id}/${file?.name}`;
@@ -422,15 +430,11 @@ export default function ColdOutreachUI() {
         .filter('user_profile_id', 'eq', user?.id)
 
         if (data && Object.keys(data).length > 0) {
+          setAvailTemplate(true)
           setEmailSubject(data[0].subject)
           setEmailTemplate(data[0].composed_template)
           setResumeFilePath(data[0].resume_link_filepath)
           setResumeFileUrl(data[0].resume_link)
-        } else {
-          setEmailSubject('')
-          setEmailTemplate('')
-          setResumeFilePath(null)
-          setResumeFileUrl(null)
         }
       }
 
