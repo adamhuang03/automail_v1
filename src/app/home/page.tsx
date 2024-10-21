@@ -89,6 +89,7 @@ export default function ColdOutreachUI() {
 
     if (!error) {
       // console.log("Template saved:", { subject: emailSubject, body: emailTemplate })
+      alert("Template has been saved!")
     } else {
       alert("Issue with saving template, please try again later.")
     }
@@ -343,6 +344,7 @@ export default function ColdOutreachUI() {
           alert("Code F2: File upload error. Please try again later.")
         } else {
           setResumeFileUrl(publicUrl)
+          setResumeFilePath(filePath)
           alert("Your file has been uploaded!")
         }
       }
@@ -550,7 +552,10 @@ export default function ColdOutreachUI() {
                         <Paperclip className="mr-2 h-4 w-4" />
                         {uploading ? 'Attaching...' : 'Attach Resume '}
                       </Button>
-                    </div>                    
+                    </div> 
+                    <Label className='mt-4'>
+                      {resumeFilePath ? `Uploaded File: ${resumeFilePath?.split("/").pop()}` : "Uploaded File: No Resume Uploaded"}
+                    </Label>
                   </div>
 
               </div>
