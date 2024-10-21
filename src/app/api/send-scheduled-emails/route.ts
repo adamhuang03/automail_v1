@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { supabase } from '@/lib/db/supabase';
 import { OutreachUser } from '@/utils/types';
-// import axios from 'axios';
+import axios from 'axios';
 
 const sendEmail = async (oAuth2Client: any, to: string, subject: string, message: string) => {
   const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
