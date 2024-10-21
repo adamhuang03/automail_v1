@@ -107,7 +107,7 @@ export default function LoginComponent() {
     <div className='flex flex-col justify-center'>
       <div className="flex justify-center mb-8 mt-[120px]">
         <Image
-          src="/images/logo.png"
+          src="/images/automail-large.png"
           alt="Automail Logo"
           width={300}
           height={100}
