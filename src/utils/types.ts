@@ -23,6 +23,7 @@ export type Composed = {
     user_profile_id: string
     subject: string
     composed_template: string
+    resume_link_filepath: string | null
     resume_link: string | null
     created_at: string
   }
@@ -31,6 +32,9 @@ export type OutreachUser = {
     id: string
     status: string
     user_profile: {
+      composed: {
+        resume_link: string
+      }
       provider_token: string
       provider_refresh_token: string
     }

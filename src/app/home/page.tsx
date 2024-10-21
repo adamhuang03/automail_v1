@@ -1,10 +1,10 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon, InboxIcon } from 'lucide-react'
+import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon, InboxIcon, EyeIcon } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -16,6 +16,9 @@ import { Composed, OutreachUser } from '@/utils/types'
 import { useRouter } from 'next/navigation'
 import { sendEmail } from '@/utils/sendGmail'
 import { ManagePage } from './managePage'
+import { getFileUrl } from '@/utils/getFile'
+import { v4 as uuid } from 'uuid';
+import {decode} from 'base64-arraybuffer'
 
 // const firmEmails: { [key: string]: string } = {
 //   "TD Securities": "tdsecurities.com",
@@ -64,6 +67,8 @@ export default function ColdOutreachUI() {
   const [activeTab, setActiveTab] = useState('compose')
   const [emailSubject, setEmailSubject] = useState('')
   const [emailTemplate, setEmailTemplate] = useState('')
+  const [resumeFilePath, setResumeFilePath] = useState<string | null>(null)
+  const [resumeFileUrl, setResumeFileUrl] = useState<string | null>(null)
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
   const [firms, setFirms] = useState<string[] | null>(null)
   const [firmEmails, setFirmEmails] = useState<Record<string, [string, string]> | null>(null)
@@ -71,6 +76,11 @@ export default function ColdOutreachUI() {
 
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
+  const [file, setFile] = useState<File | null>(null);
+  const [fileNameTemp, setFileNameTemp] = useState<string>('')
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
+  const [availTemplate, setAvailTemplate] = useState<boolean>(false)
 
   const saveTemplate = async () => {
     const { error } = await supabase.from('composed').upsert([{
@@ -81,6 +91,8 @@ export default function ColdOutreachUI() {
 
     if (!error) {
       // console.log("Template saved:", { subject: emailSubject, body: emailTemplate })
+      setAvailTemplate(true)
+      alert("Template has been saved!")
     } else {
       alert("Issue with saving template, please try again later.")
     }
@@ -258,6 +270,103 @@ export default function ColdOutreachUI() {
     }
   }
 
+  const handleAddResume = async() => {
+    setUploading(true)
+
+    if (!availTemplate) {
+      alert("Please save a template before proceeding.")
+      setUploading(false)
+      return;
+    }
+
+    // const fileExt = file?.name.split('.').pop();
+    // const fileName = `${uuid()}.${fileExt}`; // Generating a random file name
+    const filePath = `resume/${user?.id}/${file?.name}`;
+
+
+    if (file && resumeFilePath) {
+      // const { data, error } = await supabase
+      //   .storage
+      //   .from('resume_link')
+      //   .update(resumeFilePath, file, {
+      //     contentType: 'application/pdf',
+      //     cacheControl: '3600',
+      //     upsert: true
+      //   })
+      const { data, error } = await supabase
+        .storage
+        .from('resume_link')
+        .remove([resumeFilePath])
+
+      if (error) {
+        alert("Code F3: File replace error. Please try again later.")
+      } else {
+
+        const { data, error } = await supabase
+          .storage
+          .from('resume_link')
+          .upload(filePath, file);
+        
+        const publicUrl = await getFileUrl(filePath, "resume_link")
+
+        if (error) {
+          alert("Code F4: File replace error. Please try again later.")
+
+        } else {
+          const { error } = await supabase.from('composed').upsert([{
+            user_profile_id: user?.id,
+            resume_link_filepath: filePath,
+            resume_link: publicUrl
+          }])
+  
+          if (error) {
+            alert("Code F5: File replace error. Please try again later.")
+          } else {
+            setResumeFileUrl(publicUrl)
+            setResumeFilePath(filePath)
+            alert("Your file has been re-uploaded!")
+          }
+        }
+        
+      }
+
+    }
+
+    if (file && !resumeFilePath) {
+      const { data, error } = await supabase.storage
+        .from('resume_link')  // Replace with your actual bucket name
+        .upload(filePath, file);
+
+      if (error) {
+        console.log(error)
+        alert("Code F1: File upload error. Please try again later.")
+        
+      } else {
+        const publicUrl = await getFileUrl(filePath, "resume_link")
+
+        const { error } = await supabase.from('composed').upsert([{
+          user_profile_id: user?.id,
+          resume_link_filepath: filePath,
+          resume_link: publicUrl
+        }])
+
+        if (error) {
+          alert("Code F2: File upload error. Please try again later.")
+        } else {
+          setResumeFileUrl(publicUrl)
+          setResumeFilePath(filePath)
+          alert("Your file has been uploaded!")
+        }
+      }
+      
+    }
+    setUploading(false)
+    setFile(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Reset the file input to an empty string
+    }
+  }
+
   useEffect(() => {
     (async() => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -321,11 +430,11 @@ export default function ColdOutreachUI() {
         .filter('user_profile_id', 'eq', user?.id)
 
         if (data && Object.keys(data).length > 0) {
+          setAvailTemplate(true)
           setEmailSubject(data[0].subject)
           setEmailTemplate(data[0].composed_template)
-        } else {
-          setEmailSubject('')
-          setEmailTemplate('')
+          setResumeFilePath(data[0].resume_link_filepath)
+          setResumeFileUrl(data[0].resume_link)
         }
       }
 
@@ -397,42 +506,72 @@ export default function ColdOutreachUI() {
         {/* Content Area */}
         <main className="flex-1 p-6 overflow-auto">
           {activeTab === 'compose' && (
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <h2 className="text-lg font-semibold mb-4">Compose Email Template</h2>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                    Subject
-                  </label>
-                  <Input 
-                    id="subject" 
-                    placeholder="Enter email subject" 
-                    value={emailSubject}
-                    onChange={(e) => setEmailSubject(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="template" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Template
-                  </label>
-                  <Textarea
-                    id="template"
-                    placeholder="Write your email template here... Use [NAME] and [FIRM_NAME] as placeholders."
-                    className="min-h-[200px]"
-                    value={emailTemplate}
-                    onChange={(e) => setEmailTemplate(e.target.value)}
-                  />
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex space-x-2">
-                    <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
-                    {/* <Button variant="outline">
-                      <Paperclip className="mr-2 h-4 w-4" />
-                      Attach Resume
-                    </Button> */}
+              <div className="flex flex-row">
+                
+                <div className='flex flex-grow justify-between gap-8'>
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                        Subject
+                      </label>
+                      <Input 
+                        id="subject" 
+                        placeholder="Enter email subject" 
+                        value={emailSubject}
+                        onChange={(e) => setEmailSubject(e.target.value)}
+                      />
+                    </div>
+                  <div>
+                    <label htmlFor="template" className="block text-sm font-medium text-gray-700 mb-1">
+                      Email Template
+                    </label>
+                    <Textarea
+                      id="template"
+                      placeholder="Write your email template here... Use [NAME] and [FIRM_NAME] as placeholders."
+                      className="min-h-[200px]"
+                      value={emailTemplate}
+                      onChange={(e) => setEmailTemplate(e.target.value)}
+                    />
                   </div>
                 </div>
+                <div className="flex flex-col mt-6">
+                    <Input 
+                      type='file' 
+                      accept='application/pdf'
+                      ref={fileInputRef}
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    />
+                    <div className="flex mt-2 gap-2 justify-end">
+                      <Button 
+                        variant="outline" 
+                        disabled={!resumeFileUrl}
+                        onClick={() => window.open(
+                          resumeFileUrl || '', '_blank', 'noopener,noreferrer'
+                        )}
+                      >
+                        <EyeIcon className="mr-2 h-4 w-4" />
+                        View Resume
+                      </Button>
+                      <Button variant="outline" onClick={handleAddResume} disabled={!file}>
+                        <Paperclip className="mr-2 h-4 w-4" />
+                        {uploading ? 'Attaching...' : 'Attach Resume '}
+                      </Button>
+                    </div> 
+                    <Label className='mt-4 max-w-72 leading-normal' >
+                      <div className="mb-2"><b>Uploaded File:</b></div>
+                      {resumeFilePath ? resumeFileUrl?.split("/").pop() : "No Resume Uploaded"}
+                    </Label>
+                  </div>
+
               </div>
+              </div>
+                <div className="flex justify-between mt-2">
+                  <div className="flex">
+                    <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
+                  </div>
+                </div>
             </div>
           )}
           {activeTab === 'outreach' && (
