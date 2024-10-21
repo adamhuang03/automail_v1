@@ -15,6 +15,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@supabase/supabase-js": "^2.45.4",
     "axios": "^1.7.7",
+    "base64-arraybuffer": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "fs": "^0.0.1-security",
@@ -26,7 +27,8 @@
     "react-dom": "^18",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "uuidv4": "^6.2.13"
   },
   "devDependencies": {
     "@types/node": "^20",
