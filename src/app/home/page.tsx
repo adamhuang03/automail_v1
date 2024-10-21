@@ -77,6 +77,7 @@ export default function ColdOutreachUI() {
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
   const [file, setFile] = useState<File | null>(null);
+  const [fileNameTemp, setFileNameTemp] = useState<string>('')
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
 
@@ -314,6 +315,7 @@ export default function ColdOutreachUI() {
             alert("Code F5: File replace error. Please try again later.")
           } else {
             setResumeFileUrl(publicUrl)
+            setResumeFilePath(filePath)
             alert("Your file has been re-uploaded!")
           }
         }
@@ -553,8 +555,9 @@ export default function ColdOutreachUI() {
                         {uploading ? 'Attaching...' : 'Attach Resume '}
                       </Button>
                     </div> 
-                    <Label className='mt-4'>
-                      {resumeFilePath ? `Uploaded File: ${resumeFilePath?.split("/").pop()}` : "Uploaded File: No Resume Uploaded"}
+                    <Label className='mt-4 max-w-72 leading-normal' >
+                      <div className="mb-2"><b>Uploaded File:</b></div>
+                      {resumeFilePath ? resumeFileUrl?.split("/").pop() : "No Resume Uploaded"}
                     </Label>
                   </div>
 
