@@ -118,7 +118,7 @@ export async function POST() {
         *,
         user_profile!user_profile_id (provider_token, provider_refresh_token, composed!user_profile_id(resume_link))
     `)
-    .eq('status', 'Test')            
+    .eq('status', 'Scheduled')            
     .lte('scheduled_datetime_utc', currentTime);
   // if (emails) {
   //   console.error(emails[0].user_profile)
