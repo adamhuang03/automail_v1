@@ -119,7 +119,7 @@ export async function POST() {
         user_profile!user_profile_id (provider_token, provider_refresh_token, composed!user_profile_id(resume_link))
     `)
     .eq('status', 'Test')            
-    .gte('scheduled_datetime_utc', currentTime);
+    .lte('scheduled_datetime_utc', currentTime);
   // if (emails) {
   //   console.error(emails[0].user_profile)
   //   return NextResponse.json({ message: 'Got it'}, { status: 200 });
