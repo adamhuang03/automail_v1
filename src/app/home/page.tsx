@@ -123,8 +123,9 @@ export default function ColdOutreachUI() {
 
   const addProspect = (firmIndex: number) => {
     const currentDate = utcToLocal(new Date().toISOString())
+    const currentDateUtc = new Date(currentDate).toISOString().slice(0, 16);
     const updatedFirmGroups = [...firmGroups]
-    updatedFirmGroups[firmIndex].prospects.push({ name: '', email: '', scheduledTime: {utcTime: '', localTime: currentDate} })
+    updatedFirmGroups[firmIndex].prospects.push({ name: '', email: '', scheduledTime: {utcTime: currentDateUtc, localTime: currentDate} })
     setFirmGroups(updatedFirmGroups)
   }
 
