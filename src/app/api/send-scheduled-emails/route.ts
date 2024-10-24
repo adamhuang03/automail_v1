@@ -161,25 +161,29 @@ export async function POST() {
         }
 
       } catch (error) {
-        console.log('Access token expired. Refreshing...');
-        try {
+        console.error('Access token expired. Refreshing...');
+        // try {
           // Refresh the access token using the refresh token
           const newAccessToken = await refreshAccessToken(refreshToken);
+          console.error("Access Token: ", newAccessToken)
 
           // Save the new token in the database
           await supabase
             .from('user_profile')
             .update({ provider_token: newAccessToken })
             .eq('id', email.user_profile_id);
+          console.error("1")
 
           // Retry sending the email with the new access token
           oAuth2Client.setCredentials({ access_token: newAccessToken });
+          console.error("2")
           await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
+          console.error("3")
           await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
-          console.log(`Email sent to ${email.to_email} after refreshing token`);
-        } catch (refreshError) {
-          console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
-        }
+          console.error(`Email sent to ${email.to_email} after refreshing token`);
+        // } catch (refreshError) {
+        //   console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
+        // }
       }
     }
   }
