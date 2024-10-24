@@ -38,7 +38,7 @@ export default function LoginComponent() {
     setLoading(false)
   }
 
-  const handleSocialLogin = async (provider: 'google' | 'github', loginBool: boolean) => {
+  const handleSocialLogin = async (provider: 'google' | 'github' | 'azure', loginBool: boolean) => {
     setLoading(true)
     setError(null)
 
@@ -57,19 +57,63 @@ export default function LoginComponent() {
       } else {
         // console.log(session.user.id)
         router.push('/home');
-      }
+      } // Mail.Send Mail.ReadWrite
     } else {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          scopes: 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/gmail.modify',
+          scopes: provider === 'azure' ? 'openid profile offline_access User.Read Mail.Send' : // Mail.ReadWrite 
+          'https://www.googleapis.com/auth/gmail.send', // https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/gmail.modify
           queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+            access_type: provider === 'azure' ? 'offline_access' : 'offline', 
+            prompt: provider === 'azure' ? 'select_account' : 'consent',
           },
-          redirectTo: loginBool 
+          redirectTo: provider === 'azure' ? `${window.location.origin}/api/auth/ms/callback` :
+          loginBool 
             ? `${window.location.origin}/api/auth/login/callback`  // Redirect for login
             : `${window.location.origin}/api/auth/register/callback`  // Redirect for sign up
+        }
+      });
+    
+      if (error) {
+        setError(error.message);
+      }
+    
+      setLoading(false);
+    }
+    
+    setLoading(false)
+  }
+
+  const handleMsLogin = async (provider: 'google' | 'github' | 'azure', loginBool: boolean) => {
+    setLoading(true)
+    setError(null)
+
+    // First check if the user is already signed in
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session) {
+      const accessToken = session.access_token;
+      const expiresAt = session.expires_at || 0 // Expiration time (in UNIX timestamp)
+      
+      // console.log('Access token will expire at:', new Date(expiresAt * 1000)); // Convert UNIX timestamp to readable date
+      // console.log('Expires in:', session.expires_in, 'seconds'); // Time left before expiration
+    
+      if (Date.now() >= expiresAt * 1000) {
+        console.log('Session has expired, please log in again.');
+      } else {
+        // console.log(session.user.id)
+        router.push('/home');
+      } // Mail.Send Mail.ReadWrite
+    } else {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          scopes: 'openid profile email offline_access', //offline_access User.Read Mail.Send
+            queryParams: {
+              access_type: 'offline_access' 
+            },
+          redirectTo: `${window.location.origin}/api/auth/ms/callback`
         }
       });
     
@@ -125,6 +169,9 @@ export default function LoginComponent() {
               <Button variant="default" onClick={() => handleSocialLogin('google', true)} disabled={loading}>
                 Log in with Google
               </Button>
+              <Button variant="default" onClick={() => handleSocialLogin('azure', true)} disabled={loading}>
+                Log in with Microsoft
+              </Button>
             </div>
             <Button variant="link" className="mt-2 w-full" onClick={handlePasswordReset} disabled={loading}>
               Forgot password?
@@ -145,6 +192,9 @@ export default function LoginComponent() {
             <div className="flex flex-col space-y-2">
               <Button variant="outline" onClick={() => handleSocialLogin('google', false)} disabled={loading}>
                 Register with Google
+              </Button>
+              <Button variant="outline" onClick={() => handleMsLogin('azure', false)} disabled={loading}>
+                Register with Microsoft
               </Button>
             </div>
             {error && (
