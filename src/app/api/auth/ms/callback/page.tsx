@@ -14,31 +14,31 @@ export default function AuthCallback() {
     // window.history.replaceState({}, document.title, window.location.pathname);
 
     console.log(params)
-    // const accessToken = params.get('access_token');
-    // const refreshToken = params.get('refresh_token');
-    // const providerRefreshToken = params.get('provider_refresh_token');
-    // const providerToken = params.get('provider_token');
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const providerRefreshToken = params.get('provider_refresh_token');
+    const providerToken = params.get('provider_token');
 
-    // // console.log(params);
+    // console.log(params);
 
-    // (async () => {
+    (async () => {
       
-    //   if (accessToken && refreshToken) {
-    //     const { error } = await supabase.auth.setSession({
-    //       access_token: accessToken ,
-    //       refresh_token: refreshToken
-    //     });
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken ,
+          refresh_token: refreshToken
+        });
 
-    //     document.cookie = `sb-access-token=${accessToken}; path=/; secure; samesite=lax`;
-    //     document.cookie = `sb-refresh-token=${refreshToken}; path=/; secure; samesite=lax`;
-    //     document.cookie = `sb-provider-refresh-token=${providerRefreshToken}; path=/; secure; samesite=lax`;
-    //     document.cookie = `sb-provider-token=${providerToken}; path=/; secure; samesite=lax`;
+        document.cookie = `sb-access-token=${accessToken}; path=/; secure; samesite=lax`;
+        document.cookie = `sb-refresh-token=${refreshToken}; path=/; secure; samesite=lax`;
+        document.cookie = `sb-provider-refresh-token=${providerRefreshToken}; path=/; secure; samesite=lax`;
+        document.cookie = `sb-provider-token=${providerToken}; path=/; secure; samesite=lax`;
 
-    //     router.replace('/onboard');
-    //   } else {
-    //     router.replace('/login');
-    //   }
-    // })();
+        router.replace('/onboard');
+      } else {
+        router.replace('/login');
+      }
+    })();
   }, [router]);
 
   return <div>Loading...</div>; // Show a loading state while processing the tokens
