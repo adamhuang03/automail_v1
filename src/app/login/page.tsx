@@ -105,7 +105,7 @@ export default function LoginComponent() {
       } else {
         // console.log(session.user.id)
         router.push('/home');
-      } // Mail.Send Mail.ReadWrite
+      }
     } else {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -186,7 +186,7 @@ export default function LoginComponent() {
             )}
           </CardContent>
         </Card>
-        <Card className="w-[350px] ml-6">
+        {/* <Card className="w-[350px] ml-6">
           <CardHeader>
             <CardTitle>Register</CardTitle>
             <CardDescription>Sign up for an account</CardDescription>
@@ -206,7 +206,7 @@ export default function LoginComponent() {
               </Alert>
             )}
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
     

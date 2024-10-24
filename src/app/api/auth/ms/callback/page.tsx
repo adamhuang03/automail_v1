@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // New import for Next.js 13
 import { supabase } from '@/lib/db/supabase';
+// This is the login flow pulled
 
 export default function AuthCallback() {
   const router = useRouter(); // The updated hook for navigation
@@ -11,9 +12,8 @@ export default function AuthCallback() {
     const hash = window.location.hash;
     const params = new URLSearchParams(hash.substring(1));
     
-    // window.history.replaceState({}, document.title, window.location.pathname);
+    window.history.replaceState({}, document.title, window.location.pathname);
 
-    console.log(params)
     const accessToken = params.get('access_token');
     const refreshToken = params.get('refresh_token');
     const providerRefreshToken = params.get('provider_refresh_token');
@@ -34,7 +34,16 @@ export default function AuthCallback() {
         document.cookie = `sb-provider-refresh-token=${providerRefreshToken}; path=/; secure; samesite=lax`;
         document.cookie = `sb-provider-token=${providerToken}; path=/; secure; samesite=lax`;
 
-        router.replace('/onboard');
+        const { data } = await supabase.auth.getSession();
+        const session = data.session;
+
+        if (session) {
+          const { error } = await supabase.from('user_profile')
+          .update({ provider_token: providerToken, providerToken: providerRefreshToken})
+          .eq('id', session.user.id);
+        }
+
+        router.replace('/home');
       } else {
         router.replace('/login');
       }
