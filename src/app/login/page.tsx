@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Github, Loader2 } from 'lucide-react'
 import Image from 'next/image'
+import { siSimpleicons } from 'simple-icons';
 
 // Initialize the Supabase client
 import { supabase } from '@/lib/db/supabase'
@@ -166,11 +167,13 @@ export default function LoginComponent() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col space-y-2">
-              <Button variant="default" onClick={() => handleSocialLogin('google', true)} disabled={loading}>
-                Log in with Google
+              <Button variant="outline" onClick={() => handleSocialLogin('google', true)} disabled={loading}>
+                <img height="15" width="15" src="https://www.vectorlogo.zone/logos/google/google-icon.svg" />
+                <div className='ml-2'>Log in with Google</div>
               </Button>
-              <Button variant="default" onClick={() => handleSocialLogin('azure', true)} disabled={loading}>
-                Log in with Microsoft
+              <Button variant="outline" onClick={() => handleSocialLogin('azure', true)} disabled={loading}>
+                <img height="15" width="15" src="https://www.vectorlogo.zone/logos/microsoft/microsoft-icon.svg" />
+                <div className='ml-2'>Log in with Microsoft</div>
               </Button>
             </div>
             <Button variant="link" className="mt-2 w-full" onClick={handlePasswordReset} disabled={loading}>
