@@ -34,14 +34,15 @@ export default function AuthCallback() {
         document.cookie = `sb-provider-refresh-token=${providerRefreshToken}; path=/; secure; samesite=lax`;
         document.cookie = `sb-provider-token=${providerToken}; path=/; secure; samesite=lax`;
 
-        const { data } = await supabase.auth.getSession();
-        const session = data.session;
+        // if I keep this on for MS flow, it routes to login for some reason then gotes to home? is it cuz of the async
+        // const { data } = await supabase.auth.getSession();
+        // const session = data.session;
 
-        if (session) {
-          const { error } = await supabase.from('user_profile')
-          .update({ provider_token: providerToken, providerToken: providerRefreshToken})
-          .eq('id', session.user.id);
-        }
+        // if (session) {
+        //   const { error } = await supabase.from('user_profile')
+        //   .update({ provider_token: providerToken, providerToken: providerRefreshToken})
+        //   .eq('id', session.user.id);
+        // }
 
         router.replace('/home');
       } else {

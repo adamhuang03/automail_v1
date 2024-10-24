@@ -171,7 +171,7 @@ export default function LoginComponent() {
                 <img height="15" width="15" src="https://www.vectorlogo.zone/logos/google/google-icon.svg" />
                 <div className='ml-2'>Log in with Google</div>
               </Button>
-              <Button variant="outline" onClick={() => handleSocialLogin('azure', true)} disabled={loading}>
+              <Button variant="outline" onClick={() => handleMsLogin('azure', true)} disabled={loading}>
                 <img height="15" width="15" src="https://www.vectorlogo.zone/logos/microsoft/microsoft-icon.svg" />
                 <div className='ml-2'>Log in with Microsoft</div>
               </Button>

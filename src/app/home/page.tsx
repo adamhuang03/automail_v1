@@ -369,6 +369,16 @@ export default function ColdOutreachUI() {
     }
   }
 
+  // Function to generate a random hex color
+  const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
   useEffect(() => {
     (async() => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -431,6 +441,8 @@ export default function ColdOutreachUI() {
         .select('*')
         .filter('user_profile_id', 'eq', user?.id)
 
+        console.log(user)
+
         if (data && Object.keys(data).length > 0) {
           setAvailTemplate(true)
           setEmailSubject(data[0].subject)
@@ -450,7 +462,7 @@ export default function ColdOutreachUI() {
         <div className="flex items-center mb-8">
           <Avatar className="h-8 w-8 mr-2">
             <AvatarImage src={user?.user_metadata.avatar_url} alt={`${user?.user_metadata.full_name}} User`} />
-            <AvatarFallback>US</AvatarFallback>
+            <AvatarFallback className='bg-gray-300'>{user?.user_metadata.full_name[0]}</AvatarFallback>
           </Avatar>
           <span className="font-semibold">{user?.user_metadata.full_name}</span>
         </div>
