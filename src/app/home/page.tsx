@@ -441,8 +441,6 @@ export default function ColdOutreachUI() {
         .select('*')
         .filter('user_profile_id', 'eq', user?.id)
 
-        console.log(user)
-
         if (data && Object.keys(data).length > 0) {
           setAvailTemplate(true)
           setEmailSubject(data[0].subject)
