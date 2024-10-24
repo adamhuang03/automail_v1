@@ -37,12 +37,13 @@ export default function AuthCallback() {
         const session = data.session;
 
         if (session) {
+          console.log('here')
           const { error } = await supabase.from('user_profile')
           .update({ provider_token: providerToken, providerToken: providerRefreshToken})
           .eq('id', session.user.id);
         }
 
-        router.replace('/home');
+        // router.replace('/home');
       } else {
         router.replace('/login');
       }
