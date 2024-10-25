@@ -16,34 +16,6 @@ import { Composed, OutreachUser } from '@/utils/types'
 import { useRouter } from 'next/navigation'
 import { ManagePage } from './managePage'
 import { getFileUrl } from '@/utils/getFile'
-// const firmEmails: { [key: string]: string } = {
-//   "TD Securities": "tdsecurities.com",
-//   "RBC Capital Markets": "rbccm.com",
-//   "CIBC Capital Markets": "cibccapitalmarkets.com",
-//   "Scotiabank Global Banking & Markets": "scotiabank.com",
-//   "BMO Capital Markets": "bmocapitalmarkets.com",
-//   "National Bank Financial Markets": "nbf.ca",
-//   "Goldman Sachs": "gs.com",
-//   "Evercore": "evercore.com",
-//   "Lazard": "lazard.com",
-//   "Morgan Stanley": "morganstanley.com",
-//   "Bank of America": "bofa.com",
-//   "University of Toronto": "mail.utoronto.ca"
-// }
-
-// const firms = [
-//     "TD Securities",
-//     "RBC Capital Markets",
-//     "CIBC Capital Markets",
-//     "Scotiabank Global Banking & Markets",
-//     "BMO Capital Markets",
-//     "National Bank Financial Markets",
-//     "Goldman Sachs",
-//     "Evercore",
-//     "Lazard",
-//     "Morgan Stanley",
-//     "Bank of America"
-// ]
 
 type Prospect = {
   name: string
@@ -196,7 +168,8 @@ export default function ColdOutreachUI() {
       firm_email_id: number,
       subject_generated: string,
       email_generated: string,
-      scheduled_datetime_utc: string
+      scheduled_datetime_utc: string,
+      provider_name: string
     }[] = [];
     const gmailData: { 
       to_email: string,
@@ -235,7 +208,8 @@ export default function ColdOutreachUI() {
             firm_email_id: Number(firmEmails[firmGroup.firm][1]),
             subject_generated: draft.subject,
             email_generated: draft.body,
-            scheduled_datetime_utc: prospect.scheduledTime.utcTime
+            scheduled_datetime_utc: prospect.scheduledTime.utcTime,
+            provider_name: user.app_metadata.provider || ''
           });
         }
       })

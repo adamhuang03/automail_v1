@@ -46,6 +46,7 @@ export type OutreachUser = {
     subject_generated: string
     email_generated: string
     scheduled_datetime_utc: string
+    provider_name: string
     created_at: string
   }
 
@@ -60,6 +61,7 @@ export type Outreach = {
     subject_generated: string
     email_generated: string
     scheduled_datetime_utc: string
+    provider_name: string
     created_at: string
   }
   
