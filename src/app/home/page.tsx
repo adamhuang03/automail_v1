@@ -14,7 +14,7 @@ import { supabase } from '@/lib/db/supabase'
 import { User } from '@supabase/supabase-js'
 import { Composed, OutreachUser } from '@/utils/types'
 import { useRouter } from 'next/navigation'
-import { sendEmail } from '@/utils/sendGmail'
+import { sendEmail } from '@/utils/google/sendGmail'
 import { ManagePage } from './managePage'
 import { getFileUrl } from '@/utils/getFile'
 import { v4 as uuid } from 'uuid';
