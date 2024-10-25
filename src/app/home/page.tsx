@@ -14,12 +14,8 @@ import { supabase } from '@/lib/db/supabase'
 import { User } from '@supabase/supabase-js'
 import { Composed, OutreachUser } from '@/utils/types'
 import { useRouter } from 'next/navigation'
-import { sendEmail } from '@/utils/google/sendGmail'
 import { ManagePage } from './managePage'
 import { getFileUrl } from '@/utils/getFile'
-import { v4 as uuid } from 'uuid';
-import {decode} from 'base64-arraybuffer'
-
 // const firmEmails: { [key: string]: string } = {
 //   "TD Securities": "tdsecurities.com",
 //   "RBC Capital Markets": "rbccm.com",
@@ -440,6 +436,8 @@ export default function ColdOutreachUI() {
         const { data, error }: { data: Record<number, Composed> | null, error: any } = await supabase.from('composed')
         .select('*')
         .filter('user_profile_id', 'eq', user?.id)
+
+        console.log(user)
 
         if (data && Object.keys(data).length > 0) {
           setAvailTemplate(true)

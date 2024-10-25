@@ -30,6 +30,8 @@ async function processScheduledEmails() {
 
   if (emails && emails.length > 0) {
     for (const email of emails) {
+
+      // This for loop need to be refactored to allow for MS and Google seperate flows based on account
       const accessToken = email.user_profile.provider_token;
       const resumeLink = email.user_profile.composed.resume_link;
       const refreshToken = email.user_profile.provider_refresh_token;
