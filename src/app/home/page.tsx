@@ -443,8 +443,6 @@ export default function ColdOutreachUI() {
     })();
   }, [user])
 
-  const decodedFileName = fileName ? decodeURIComponent(fileName) : ''
-
   return (
     <div className="flex h-screen bg-white">
       {/* Sidebar */}
