@@ -443,6 +443,8 @@ export default function ColdOutreachUI() {
     })();
   }, [user])
 
+  const decodedFileName = fileName ? decodeURIComponent(fileName) : ''
+
   return (
     <div className="flex h-screen bg-white">
       {/* Sidebar */}
@@ -563,7 +565,7 @@ export default function ColdOutreachUI() {
                     </div> 
                     <Label className='mt-4 max-w-72 leading-normal' >
                       <div className="mb-2"><b>Uploaded File:</b></div>
-                      {resumeFilePath ? resumeFileUrl?.split("/").pop() : "No Resume Uploaded"}
+                      {resumeFilePath ? decodeURIComponent(resumeFileUrl?.split("/").pop() || '') : "No Resume Uploaded"}
                     </Label>
                   </div>
 
