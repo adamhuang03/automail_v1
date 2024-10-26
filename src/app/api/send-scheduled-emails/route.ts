@@ -22,7 +22,7 @@ async function processScheduledEmails() {
         user_profile!user_profile_id (provider_token, provider_refresh_token, composed!user_profile_id(resume_link))
     `)
     .eq('status', 'Scheduled')            
-    .lte('scheduled_datetime_utc', currentTime);
+    .gte('scheduled_datetime_utc', currentTime);
 
   if (error) {
     console.error('Error fetching emails:', error);
