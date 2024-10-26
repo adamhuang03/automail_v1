@@ -82,9 +82,22 @@ async function processGmail(email: OutreachUser) {
         .eq('id', email.user_profile_id);
 
       oAuth2Client.setCredentials({ access_token: newAccessToken });
-      await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
-      await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
-      console.log(`Email sent to ${email.to_email} after refreshing token`);
+      if (resumeLink) {
+        await sendEmailWithPdfFromUrl(
+          oAuth2Client, 
+          email.to_email, 
+          email.subject_generated, 
+          email.email_generated,
+          resumeLink
+        );
+        await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
+        console.log(`Email w attachment sent to ${email.to_email} after refreshing token`);
+      } else {
+        await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
+        await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
+        console.log(`Email sent to ${email.to_email} after refreshing token`);
+      }
+
     } catch (refreshError) {
       console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
     }
@@ -100,11 +113,11 @@ async function processMs(email: OutreachUser) {
   try {
     // Send the email with or without an attachment
     if (resumeLink) {
-      await sendOutlookEmailWithPdfFromUrl(accessToken, email.to_email, email.subject_generated, email.email_generated, resumeLink);
+      await sendOutlookEmailWithPdfFromUrl(accessToken, email.to_email, email.subject_generated, email.email_generated, resumeLink, email.ref_user_email);
       await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
       console.log(`Email with attachment sent to ${email.to_email}`);
     } else {
-      await sendOutlookEmail(accessToken, email.to_email, email.subject_generated, email.email_generated);
+      await sendOutlookEmail(accessToken, email.to_email, email.subject_generated, email.email_generated, email.ref_user_email);
       await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
       console.log(`Email sent to ${email.to_email}`);
     }
@@ -121,9 +134,16 @@ async function processMs(email: OutreachUser) {
         .eq('id', email.user_profile_id);
 
       // Retry sending the email
-      await sendOutlookEmail(accessToken || '', email.to_email, email.subject_generated, email.email_generated);
-      await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
-      console.log(`Email sent to ${email.to_email} after refreshing token`);
+      if (resumeLink) {
+        await sendOutlookEmailWithPdfFromUrl(accessToken || '', email.to_email, email.subject_generated, email.email_generated, resumeLink, email.ref_user_email);
+        await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
+        console.log(`Email with attachment sent to ${email.to_email} after refreshing token`);
+      } else {
+        await sendOutlookEmail(accessToken || '', email.to_email, email.subject_generated, email.email_generated, email.ref_user_email);
+        await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
+        console.log(`Email sent to ${email.to_email} after refreshing token`);
+      }
+    
     } catch (refreshError) {
       console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
     }
