@@ -24,7 +24,7 @@ async function processScheduledEmails() {
         )
     `) // auth_user:auth__user!id(email)
     .eq('status', 'Scheduled')            
-    .gte('scheduled_datetime_utc', currentTime);
+    .lte('scheduled_datetime_utc', currentTime);
   
   if (error) {
     console.error('Error fetching emails:', error);
