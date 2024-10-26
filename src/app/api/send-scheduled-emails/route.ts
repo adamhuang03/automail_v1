@@ -3,115 +3,15 @@ import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { supabase } from '@/lib/db/supabase';
 import { OutreachUser } from '@/utils/types';
-import axios from 'axios';
-
-const sendEmail = async (oAuth2Client: any, to: string, subject: string, message: string) => {
-  const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
-
-  const rawMessage = Buffer.from(
-    `To: ${to}\r\nSubject: ${subject}\r\n\r\n${message}`
-  ).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-  try {
-    const result = await gmail.users.messages.send({
-      userId: 'me',
-      requestBody: {
-        raw: rawMessage,
-      },
-    });
-
-    return result.data;
-  } catch (error) {
-    throw new Error(`Error sending email: ${error}`);
-  }
-};
-
-const sendEmailWithPdfFromUrl = async (
-  oAuth2Client: any,
-  to: string,
-  subject: string,
-  message: string,
-  pdfUrl: string
-) => {
-  const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
-
-  try {
-    // Download the PDF from the URL
-    const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
-    const pdfContent = Buffer.from(response.data).toString('base64');
-    const fileName = pdfUrl.split('/').pop(); // You can also derive this from the URL if needed
-    const decodedFileName = fileName ? decodeURIComponent(fileName) : ''
-
-    if (!decodedFileName) {
-      console.error('Error with getting filename:', fileName)
-    }
-
-    // Construct the raw email message with attachment
-    const rawMessage = [
-      `To: ${to}`,
-      `Subject: ${subject}`,
-      'MIME-Version: 1.0',
-      'Content-Type: multipart/mixed; boundary="boundary_example"',
-      '',
-      '--boundary_example',
-      'Content-Type: text/plain; charset="UTF-8"',
-      'Content-Transfer-Encoding: 7bit',
-      '',
-      message, // Email message body
-      '',
-      '--boundary_example',
-      `Content-Type: application/pdf; name="${decodedFileName}"`, //need spacing here
-      'Content-Transfer-Encoding: base64',
-      `Content-Disposition: attachment; filename="${decodedFileName}"`, //need spacing here
-      '',
-      pdfContent, // Base64 encoded PDF content
-      '',
-      '--boundary_example--',
-      '', // could be causing the <end>
-    ].join('\r\n');
-
-    // Base64 encode the raw message and format it
-    const encodedMessage = Buffer.from(rawMessage)
-      .toString('base64')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-
-    // Send the email
-    const result = await gmail.users.messages.send({
-      userId: 'me',
-      requestBody: {
-        raw: encodedMessage,
-      },
-    });
-
-    return result.data;
-  } catch (error) {
-    throw new Error(`Error sending email: ${error}`);
-  }
-};
-
-
-const refreshAccessToken = async (refreshToken: string) => {
-  const oAuth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET
-  );
-
-  oAuth2Client.setCredentials({
-    refresh_token: refreshToken,
-  });
-
-  try {
-    const res = await oAuth2Client.refreshAccessToken();
-    const newAccessToken = res.credentials.access_token;
-    return newAccessToken;
-  } catch (error) {
-    throw new Error(`Error refreshing access token: ${error}`);
-  }
-};
+import { sendEmailWithPdfFromUrl, sendEmail, refreshAccessToken } from '@/utils/google/emailGoogle';
+import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from '@/utils/ms/emailMs';
 
 export async function POST() {
+  const response = await processScheduledEmails();
+  return NextResponse.json(response, { status: response.status });
+}
+
+async function processScheduledEmails() {
   const currentTime = new Date().toISOString().slice(0, 16);
 
   // Fetch scheduled emails
@@ -119,73 +19,135 @@ export async function POST() {
     .from('outreach')
     .select(`
         *,
-        user_profile!user_profile_id (provider_token, provider_refresh_token, composed!user_profile_id(resume_link))
-    `)
+        user_profile!user_profile_id (
+        provider_token, provider_refresh_token, composed!user_profile_id(resume_link)
+        )
+    `) // auth_user:auth__user!id(email)
     .eq('status', 'Scheduled')            
-    .lte('scheduled_datetime_utc', currentTime);
-  // if (emails) {
-  //   console.error(emails[0].user_profile)
-  //   return NextResponse.json({ message: 'Got it'}, { status: 200 });
-  // }
+    .gte('scheduled_datetime_utc', currentTime);
+  
   if (error) {
     console.error('Error fetching emails:', error);
-    return NextResponse.json({ message: 'Error fetching scheduled emails', error }, { status: 500 });
+    return { message: 'Error fetching scheduled emails', error, status: 500 };
   }
 
   if (emails && emails.length > 0) {
     for (const email of emails) {
-      const accessToken = email.user_profile.provider_token;
-      const resumeLink = email.user_profile.composed.resume_link;
-      const refreshToken = email.user_profile.provider_refresh_token;
-
-      const oAuth2Client = new google.auth.OAuth2();
-      oAuth2Client.setCredentials({ access_token: accessToken });
-
-      try {
-
-        if (resumeLink) {
-          await sendEmailWithPdfFromUrl(
-            oAuth2Client, 
-            email.to_email, 
-            email.subject_generated, 
-            email.email_generated,
-            resumeLink
-          );
-          await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
-          console.log(`Email w attachment sent to ${email.to_email}`);
-        } else {
-          
-          // Test if the access token is valid by sending the email
-          await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
-          // Mark email as sent in the database
-          await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
-          console.log(`Email sent to ${email.to_email}`);
-
-        }
-
-      } catch (error) {
-        console.error('Access token expired. Refreshing...');
-        try {
-          // Refresh the access token using the refresh token
-          const newAccessToken = await refreshAccessToken(refreshToken);
-
-          // Save the new token in the database
-          await supabase
-            .from('user_profile')
-            .update({ provider_token: newAccessToken })
-            .eq('id', email.user_profile_id);
-
-          // Retry sending the email with the new access token
-          oAuth2Client.setCredentials({ access_token: newAccessToken });
-          await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
-          await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
-          console.error(`Email sent to ${email.to_email} after refreshing token`);
-        } catch (refreshError) {
-          console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
-        }
+      
+      if (email.provider_name === 'azure') {
+        processMs(email)
+      } else if (email.provider_name === 'google') {
+        processGmail(email)
       }
+      
     }
   }
 
-  return NextResponse.json({ message: 'Scheduled emails processed' }, { status: 200 });
+  return { message: 'Scheduled emails processed', status: 200 };
+}
+
+async function processGmail(email: OutreachUser) {
+  // This for loop need to be refactored to allow for MS and Google seperate flows based on account
+  const accessToken = email.user_profile.provider_token;
+  const resumeLink = email.user_profile.composed.resume_link;
+  const refreshToken = email.user_profile.provider_refresh_token;
+
+  const oAuth2Client = new google.auth.OAuth2();
+  oAuth2Client.setCredentials({ access_token: accessToken });
+
+  try {
+    if (resumeLink) {
+      await sendEmailWithPdfFromUrl(
+        oAuth2Client, 
+        email.to_email, 
+        email.subject_generated, 
+        email.email_generated,
+        resumeLink
+      );
+      await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
+      console.log(`Email w attachment sent to ${email.to_email}`);
+    } else {
+      await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
+      await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
+      console.log(`Email sent to ${email.to_email}`);
+    }
+  } catch (error) {
+    console.log('Access token expired. Refreshing...');
+    try {
+      const newAccessToken = await refreshAccessToken(refreshToken);
+
+      await supabase
+        .from('user_profile')
+        .update({ provider_token: newAccessToken })
+        .eq('id', email.user_profile_id);
+
+      oAuth2Client.setCredentials({ access_token: newAccessToken });
+      if (resumeLink) {
+        await sendEmailWithPdfFromUrl(
+          oAuth2Client, 
+          email.to_email, 
+          email.subject_generated, 
+          email.email_generated,
+          resumeLink
+        );
+        await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
+        console.log(`Email w attachment sent to ${email.to_email} after refreshing token`);
+      } else {
+        await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
+        await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
+        console.log(`Email sent to ${email.to_email} after refreshing token`);
+      }
+
+    } catch (refreshError) {
+      console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
+    }
+  }
+}
+
+async function processMs(email: OutreachUser) {
+  // This for loop need to be refactored to allow for MS and Google seperate flows based on account
+  let accessToken = email.user_profile.provider_token;
+  const refreshToken = email.user_profile.provider_refresh_token;
+  const resumeLink = email.user_profile.composed.resume_link;
+
+  try {
+    // Send the email with or without an attachment
+    if (resumeLink) {
+      await sendOutlookEmailWithPdfFromUrl(accessToken, email.to_email, email.subject_generated, email.email_generated, resumeLink);
+      await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
+      console.log(`Email with attachment sent to ${email.to_email}`);
+    } else {
+      await sendOutlookEmail(accessToken, email.to_email, email.subject_generated, email.email_generated);
+      await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
+      console.log(`Email sent to ${email.to_email}`);
+    }
+  } catch (error) {
+    console.error('Access token expired. Refreshing...');
+
+    try {
+      // Refresh the access token using the refresh token
+      const accessToken = await getAccessToken(refreshToken);
+
+      // Save the new access token to the database
+      await supabase
+        .from('user_profile')
+        .update({ provider_token: accessToken })
+        .eq('id', email.user_profile_id);
+
+      console.error(1)
+      // Retry sending the email
+      if (resumeLink) {
+        await sendOutlookEmailWithPdfFromUrl(accessToken || '', email.to_email, email.subject_generated, email.email_generated, resumeLink);
+        await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
+        console.log(`Email with attachment sent to ${email.to_email} after refreshing token`);
+      } else {
+        await sendOutlookEmail(accessToken || '', email.to_email, email.subject_generated, email.email_generated);
+        await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
+        console.log(`Email sent to ${email.to_email} after refreshing token`);
+      }
+    
+    } catch (refreshError) {
+      console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
+    }
+  }
 }

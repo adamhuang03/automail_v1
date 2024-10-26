@@ -14,40 +14,8 @@ import { supabase } from '@/lib/db/supabase'
 import { User } from '@supabase/supabase-js'
 import { Composed, OutreachUser } from '@/utils/types'
 import { useRouter } from 'next/navigation'
-import { sendEmail } from '@/utils/sendGmail'
 import { ManagePage } from './managePage'
 import { getFileUrl } from '@/utils/getFile'
-import { v4 as uuid } from 'uuid';
-import {decode} from 'base64-arraybuffer'
-
-// const firmEmails: { [key: string]: string } = {
-//   "TD Securities": "tdsecurities.com",
-//   "RBC Capital Markets": "rbccm.com",
-//   "CIBC Capital Markets": "cibccapitalmarkets.com",
-//   "Scotiabank Global Banking & Markets": "scotiabank.com",
-//   "BMO Capital Markets": "bmocapitalmarkets.com",
-//   "National Bank Financial Markets": "nbf.ca",
-//   "Goldman Sachs": "gs.com",
-//   "Evercore": "evercore.com",
-//   "Lazard": "lazard.com",
-//   "Morgan Stanley": "morganstanley.com",
-//   "Bank of America": "bofa.com",
-//   "University of Toronto": "mail.utoronto.ca"
-// }
-
-// const firms = [
-//     "TD Securities",
-//     "RBC Capital Markets",
-//     "CIBC Capital Markets",
-//     "Scotiabank Global Banking & Markets",
-//     "BMO Capital Markets",
-//     "National Bank Financial Markets",
-//     "Goldman Sachs",
-//     "Evercore",
-//     "Lazard",
-//     "Morgan Stanley",
-//     "Bank of America"
-// ]
 
 type Prospect = {
   name: string
@@ -200,7 +168,8 @@ export default function ColdOutreachUI() {
       firm_email_id: number,
       subject_generated: string,
       email_generated: string,
-      scheduled_datetime_utc: string
+      scheduled_datetime_utc: string,
+      provider_name: string
     }[] = [];
     const gmailData: { 
       to_email: string,
@@ -239,7 +208,8 @@ export default function ColdOutreachUI() {
             firm_email_id: Number(firmEmails[firmGroup.firm][1]),
             subject_generated: draft.subject,
             email_generated: draft.body,
-            scheduled_datetime_utc: prospect.scheduledTime.utcTime
+            scheduled_datetime_utc: prospect.scheduledTime.utcTime,
+            provider_name: user.app_metadata.provider || ''
           });
         }
       })
@@ -369,6 +339,16 @@ export default function ColdOutreachUI() {
     }
   }
 
+  // Function to generate a random hex color
+  const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
   useEffect(() => {
     (async() => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -431,6 +411,8 @@ export default function ColdOutreachUI() {
         .select('*')
         .filter('user_profile_id', 'eq', user?.id)
 
+        console.log(user)
+
         if (data && Object.keys(data).length > 0) {
           setAvailTemplate(true)
           setEmailSubject(data[0].subject)
@@ -450,7 +432,7 @@ export default function ColdOutreachUI() {
         <div className="flex items-center mb-8">
           <Avatar className="h-8 w-8 mr-2">
             <AvatarImage src={user?.user_metadata.avatar_url} alt={`${user?.user_metadata.full_name}} User`} />
-            <AvatarFallback>US</AvatarFallback>
+            <AvatarFallback className='bg-gray-300'>{user?.user_metadata.full_name[0]}</AvatarFallback>
           </Avatar>
           <span className="font-semibold">{user?.user_metadata.full_name}</span>
         </div>
