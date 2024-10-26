@@ -39,6 +39,7 @@ export const sendEmailWithPdfFromUrl = async (
     const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
     const pdfContent = Buffer.from(response.data).toString('base64');
     const fileName = pdfUrl.split('/').pop(); // You can also derive this from the URL if needed
+    const decodedFileName = fileName ? decodeURIComponent(fileName) : ''
 
     // Construct the raw email message with attachment
     const rawMessage = [
@@ -54,9 +55,9 @@ export const sendEmailWithPdfFromUrl = async (
       message, // Email message body
       '',
       '--boundary_example',
-      `Content-Type: application/pdf; name="${fileName}"`,
+      `Content-Type: application/pdf; name="${decodedFileName}"`,
       'Content-Transfer-Encoding: base64',
-      `Content-Disposition: attachment; filename="${fileName}"`,
+      `Content-Disposition: attachment; filename="${decodedFileName}"`,
       '',
       pdfContent, // Base64 encoded PDF content
       '',

@@ -89,7 +89,8 @@ export const sendOutlookEmailWithPdfFromUrl = async (
   try {
     const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
     const pdfContent = Buffer.from(response.data).toString('base64');
-    const fileName = pdfUrl.split('/').pop() || 'attachment.pdf';
+    const fileName = pdfUrl.split('/').pop(); // You can also derive this from the URL if needed
+    const decodedFileName = fileName ? decodeURIComponent(fileName) : ''
 
     const emailMessage = {
       message: {
@@ -108,7 +109,7 @@ export const sendOutlookEmailWithPdfFromUrl = async (
         attachments: [
           {
             '@odata.type': '#microsoft.graph.fileAttachment',
-            name: fileName,
+            name: decodedFileName,
             contentBytes: pdfContent,
           },
         ],
