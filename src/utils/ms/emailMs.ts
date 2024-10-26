@@ -82,14 +82,11 @@ export const sendOutlookEmailWithPdfFromUrl = async (
     scopes: ['https://graph.microsoft.com/.default'],
   };
 
-  // const client = Client.initWithMiddleware({ // for application, which is internal azure
-  //   authProvider: new TokenCredentialAuthenticationProvider(credential, authProviderOptions),
-  // });
   const client = Client.init({
     authProvider: (done) => done(null, accessToken),
   });
 
-  // try {
+  try {
     const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
     const pdfContent = Buffer.from(response.data).toString('base64');
     const fileName = pdfUrl.split('/').pop() || 'attachment.pdf';
@@ -119,10 +116,9 @@ export const sendOutlookEmailWithPdfFromUrl = async (
       saveToSentItems: true,
     };
 
-    // const result = await client.api(`/users/${userId}/sendMail`).post(emailMessage);
     const result = await client.api(`/me/sendMail`).post(emailMessage)
     return result;
-  // } catch (error: any) {
-  //   throw new Error(`Error sending email with attachment: ${error.message}`);
-  // }
+  } catch (error: any) {
+    throw new Error(`Error sending email with attachment: ${error.message}`);
+  }
 };

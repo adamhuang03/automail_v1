@@ -124,7 +124,7 @@ async function processMs(email: OutreachUser) {
   } catch (error) {
     console.error('Access token expired. Refreshing...');
 
-    // try {
+    try {
       // Refresh the access token using the refresh token
       const accessToken = await getAccessToken(refreshToken);
 
@@ -146,8 +146,8 @@ async function processMs(email: OutreachUser) {
         console.log(`Email sent to ${email.to_email} after refreshing token`);
       }
     
-    // } catch (refreshError) {
-    //   console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
-    // }
+    } catch (refreshError) {
+      console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
+    }
   }
 }
