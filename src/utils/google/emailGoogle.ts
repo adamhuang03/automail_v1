@@ -40,8 +40,6 @@ export const sendEmailWithPdfFromUrl = async (
     const pdfContent = Buffer.from(response.data).toString('base64');
     const fileName = pdfUrl.split('/').pop(); // You can also derive this from the URL if needed
 
-    console.error(fileName)
-
     // Construct the raw email message with attachment
     const rawMessage = [
       `To: ${to}`,
