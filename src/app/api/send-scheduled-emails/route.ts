@@ -113,11 +113,11 @@ async function processMs(email: OutreachUser) {
   try {
     // Send the email with or without an attachment
     if (resumeLink) {
-      await sendOutlookEmailWithPdfFromUrl(accessToken, email.to_email, email.subject_generated, email.email_generated, resumeLink, email.ref_user_email);
+      await sendOutlookEmailWithPdfFromUrl(accessToken, email.to_email, email.subject_generated, email.email_generated, resumeLink);
       await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
       console.log(`Email with attachment sent to ${email.to_email}`);
     } else {
-      await sendOutlookEmail(accessToken, email.to_email, email.subject_generated, email.email_generated, email.ref_user_email);
+      await sendOutlookEmail(accessToken, email.to_email, email.subject_generated, email.email_generated);
       await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
       console.log(`Email sent to ${email.to_email}`);
     }
@@ -137,11 +137,11 @@ async function processMs(email: OutreachUser) {
       console.error(1)
       // Retry sending the email
       if (resumeLink) {
-        await sendOutlookEmailWithPdfFromUrl(accessToken || '', email.to_email, email.subject_generated, email.email_generated, resumeLink, email.ref_user_email);
+        await sendOutlookEmailWithPdfFromUrl(accessToken || '', email.to_email, email.subject_generated, email.email_generated, resumeLink);
         await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
         console.log(`Email with attachment sent to ${email.to_email} after refreshing token`);
       } else {
-        await sendOutlookEmail(accessToken || '', email.to_email, email.subject_generated, email.email_generated, email.ref_user_email);
+        await sendOutlookEmail(accessToken || '', email.to_email, email.subject_generated, email.email_generated);
         await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
         console.log(`Email sent to ${email.to_email} after refreshing token`);
       }

@@ -169,8 +169,7 @@ export default function ColdOutreachUI() {
       subject_generated: string,
       email_generated: string,
       scheduled_datetime_utc: string,
-      provider_name: string,
-      ref_user_email: string
+      provider_name: string
     }[] = [];
     const gmailData: { 
       to_email: string,
@@ -210,8 +209,7 @@ export default function ColdOutreachUI() {
             subject_generated: draft.subject,
             email_generated: draft.body,
             scheduled_datetime_utc: prospect.scheduledTime.utcTime,
-            provider_name: user.app_metadata.provider || '',
-            ref_user_email: user.email || ''
+            provider_name: user.app_metadata.provider || ''
           });
         }
       })
