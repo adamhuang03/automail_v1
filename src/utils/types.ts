@@ -38,6 +38,9 @@ export type OutreachUser = {
       provider_token: string
       provider_refresh_token: string
     }
+    auth_user: {
+      email: string
+    }
     user_profile_id: string
     to_name: string
     to_email: string

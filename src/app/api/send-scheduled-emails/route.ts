@@ -19,7 +19,9 @@ async function processScheduledEmails() {
     .from('outreach')
     .select(`
         *,
-        user_profile!user_profile_id (provider_token, provider_refresh_token, composed!user_profile_id(resume_link))
+        user_profile!user_profile_id (
+        provider_token, provider_refresh_token, auth_user:auth__user!user_profile_id(email), composed!user_profile_id(resume_link)
+        )
     `)
     .eq('status', 'Scheduled')            
     .gte('scheduled_datetime_utc', currentTime);
