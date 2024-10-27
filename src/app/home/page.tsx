@@ -330,16 +330,8 @@ export default function ColdOutreachUI() {
     }
   }
 
-  // Function to generate a random hex color
-  const getRandomColor = () => {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
-
+  
+  
   useEffect(() => {
     (async() => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -518,13 +510,21 @@ export default function ColdOutreachUI() {
                       ref={fileInputRef}
                       onChange={(e) => setFile(e.target.files?.[0] || null)}
                     />
-                    <div className="flex mt-2 gap-2 justify-end">
+                    <Label className='mt-10 max-w-72 leading-normal' >
+                      <div className="mb-2"><b>Uploaded File:</b></div>
+                      {resumeFilePath ? decodeURIComponent(resumeFileUrl?.split("/").pop() || '') : "No Resume Uploaded"}
+                    </Label>
+                    <div className="flex mt-2 gap-2 justify-start">
                       <Button 
                         variant="outline" 
-                        disabled={!resumeFileUrl}
-                        onClick={() => window.open(
-                          resumeFileUrl || '', '_blank', 'noopener,noreferrer'
-                        )}
+                        disabled={!resumeFileUrl && !file}
+                        onClick={() => {
+                          if (file) {
+
+                          } else if (resumeFileUrl) {
+                            window.open(resumeFileUrl || '', '_blank', 'noopener,noreferrer')
+                          }
+                        }}
                       >
                         <EyeIcon className="mr-2 h-4 w-4" />
                         View Resume
@@ -534,10 +534,6 @@ export default function ColdOutreachUI() {
                         {uploading ? 'Attaching...' : 'Attach Resume '}
                       </Button> */}
                     </div> 
-                    <Label className='mt-4 max-w-72 leading-normal' >
-                      <div className="mb-2"><b>Uploaded File:</b></div>
-                      {resumeFilePath ? decodeURIComponent(resumeFileUrl?.split("/").pop() || '') : "No Resume Uploaded"}
-                    </Label>
                   </div>
 
               </div>
