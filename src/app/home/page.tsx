@@ -58,9 +58,17 @@ export default function ColdOutreachUI() {
     }])
 
     if (!error) {
-      // console.log("Template saved:", { subject: emailSubject, body: emailTemplate })
-      setAvailTemplate(true)
-      alert("Template has been saved!")
+
+      if (file) {
+        try {
+          handleAddResume()
+          alert("Template and file has been saved!")
+        } catch (error) {
+          alert("An error has occured, please try again later.")
+        }
+      } else {
+        alert("Template has been saved!")
+      }
     } else {
       alert("Issue with saving template, please try again later.")
     }
@@ -244,27 +252,10 @@ export default function ColdOutreachUI() {
 
   const handleAddResume = async() => {
     setUploading(true)
-
-    if (!availTemplate) {
-      alert("Please save a template before proceeding.")
-      setUploading(false)
-      return;
-    }
-
-    // const fileExt = file?.name.split('.').pop();
-    // const fileName = `${uuid()}.${fileExt}`; // Generating a random file name
     const filePath = `resume/${user?.id}/${file?.name}`;
 
 
     if (file && resumeFilePath) {
-      // const { data, error } = await supabase
-      //   .storage
-      //   .from('resume_link')
-      //   .update(resumeFilePath, file, {
-      //     contentType: 'application/pdf',
-      //     cacheControl: '3600',
-      //     upsert: true
-      //   })
       const { data, error } = await supabase
         .storage
         .from('resume_link')
