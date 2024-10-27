@@ -573,7 +573,7 @@ export default function ColdOutreachUI() {
               <Dialog open={popupChanged} onOpenChange={setPopupChanged}>
                 <DialogContent className="sm:max-w-[425px] hideClose" >
                   <DialogHeader>
-                    <DialogTitle className="text-red-600">Delete Draft</DialogTitle>
+                    <DialogTitle>Save your template</DialogTitle>
                   </DialogHeader>
                   <div className="mt-2 space-y-2">
                     <p className="text-sm">
