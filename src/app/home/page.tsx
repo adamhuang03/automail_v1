@@ -48,7 +48,7 @@ export default function ColdOutreachUI() {
   const [fileNameTemp, setFileNameTemp] = useState<string>('')
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
-  const [composedChanged, setComposedChanged] = useState<boolean>(false)
+  const [composedChanged, setComposedChanged] = useState<number>(0)
   const [popupChanged, setPopupChanged] = useState<boolean>(false)
 
   const saveTemplate = async () => {
@@ -73,7 +73,7 @@ export default function ColdOutreachUI() {
     } else {
       alert("Issue with saving template, please try again later.")
     }
-    setComposedChanged(false)
+    setComposedChanged(0)
   }
 
   const utcToLocal = (datetime: string) => {
@@ -440,7 +440,7 @@ export default function ColdOutreachUI() {
   }, [file])
 
   useEffect(() => {
-    setComposedChanged(true)
+    setComposedChanged((prev) => prev + 1)
   }, [emailSubject, emailTemplate, file])
 
   return (
@@ -587,7 +587,7 @@ export default function ColdOutreachUI() {
                       variant='destructive' 
                       size="sm" 
                       className="w-full"
-                      onClick={}
+                      onClick={() => console.log(composedChanged)}
                     >
                       Confirm
                     </Button>
