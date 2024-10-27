@@ -1,0 +1,1113 @@
+[33mcommit a95f0b69609da79b9fc48744e6efbceb97b00107[m[33m ([m[1;36mHEAD -> [m[1;32mfea0002_clean0001[m[33m, [m[1;31morigin/main_preview[m[33m, [m[1;31morigin/fea0002_clean0001[m[33m, [m[1;32mmain_preview[m[33m)[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sun Oct 27 13:48:51 2024 -0400
+
+    Adjust title for confirmation of template
+
+ src/app/home/page.tsx | 4 [32m++[m[31m--[m
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+[33mcommit 98df6663c2c9062c83dbf56e14a796693c48f31b[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sun Oct 27 04:31:54 2024 -0400
+
+    Adjust title for confirmation of template
+
+ src/app/home/page.tsx | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit e6899a5f745ea935178d19c0d9e988f8acd417e2[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sun Oct 27 04:17:40 2024 -0400
+
+    Initial idea of template saving + check ... is complete
+
+ src/app/home/page.tsx | 49 [32m++++++++++++++++++++++++++[m[31m-----------------------[m
+ 1 file changed, 26 insertions(+), 23 deletions(-)
+
+[33mcommit bb7e440b9905f52ac4a3839a56d397a680514fcd[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sun Oct 27 04:01:30 2024 -0400
+
+    Testing page load variable 'count of change'
+
+ src/app/home/page.tsx | 8 [32m++++[m[31m----[m
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+[33mcommit d241160e39598ef1c11b3ef57e2d772b1c4d8b67[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sun Oct 27 03:52:36 2024 -0400
+
+    reroute user with reminder to save template
+
+ src/app/home/page.tsx | 62 [32m++++++++++++++++++++++++++++++++++++++++++++[m[31m-------[m
+ 1 file changed, 54 insertions(+), 8 deletions(-)
+
+[33mcommit 28d872c806e805fa5c20baef27cba791b10ce439[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 23:55:00 2024 -0400
+
+    Resume flow without attach and in browser view complete
+
+ src/app/home/page.tsx | 42 [32m++++++++++++++++++++++++++++[m[31m--------------[m
+ 1 file changed, 28 insertions(+), 14 deletions(-)
+
+[33mcommit 96528b6979899e47c3ea3d6e2cf156bce7ebe567[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 23:41:21 2024 -0400
+
+    Remove random colour gen + set up initial resume rework logic
+
+ src/app/home/page.tsx | 34 [32m+++++++++++++++[m[31m-------------------[m
+ 1 file changed, 15 insertions(+), 19 deletions(-)
+
+[33mcommit 2e3d832394cbec71cfc81f2b111f9ecaec3e1649[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 22:24:06 2024 -0400
+
+    Hotfix to remove alerts
+
+ src/app/home/page.tsx | 4 [32m++[m[31m--[m
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+[33mcommit 4f14e729ec5b00ba2189950ee6031d41ac27157c[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 22:16:32 2024 -0400
+
+    Simple fix to adding flow of composed tab
+
+ src/app/home/page.tsx | 31 [32m+++++++++++[m[31m--------------------[m
+ 1 file changed, 11 insertions(+), 20 deletions(-)
+
+[33mcommit c06ef9d793ab14257d298bd91868d6d617870c18[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 22:10:05 2024 -0400
+
+    Remove attach button for resume
+
+ src/app/home/page.tsx | 4 [32m++[m[31m--[m
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+[33mcommit 857a0ad257f387f1366ed69729d8780e6d44b681[m[33m ([m[1;32mmain_fea001_test2[m[33m)[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 12:52:09 2024 -0400
+
+    Works with uoft? Cleaned up and gte is now lte
+
+ src/app/api/send-scheduled-emails/route.ts | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit af677720d4f4b21df7600eb459d24e7022cf509c[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 12:31:23 2024 -0400
+
+    Update for decoded file name and regular email send client
+
+ src/utils/google/emailGoogle.ts | 5 [32m+++[m[31m--[m
+ src/utils/ms/emailMs.ts         | 5 [32m+++[m[31m--[m
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+[33mcommit bffe773236c4379e9e6fdc7fa05a240fdbf4011e[m
+Merge: 78c01c9 a27bb0c
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 12:26:53 2024 -0400
+
+    Merge
+
+[33mcommit a27bb0c499ca63d2aaf06da44f4557dbf137d16b[m[33m ([m[1;31morigin/fea0001[m[33m, [m[1;32mfea0001[m[33m)[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 11:53:05 2024 -0400
+
+    emailGoogle file update
+
+ src/utils/google/emailGoogle.ts | 2 [31m--[m
+ 1 file changed, 2 deletions(-)
+
+[33mcommit 95a19f31c1e9ecbb52288bc6ba7c6a0c1c0f5c88[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 11:36:30 2024 -0400
+
+    Clean up code
+
+ src/app/api/send-scheduled-emails/route.ts |  8 [32m++++[m[31m----[m
+ src/utils/ms/emailMs.ts                    | 12 [32m++++[m[31m--------[m
+ 2 files changed, 8 insertions(+), 12 deletions(-)
+
+[33mcommit d48f401c2a1af36cda26d292be63d2fcc2d4fa31[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 11:33:16 2024 -0400
+
+    /me fix
+
+ src/utils/ms/emailMs.ts | 128 [32m++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 128 insertions(+)
+
+[33mcommit 52f2e3e093c709ba33745d3f988469648a8f40b1[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 11:32:11 2024 -0400
+
+    Removing ref_user_email related code
+
+ src/app/api/send-scheduled-emails/route.ts | 8 [32m++++[m[31m----[m
+ src/app/home/page.tsx                      | 6 [32m++[m[31m----[m
+ src/utils/types.ts                         | 2 [31m--[m
+ 3 files changed, 6 insertions(+), 10 deletions(-)
+
+[33mcommit 434343c597e9544d61bfebbc196cec5e15621000[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 11:30:49 2024 -0400
+
+    Initial testing worked for sending outlook - /me works, no need for ref_email...
+
+ src/app/api/send-scheduled-emails/route.ts | 10 [32m++++++[m[31m----[m
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+[33mcommit 24ae5ea2dcee08bf4f66988b1cbfa10f85d0e54e[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 11:03:17 2024 -0400
+
+    Added attachment sending within token refresh clause
+
+ src/app/api/send-scheduled-emails/route.ts | 36 [32m+++++++++++++++++++++++[m[31m-------[m
+ 1 file changed, 28 insertions(+), 8 deletions(-)
+
+[33mcommit 2c1a71c13541186f7d10949c08c9a8c9a0c323cc[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 10:58:10 2024 -0400
+
+    Tried supa auth retrieval - didn't want to combine tables, hence just added a new column
+
+ src/app/api/send-scheduled-emails/route.ts | 6 [32m+++[m[31m---[m
+ src/app/home/page.tsx                      | 6 [32m++++[m[31m--[m
+ src/utils/types.ts                         | 5 [32m++[m[31m---[m
+ 3 files changed, 9 insertions(+), 8 deletions(-)
+
+[33mcommit 52116b9df48560c612e8ea3213b2aa1e2490a63f[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 26 10:36:24 2024 -0400
+
+    Check values of email fetch with user email now
+
+ src/app/api/send-scheduled-emails/route.ts | 4 [32m+++[m[31m-[m
+ src/utils/types.ts                         | 3 [32m+++[m
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+[33mcommit d7f93b5ff09a715c83fd8fb28648627c8c445ae5[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 25 21:34:06 2024 -0400
+
+    Update outlook msalClient to -common-
+
+ src/app/api/send-scheduled-emails/route.ts | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit 78c01c952128eb15807a0afc86eb7c0d8a69e955[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 25 13:07:56 2024 -0400
+
+    Composed page resume filename hotfix 2
+
+ src/app/home/page.tsx | 2 [31m--[m
+ 1 file changed, 2 deletions(-)
+
+[33mcommit 7cc0782949e3deb3593fb1f55769d99ce44f84ad[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 25 12:57:16 2024 -0400
+
+    Composed page resume filename hotfix
+
+ src/app/home/page.tsx | 4 [32m+++[m[31m-[m
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+[33mcommit a5453f13034e6234884097e2476b5f1d59ad1849[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 25 01:27:37 2024 -0400
+
+    Split out google and azure email functions into utils + cleaned up api page -- needs testing
+
+ .env.example                               |   6 [32m+[m[31m-[m
+ package-lock.json                          | 366 [32m+++++++++++++++++++++++++++++[m
+ package.json                               |   3 [32m+[m
+ src/app/api/send-scheduled-emails/route.ts | 129 [32m++++++[m[31m----[m
+ 4 files changed, 463 insertions(+), 41 deletions(-)
+
+[33mcommit fa28a0cbee553acc39a7276c7a9021fb34b481b7[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 25 01:08:35 2024 -0400
+
+    Update for provider_name in outreach database
+
+ src/app/home/page.tsx | 34 [32m++++[m[31m------------------------------[m
+ src/utils/types.ts    |  2 [32m++[m
+ 2 files changed, 6 insertions(+), 30 deletions(-)
+
+[33mcommit 96f743a1ce568211c6f06e0504e691acecb12968[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 25 01:01:02 2024 -0400
+
+    Clean homepage file for unused variables
+
+ src/app/api/send-scheduled-emails/route.ts | 2 [32m++[m
+ src/app/home/page.tsx                      | 6 [32m++[m[31m----[m
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+[33mcommit 35ad7f2586d9a15302d04b86d0c38305cfd099ec[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 25 00:51:49 2024 -0400
+
+    Refactor gmail sending code on api side
+
+ src/app/api/send-scheduled-emails/route.ts | 18 [32m+++++++[m[31m-----------[m
+ 1 file changed, 7 insertions(+), 11 deletions(-)
+
+[33mcommit a28a5b093c096d69088feb818f2529d31f765aae[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 25 00:51:08 2024 -0400
+
+    Update google mail structure for api
+
+ src/utils/google/emailGoogle.ts | 108 [32m++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 108 insertions(+)
+
+[33mcommit ccc432b2d70e2d2053c6cfcffed93eed4430b90f[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 25 00:28:26 2024 -0400
+
+    Moving google emails functions to utils folder and cleaning up
+
+ src/app/api/send-scheduled-emails/route.ts | 110 [32m+[m[31m----------------------------[m
+ src/app/home/page.tsx                      |   2 [32m+[m[31m-[m
+ src/utils/sendGmail.ts                     |  28 [31m--------[m
+ 3 files changed, 3 insertions(+), 137 deletions(-)
+
+[33mcommit a0f49296513b69d3937610f0609aa4f2d4b445fe[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 24 16:03:26 2024 -0400
+
+    Added decoding to filename for pdf, URL doesn't have space characters - iss0002
+
+ src/app/api/send-scheduled-emails/route.ts | 9 [32m++++++[m[31m---[m
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+[33mcommit 8a683d93fd1f99b3e800b7f78ffb5e08a6da7ab3[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 24 14:22:01 2024 -0400
+
+    Update for provider_refresh_token namming - see iss0001
+
+ src/app/api/auth/ms/callback/page.tsx | 19 [32m+++++++++++[m[31m--------[m
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+[33mcommit 80201a0b8636b0ca9a5466373c4e7f620c531f16[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 24 14:18:55 2024 -0400
+
+    Cleaning console logs -- iss0001 fixed
+
+ src/app/api/auth/login/callback/page.tsx   |  9 [32m+++++[m[31m----[m
+ src/app/api/send-scheduled-emails/route.ts | 12 [32m++++[m[31m--------[m
+ 2 files changed, 9 insertions(+), 12 deletions(-)
+
+[33mcommit c39b2725ab130a2bf5c267c3e170b864136e47c1[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 24 13:55:24 2024 -0400
+
+    Testing if tokens change to begin with:
+
+ src/app/api/auth/login/callback/page.tsx | 3 [32m++[m[31m-[m
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+[33mcommit 21dc5ce2d8c1c605f6e14723f1adbb156f952679[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 24 13:53:19 2024 -0400
+
+    Testing if login callback will have session to see if provider token is being updated
+
+ src/app/api/auth/login/callback/page.tsx | 3 [32m++[m[31m-[m
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+[33mcommit bb7a5be22cf895e63090c666f1f38d7b549fd330[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 24 13:50:01 2024 -0400
+
+    Testing refresh token issue
+
+ src/app/api/send-scheduled-emails/route.ts | 16 [32m++++++++++[m[31m------[m
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+[33mcommit 77ec1e56d08c7bb7d261ca4e8c4c4d7ef2ec2383[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 24 00:30:08 2024 -0400
+
+    Removed console logs
+
+ src/app/home/page.tsx | 2 [31m--[m
+ 1 file changed, 2 deletions(-)
+
+[33mcommit 98db2d5e06478bb0bad0e759971ebdc8b8593456[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 24 00:26:04 2024 -0400
+
+    Final update for ms login -> next is to add email sending feature for potentially fea0002
+
+ src/app/api/auth/ms/callback/page.tsx | 17 [32m+++++++++[m[31m--------[m
+ src/app/home/page.tsx                 | 14 [32m+++++++++++++[m[31m-[m
+ src/app/login/page.tsx                |  2 [32m+[m[31m-[m
+ 3 files changed, 23 insertions(+), 10 deletions(-)
+
+[33mcommit ec93809ed92352d438a33fd36318b19f5c5ae43f[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Wed Oct 23 23:57:23 2024 -0400
+
+    Replace ms register flow with login/callback so that there is only 1 login
+
+ src/app/api/auth/ms/callback/page.tsx | 15 [32m++++++++++++[m[31m---[m
+ src/app/login/page.tsx                |  6 [32m+++[m[31m---[m
+ 2 files changed, 15 insertions(+), 6 deletions(-)
+
+[33mcommit 4f4201130fd24f63364504428822798b9af213b4[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Wed Oct 23 23:47:56 2024 -0400
+
+    Added logos to login
+
+ package-lock.json      | 13 [32m+++++++++++++[m
+ package.json           |  1 [32m+[m
+ src/app/login/page.tsx | 11 [32m+++++++[m[31m----[m
+ 3 files changed, 21 insertions(+), 4 deletions(-)
+
+[33mcommit 39242238bb5fbfe1b122fc7e2055aa312e69622d[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Wed Oct 23 22:08:24 2024 -0400
+
+    Provider token and refresh token checked - testing now
+
+ src/app/api/auth/ms/callback/page.tsx | 44 [32m+++++++++++++++++[m[31m------------------[m
+ 1 file changed, 22 insertions(+), 22 deletions(-)
+
+[33mcommit 8ba28a228004fb79e7bf592f01ebb4098dacfeb8[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Wed Oct 23 22:03:09 2024 -0400
+
+    Testing complete - using page.tsx to pull out params from outlook azure
+
+ src/app/api/auth/ms/callback/page.tsx | 45 [32m+++++++++++++++++++++++++[m
+ src/app/login/page.tsx                | 62 [32m+++++++++++++++++++++++++++++++[m[31m----[m
+ 2 files changed, 101 insertions(+), 6 deletions(-)
+
+[33mcommit d21bebc14a276c5a2cf4466543f0f4564f9acc0e[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 22 12:58:14 2024 -0400
+
+    Update utctime for add prospect
+
+ src/app/home/page.tsx | 3 [32m++[m[31m-[m
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+[33mcommit 789bc4871b3854e2e091e38b1f03c778ac484df6[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 12:08:33 2024 -0400
+
+    Update add person so utc time is also there
+
+ src/app/home/page.tsx | 3 [32m++[m[31m-[m
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+[33mcommit 7173cb7c02075f44a362c2091a58801d85b2e4d0[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 11:54:39 2024 -0400
+
+    Update sending from Test to Scheduled
+
+ src/app/api/send-scheduled-emails/route.ts | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit 56c04cf86413b34076d04d547f5039161ed37031[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 11:53:19 2024 -0400
+
+    Update gte to lte
+
+ src/app/api/send-scheduled-emails/route.ts | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit f7db004be325d5687efff72cf4c1558c22f6486a[m
+Merge: 2554e9c 225d16a
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 11:50:34 2024 -0400
+
+    Merge branch 'fea1_resume_link'
+
+[33mcommit 2554e9c73d77732dd24671e7a561c367a9cf330d[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 00:50:22 2024 -0400
+
+    Remove axios related
+
+ src/app/api/send-scheduled-emails/route.ts | 118 [32m++++++++++++++[m[31m---------------[m
+ 1 file changed, 59 insertions(+), 59 deletions(-)
+
+[33mcommit ecdb807b8a766387ad64cdba7a2bb372c76deee4[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 00:49:10 2024 -0400
+
+    Update to axios post logo
+
+ src/app/api/send-scheduled-emails/route.ts | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit 225d16a67b13611ee04d0d209d764685d0882923[m[33m ([m[1;31morigin/fea1_resume_link[m[33m)[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 00:46:10 2024 -0400
+
+    Final Bug Fix for Feature
+
+ src/app/home/page.tsx | 14 [32m+++++++++[m[31m-----[m
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+[33mcommit ec5e09c6a123ae1d055979153c9946ec9b682afc[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 00:35:02 2024 -0400
+
+    Feature Complete and Testing <> Confirm with team
+
+ src/app/home/page.tsx | 7 [32m+++++[m[31m--[m
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+[33mcommit 4752a65a15df780788a1f9519fffc1c751a12983[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 00:18:01 2024 -0400
+
+    Update logo
+
+ public/images/automail-large.png | Bin [31m0[m -> [32m12355[m bytes
+ src/app/login/page.tsx           |   2 [32m+[m[31m-[m
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit fdcc796823b5a01012afb8c1c9264a1b51262e6b[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 21 00:05:03 2024 -0400
+
+    Done: PDF can be sent with email, <end> is just a outlook bug, you can see you uploaded a file on the home page composed
+
+ src/app/home/page.tsx | 7 [32m++++++[m[31m-[m
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+[33mcommit cb922b30f4a94b9fa2a3b8d8ca1b4e6349fe3489[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sun Oct 20 23:53:43 2024 -0400
+
+    Final testing: PDF name on email has been updated, folder structure has also been updated -> last is to update name on template
+
+ src/app/api/send-scheduled-emails/route.ts | 5 [32m+++[m[31m--[m
+ src/app/home/page.tsx                      | 7 [32m++++[m[31m---[m
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+[33mcommit 51bc56c374bdf5d1e0f6a841aff62d0b40d3d50b[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sun Oct 20 23:32:01 2024 -0400
+
+    Progress: Backend adjustment for sending emails w attachement + finding adjustment to file name
+
+ src/app/api/send-scheduled-emails/route.ts | 42 [32m+++++++++++++++++++++++[m[31m-------[m
+ src/utils/types.ts                         |  3 [32m+++[m
+ 2 files changed, 35 insertions(+), 10 deletions(-)
+
+[33mcommit 52f7a90b6bc15c30d2d4217a94c76e24154a2bc1[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sun Oct 20 22:34:49 2024 -0400
+
+    Test: Push all files (missing getFile)
+
+ src/utils/[Unused] signedUrl.ts | 16 [32m++++++++++++++++[m
+ src/utils/getFile.ts            | 13 [32m+++++++++++++[m
+ 2 files changed, 29 insertions(+)
+
+[33mcommit 4680713a76f6be1858f013b63d99cef75616767d[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sun Oct 20 22:28:30 2024 -0400
+
+    Feature bug fix in supabase for updating resumes + adjusted layout of composed tab
+
+ package-lock.json     |  35 [32m++++++++++++[m[31m-[m
+ package.json          |   4 [32m+[m[31m-[m
+ src/app/home/page.tsx | 134 [32m++++++++++++++++++++++++++++++++[m[31m------------------[m
+ 3 files changed, 124 insertions(+), 49 deletions(-)
+
+[33mcommit 52acef72c5fe810e1020930c9ca91be72e1851b4[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 19 22:55:10 2024 -0400
+
+    Feat1 Resume Upload Complete: Upload Resume, Re-Upload Replace Resume, and View Resume Component finished
+
+ src/app/home/page.tsx | 13 [32m+++++++++++[m[31m--[m
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+[33mcommit f9b89b79b68ec61b7bf9b857863c10123405f5d9[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 19 16:50:38 2024 -0400
+
+    Reuploads can now replace the same file from the same composed email
+
+ src/app/home/page.tsx | 32 [32m++++++++++++++++++++++[m[31m----------[m
+ 1 file changed, 22 insertions(+), 10 deletions(-)
+
+[33mcommit 800710fcf320b1f6d484684022f7464bc1ec9e78[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 19 16:42:52 2024 -0400
+
+    Function to retrieve resume file path stored
+
+ src/app/home/page.tsx | 11 [32m+++++++++++[m
+ src/utils/types.ts    |  1 [32m+[m
+ 2 files changed, 12 insertions(+)
+
+[33mcommit fb196c50dace4b05df369fbbac8b991f193de2e3[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 19 16:35:50 2024 -0400
+
+    File upload foundation completed
+
+ package-lock.json     | 33 [32m++++++++++++++++++++[m[31m---[m
+ package.json          |  3 [32m++[m[31m-[m
+ src/app/home/page.tsx | 73 [32m++++++++++++++++++++++++++++++++++++++++++[m[31m---------[m
+ 3 files changed, 91 insertions(+), 18 deletions(-)
+
+[33mcommit 3baa2e122afedc71803dcd99237b155217c01f80[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 19 15:03:45 2024 -0400
+
+    Added input button for file and adjusted size of composed tab width
+
+ src/app/home/page.tsx | 15 [32m+++++++++++[m[31m----[m
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+[33mcommit ab4f76d493e7897078f7e2ec647762b49480af08[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 19 14:26:43 2024 -0400
+
+    Added axios to set up for sending email with url
+
+ package-lock.json                          | 91 [32m++++++++++++++++++++++++++++++[m
+ package.json                               |  1 [32m+[m
+ src/app/api/send-scheduled-emails/route.ts |  2 [32m+[m[31m-[m
+ 3 files changed, 93 insertions(+), 1 deletion(-)
+
+[33mcommit 711229fb701ddbaefaf3df26cfc3dae4a325e95d[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Sat Oct 19 13:32:32 2024 -0400
+
+    1.0.5: Removal of resume button & multiple person adding feature
+
+ src/app/api/send-scheduled-emails/route.ts | 61 [32m++++++++++++++++++++++++++++++[m
+ src/app/home/page.tsx                      | 60 [32m+++++++++++++++++++++++[m[31m------[m
+ 2 files changed, 110 insertions(+), 11 deletions(-)
+
+[33mcommit 9c4f8729197bcb892ae1fd3c740acc60f9b9d038[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Wed Oct 16 00:41:44 2024 -0400
+
+    1.0.5: Update metadata and titles
+
+ src/app/home/page.tsx | 2 [32m+[m[31m-[m
+ src/app/layout.tsx    | 4 [32m++[m[31m--[m
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+[33mcommit b1b6ae8fb58e8dc221e53079b7127219bbdd2e6a[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 15 18:24:38 2024 -0400
+
+    1.0.5: Update wording and remove logging
+
+ src/app/home/page.tsx | 6 [32m+++[m[31m---[m
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+[33mcommit 26693c0baff0dbc84b5dea11ef101500823ce7e1[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 15 18:17:08 2024 -0400
+
+    1.0.5: Softdelete feature added
+
+ src/app/home/managePage.tsx | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit 66791143e249e64ddb090d07fa3dbd633589592a[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 15 18:11:48 2024 -0400
+
+    1.0.5: ErrorCount fix
+
+ src/app/home/page.tsx | 6 [32m+++[m[31m---[m
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+[33mcommit 232fc4a7203cdd4972c67bed454acc5875b4634e[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 15 16:54:57 2024 -0400
+
+    1.0.5: Fix name bug and added email disclaimer
+
+ src/app/home/page.tsx | 19 [32m++++++++++++++++++[m[31m-[m
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+[33mcommit df86b924fb996e84b98f42baad372c8e10144363[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 15 16:22:18 2024 -0400
+
+    1.0.5: Manage tab feature shipped
+
+ src/app/api/cron.ts                        | 112 [31m------------[m
+ src/app/api/send-scheduled-emails/route.ts |   4 [32m+[m[31m-[m
+ src/app/home/managePage.tsx                | 277 [32m+++++++++++++++++++++++++++++[m
+ src/app/home/page.tsx                      |  18 [32m+[m[31m-[m
+ src/components/ui/dialog.tsx               |   4 [32m+[m[31m-[m
+ src/utils/types.ts                         |  16 [32m+[m[31m-[m
+ tsconfig.json                              |   2 [32m+[m[31m-[m
+ 7 files changed, 312 insertions(+), 121 deletions(-)
+
+[33mcommit 4526251ae64cfb03debbdc47afe915ae52c6d113[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 15 11:52:32 2024 -0400
+
+    1.0.4: Fix home page composed load + login flows
+
+ src/app/home/page.tsx | 17 [32m+++++++++++++++[m[31m--[m
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+[33mcommit 0b13fc96402a9dabf8399643cb476c2a99b2ef4b[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 06:58:33 2024 -0400
+
+    1.0.4: Draft first name only
+
+ src/app/home/page.tsx | 6 [32m+++[m[31m---[m
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+[33mcommit 9aeb8c64d8f51b5fa0b55ce693887e909bbe060c[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 06:42:14 2024 -0400
+
+    1.0.4: Archive git cron
+
+ .github/workflows/recurring-post.yml | 15 [31m---------------[m
+ 1 file changed, 15 deletions(-)
+
+[33mcommit 6ea07785c4a299bf1c0f1bcff62d77ab29300b3f[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 06:39:42 2024 -0400
+
+    1.0.4: Last Test
+
+ src/app/api/auth/login/callback/page.tsx    |  2 [32m+[m[31m-[m
+ src/app/api/auth/register/callback/page.tsx |  2 [32m+[m[31m-[m
+ src/app/home/page.tsx                       | 14 [32m++++++++[m[31m------[m
+ src/app/login/page.tsx                      |  6 [32m+++[m[31m---[m
+ src/app/onboard/page.tsx                    |  6 [32m+++[m[31m---[m
+ 5 files changed, 16 insertions(+), 14 deletions(-)
+
+[33mcommit 59419b63afee331fe40f66bb6803f68ca454c3ec[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 06:27:58 2024 -0400
+
+    1.0.4: Hail marry push to finish it off 2
+
+ src/app/api/auth/login/callback/page.tsx | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit d6319301cf217f9151162df1419305d5ee595519[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 06:25:57 2024 -0400
+
+    1.0.4: Hail marry push to finish it off 2
+
+ src/app/api/auth/login/callback/page.tsx    |  6 [32m+++++[m[31m-[m
+ src/app/api/auth/register/callback/page.tsx |  4 [32m++++[m
+ src/app/onboard/page.tsx                    | 20 [32m+++++++++[m[31m-----------[m
+ src/utils/getCookie.ts                      |  4 [32m++++[m
+ 4 files changed, 22 insertions(+), 12 deletions(-)
+
+[33mcommit 85afec52da5c09c6143f75807f748ce6ab3070f7[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 06:14:43 2024 -0400
+
+    1.0.4: Final Testing
+
+ src/app/api/auth/login/callback/page.tsx | 14 [32m+++++++++++[m[31m---[m
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+[33mcommit 9e448fede64f95be04376171ae8a311787c5ccdb[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 06:00:17 2024 -0400
+
+    1.0.4: Hail marry push to finish it off
+
+ src/app/login/page.tsx | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit 859b31e20f7203bee937ff968a5784d6ac5762e6[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:58:00 2024 -0400
+
+    1.0.4: Test
+
+ src/app/api/auth/login/callback/page.tsx    | 85 [32m++++++[m[31m-----------------------[m
+ src/app/api/auth/register/callback/page.tsx | 11 [32m++[m[31m--[m
+ src/app/onboard/page.tsx                    | 23 [32m+++++[m[31m---[m
+ 3 files changed, 35 insertions(+), 84 deletions(-)
+
+[33mcommit 9e13a0aaf97b9fc6092e50a5c753ced04fcdf92d[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:51:09 2024 -0400
+
+    1.0.4: Test
+
+ src/app/onboard/page.tsx | 11 [32m+++++++++++[m
+ src/utils/getCookie.ts   |  7 [32m+++++++[m
+ 2 files changed, 18 insertions(+)
+
+[33mcommit 7cf4c5fd4d1036cbf4b61bd045e5b4329dd812e0[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:45:21 2024 -0400
+
+    1.0.4: Test
+
+ src/app/api/auth/register/callback/page.tsx | 16 [32m++[m[31m--------------[m
+ 1 file changed, 2 insertions(+), 14 deletions(-)
+
+[33mcommit 7a31cc1e4b146fdecaeb51310d838547146e0cb4[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:42:47 2024 -0400
+
+    1.0.4: Test
+
+ package-lock.json                           |  9 [32m+++++++++[m
+ package.json                                |  1 [32m+[m
+ src/app/api/auth/register/callback/page.tsx | 22 [32m+++++++++++[m[31m-----------[m
+ 3 files changed, 21 insertions(+), 11 deletions(-)
+
+[33mcommit 3e4e7ca1524deff2c79d93ac8fe31e0ea99ec2c2[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:39:50 2024 -0400
+
+    1.0.4: Test
+
+ src/app/api/auth/register/callback/page.tsx | 70 [32m++++++++++[m[31m-------------------[m
+ 1 file changed, 24 insertions(+), 46 deletions(-)
+
+[33mcommit 87302b2c907b445a95124dd992315574920eb283[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:32:08 2024 -0400
+
+    1.0.4: Test
+
+ src/app/api/auth/login/callback/page.tsx    | 2 [32m+[m[31m-[m
+ src/app/api/auth/register/callback/page.tsx | 7 [32m+++++[m[31m--[m
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+[33mcommit b093384c8a03e9a15e7e7c2dc58b4af9ac916293[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:22:20 2024 -0400
+
+    1.0.4: Redo
+
+ src/app/api/auth/login/callback/route.ts    | 55 [31m-----------------------------[m
+ src/app/api/auth/register/callback/route.ts | 41 [31m---------------------[m
+ 2 files changed, 96 deletions(-)
+
+[33mcommit d36b02b4b647d6e096f7bdd8fbbdb75f797e248b[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:19:48 2024 -0400
+
+    1.0.4: Bring back old auth as page.tsx due to # nature of url
+
+ src/app/api/auth/login/callback/page.tsx    | 94 [32m+++++++++++++++++++++++++++++[m
+ src/app/api/auth/register/callback/page.tsx | 72 [32m++++++++++++++++++++++[m
+ 2 files changed, 166 insertions(+)
+
+[33mcommit 6e68000afcfd1cf33011ee6d3a5d9160cd0b2de1[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:07:34 2024 -0400
+
+    1.0.4: Fixing routing
+
+ src/app/onboard/page.tsx | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit 17af43e7c5962a6e428750e1c79adae8a690b0eb[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 05:06:44 2024 -0400
+
+    1.0.4: Archive old auth, new SSR auth
+
+ src/app/api/auth/callback/register/route.ts | 43 [31m-------------[m
+ src/app/api/auth/login/callback/route.ts    | 55 [32m+++++++++++++++++[m
+ src/app/api/auth/register/callback/route.ts | 41 [32m+++++++++++++[m
+ src/app/auth/login/callback/page.tsx        | 94 [31m-----------------------------[m
+ src/app/auth/register/callback/page.tsx     | 72 [31m----------------------[m
+ src/app/home/{user => }/page.tsx            |  0
+ src/app/login/page.tsx                      |  4 [32m+[m[31m-[m
+ 7 files changed, 98 insertions(+), 211 deletions(-)
+
+[33mcommit e480e3846f3b2f0f2cf5d0a9ad976a56329ce86c[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 04:49:23 2024 -0400
+
+    1.0.4: Testing auth api
+
+ src/app/login/page.tsx | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit 06354cf706279920309110e8aaa4c711e0aeee7e[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 04:46:34 2024 -0400
+
+    1.0.4: Testing auth api
+
+ src/app/api/auth/callback/register/route.ts | 43 [32m+++++++++++++++++++++++++++++[m
+ src/app/auth/register/callback/page.tsx     |  1 [32m+[m
+ 2 files changed, 44 insertions(+)
+
+[33mcommit dc4f40ca32feead8d6908bb088fa6911b031912d[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 03:05:37 2024 -0400
+
+    1.0.4: Update github workflow
+
+ .github/workflows/recurring-post.yml | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+[33mcommit 9f13c08097f9e0e4a1150a5d059f1e31a6c48c82[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 02:45:58 2024 -0400
+
+    1.0.4: Ghost commit
+
+ .env.example | 3 [32m+[m[31m--[m
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+[33mcommit b2b107222ab948724ee5bf3f6dffaad6a5c840ee[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 02:42:55 2024 -0400
+
+    1.0.4: Cron job per 5 mins - gitworkflow
+
+ .github/workflows/recurring-post.yml | 15 [32m+++++++++++++++[m
+ 1 file changed, 15 insertions(+)
+
+[33mcommit 097bbf9db16828f869eeedd7b4258770f6892d21[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 02:38:57 2024 -0400
+
+    1.0.4: Remove vercel.json - cron job limit issue
+
+ vercel.json | 6 [31m------[m
+ 1 file changed, 6 deletions(-)
+
+[33mcommit b4f56721f4197f04e0f69b44c7e0f83199d64baa[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 02:31:40 2024 -0400
+
+    1.0.4: Added vercel.json - new cron flow
+
+ src/app/api/cron.ts | 108 [32m++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--[m
+ vercel.json         |   6 [32m+++[m
+ 2 files changed, 110 insertions(+), 4 deletions(-)
+
+[33mcommit df29263edf86b7e2d2e9a1a3f54de67fcea8b587[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 02:22:02 2024 -0400
+
+    1.0.4: Remove vercel.json to test if resolve deployment
+
+ vercel.json | 8 [31m--------[m
+ 1 file changed, 8 deletions(-)
+
+[33mcommit dc1da31e9057ebeef6af2abd108694585f636f05[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 02:16:15 2024 -0400
+
+    1.0.4: Ghost commit
+
+ .env.example | 3 [32m++[m[31m-[m
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+[33mcommit ccbbc6eda46251037840156aeda4ca94cedc278e[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 02:13:56 2024 -0400
+
+    1.0.4: Remove token info
+
+ .env.example                     | 3 [32m+[m[31m--[m
+ src/app/api/test/testv0/route.ts | 2 [32m+[m[31m-[m
+ src/app/api/test/testv1/route.ts | 2 [32m+[m[31m-[m
+ src/app/api/test/testv2/route.ts | 2 [32m+[m[31m-[m
+ 4 files changed, 4 insertions(+), 5 deletions(-)
+
+[33mcommit eb2c66313a8802d04c5b25d670ee2611b563b887[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 02:11:32 2024 -0400
+
+    1.0.4: Ghost commit
+
+ .env.example | 3 [32m++[m[31m-[m
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+[33mcommit 24ca3e172550e149a2808fbee427e7a5a14d7c8c[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 02:04:22 2024 -0400
+
+    1.0.4: Update to full app - Font & Cron Job - Testing Cron
+
+ .env.example        |   4 [32m+[m[31m-[m
+ public/favicon.png  | Bin [31m0[m -> [32m13994[m bytes
+ src/app/api/cron.ts |  12 [32m+++++[m
+ src/app/favicon.ico | Bin [31m25931[m -> [32m0[m bytes
+ src/app/globals.css |   6 [32m++[m[31m-[m
+ src/app/layout.tsx  |  11 [32m++++[m[31m-[m
+ src/app/page.tsx    | 130 [32m+++++++++++++++[m[31m-------------------------------------[m
+ tsconfig.json       |   2 [32m+[m[31m-[m
+ 8 files changed, 68 insertions(+), 97 deletions(-)
+
+[33mcommit 74f2b930444e1b02a0122cc5d7c9ffb3120427fe[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 14 01:36:43 2024 -0400
+
+    1.0.4: Full app deployed
+
+ .env.example                               |   3 [32m+[m
+ package-lock.json                          | 439 [32m+++++++++++++++++++++++++++++[m
+ package.json                               |   1 [32m+[m
+ public/images/logo.png                     | Bin [31m0[m -> [32m43056[m bytes
+ src/app/api/send-scheduled-emails/route.ts | 104 [32m+++++++[m
+ src/app/api/test/testv0/route.ts           |  46 [32m+++[m
+ src/app/api/test/testv1/route.ts           |  25 [32m++[m
+ src/app/api/test/testv2/route.ts           |  30 [32m++[m
+ src/app/auth/callback/page.tsx             |  32 [31m---[m
+ src/app/auth/login/callback/page.tsx       |  94 [32m++++++[m
+ src/app/auth/register/callback/page.tsx    |  71 [32m+++++[m
+ src/app/home/user/page.tsx                 | 283 [32m+++++++++++++++[m[31m----[m
+ src/app/login/page.tsx                     | 142 [32m++++++[m[31m----[m
+ src/app/login/pageOld.tsx                  | 143 [32m++++++++++[m
+ src/app/onboard/page.tsx                   | 130 [32m+++++++++[m
+ src/utils/sendGmail.ts                     |  28 [32m++[m
+ src/utils/types.ts                         |  37 [32m++[m[31m-[m
+ vercel.json                                |   8 [32m+[m
+ 18 files changed, 1467 insertions(+), 149 deletions(-)
+
+[33mcommit 369faab1ac3f3c7d93d8a44438d5100c4d87b715[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Fri Oct 11 01:39:12 2024 -0400
+
+    1.0.3: New layout for dashboard
+
+ .gitignore                             |    3 [32m+[m
+ package-lock.json                      | 3693 [32m++++[m[31m----------------------------[m
+ package.json                           |    1 [32m+[m
+ src/app/auth/callback/page.tsx         |   32 [32m+[m
+ src/app/home/user/ComposeEmail.tsx     |   54 [31m-[m
+ src/app/home/user/OutreachCampaign.tsx |  112 [31m-[m
+ src/app/home/user/Settings.tsx         |    4 [31m-[m
+ src/app/home/user/Sidebar.tsx          |   44 [31m-[m
+ src/app/home/user/page.tsx             |  353 [32m++[m[31m-[m
+ src/app/login/page.tsx                 |   33 [32m+[m[31m-[m
+ src/components/ui/select.tsx           |  160 [32m++[m
+ src/utils/types.ts                     |   12 [32m+[m
+ 12 files changed, 970 insertions(+), 3531 deletions(-)
+
+[33mcommit bb09d1d4fccfc09807346f2f19205e3e99ba9c23[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 10 01:08:52 2024 -0400
+
+    1.0.2: Build check, update a few items
+
+ .eslintrc.json               |  3 [31m--[m
+ package.json                 |  5 [32m+[m[31m--[m
+ src/app/login/page.tsx       |  2 [32m+[m[31m-[m
+ src/app/test/signup/page.tsx |  2 [32m+[m[31m-[m
+ src/utils/signupSocial.ts    | 76 [32m++++++++++++++++++++++++++++++++++[m[31m----------[m
+ 5 files changed, 62 insertions(+), 26 deletions(-)
+
+[33mcommit 7c6ffb70fe34b1a9d03d4a0ecab2293035bbe717[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Thu Oct 10 00:55:11 2024 -0400
+
+    1.0.2: Added privacy policy and backend login
+
+ .env.example                            |    2 [32m+[m
+ package-lock.json                       |  130 [32m+[m[31m-[m
+ package.json                            |    2 [32m+[m
+ src/app/login/page.tsx                  |  124 [32m++[m
+ src/app/privacy/page.tsx                |   13 [32m+[m
+ src/app/test/signup/page.tsx            |   22 [32m+[m
+ src/components/html/privacy-policy.html | 2005 [32m+++++++++++++++++++++++++++++++[m
+ src/components/ui/alert.tsx             |   59 [32m+[m
+ src/components/ui/card.tsx              |   79 [32m++[m
+ src/lib/db/supabase.ts                  |    8 [32m+[m
+ src/utils/signupSocial.ts               |   37 [32m+[m
+ src/utils/signupSupabase.ts             |   28 [32m+[m
+ 12 files changed, 2506 insertions(+), 3 deletions(-)
+
+[33mcommit 74f74d8b26ed7e92e483f1d2e8c450a7a943c936[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 8 19:14:54 2024 -0400
+
+    1.0.2: Clean up ui files for vercel
+
+ src/components/ui/input.tsx    | 5 [32m+[m[31m----[m
+ src/components/ui/textarea.tsx | 5 [32m+[m[31m----[m
+ 2 files changed, 2 insertions(+), 8 deletions(-)
+
+[33mcommit 111925d878b77638afb7e95647c181c818cab327[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 8 18:58:45 2024 -0400
+
+    1.0.2: Remove unused variables for vercel deployment
+
+ src/app/home/user/page.tsx | 10 [32m+++++[m[31m-----[m
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+[33mcommit 077bbc2c175b5abcb136a2fc92efdc7c3995ca20[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Tue Oct 8 18:15:40 2024 -0400
+
+    1.0.1
+
+ .eslintrc.json                         |    3 [32m+[m
+ .gitignore                             |   36 [32m+[m
+ README.md                              |   36 [32m+[m
+ components.json                        |   20 [32m+[m
+ next.config.mjs                        |    4 [32m+[m
+ package-lock.json                      | 5375 [32m++++++++++++++++++++++++++++++++[m
+ package.json                           |   35 [32m+[m
+ postcss.config.mjs                     |    8 [32m+[m
+ src/app/favicon.ico                    |  Bin [31m0[m -> [32m25931[m bytes
+ src/app/fonts/GeistMonoVF.woff         |  Bin [31m0[m -> [32m67864[m bytes
+ src/app/fonts/GeistVF.woff             |  Bin [31m0[m -> [32m66268[m bytes
+ src/app/globals.css                    |   78 [32m+[m
+ src/app/home/user/ComposeEmail.tsx     |   54 [32m+[m
+ src/app/home/user/OutreachCampaign.tsx |  112 [32m+[m
+ src/app/home/user/Settings.tsx         |    4 [32m+[m
+ src/app/home/user/Sidebar.tsx          |   44 [32m+[m
+ src/app/home/user/page.tsx             |   77 [32m+[m
+ src/app/layout.tsx                     |   35 [32m+[m
+ src/app/page.tsx                       |  101 [32m+[m
+ src/components/ui/avatar.tsx           |   50 [32m+[m
+ src/components/ui/button.tsx           |   56 [32m+[m
+ src/components/ui/dialog.tsx           |  122 [32m+[m
+ src/components/ui/input.tsx            |   25 [32m+[m
+ src/components/ui/label.tsx            |   26 [32m+[m
+ src/components/ui/table.tsx            |  117 [32m+[m
+ src/components/ui/textarea.tsx         |   24 [32m+[m
+ src/lib/utils.ts                       |    6 [32m+[m
+ tailwind.config.ts                     |   63 [32m+[m
+ tsconfig.json                          |   26 [32m+[m
+ 29 files changed, 6537 insertions(+)
+
+[33mcommit 19cad6856da3bbdda0f1ddabc0fd32063d5455f4[m
+Author: Adam Huang <johndoe@example.com>
+Date:   Mon Oct 7 22:55:08 2024 -0400
+
+    Initial commit
+
+ .gitattributes |  2 [32m++[m
+ LICENSE        | 21 [32m+++++++++++++++++++++[m
+ 2 files changed, 23 insertions(+)

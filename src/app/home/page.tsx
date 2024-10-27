@@ -16,6 +16,7 @@ import { Composed, OutreachUser } from '@/utils/types'
 import { useRouter } from 'next/navigation'
 import { ManagePage } from './managePage'
 import { getFileUrl } from '@/utils/getFile'
+import ComposedPage from './composedPage'
 
 type Prospect = {
   name: string
@@ -44,40 +45,9 @@ export default function ColdOutreachUI() {
 
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
-  const [file, setFile] = useState<File | null>(null);
-  const [fileNameTemp, setFileNameTemp] = useState<string>('')
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
   const [composedChanged, setComposedChanged] = useState<number>(0)
   const [popupChanged, setPopupChanged] = useState<boolean>(false)
   const [pageLoadingComplete, setPageLoadingComplete] = useState<boolean>(false);
-
-  const saveTemplate = async () => {
-    const { error } = await supabase.from('composed').upsert([{
-      user_profile_id: user?.id,
-      subject: emailSubject,
-      composed_template: emailTemplate
-    }])
-
-    if (!error) {
-
-      if (file) {
-        try {
-          handleAddResume()
-          alert("Template and file has been saved!")
-          setActiveTab('outreach')
-        } catch (error) {
-          alert("An error has occured, please try again later.")
-        }
-      } else {
-        alert("Template has been saved!")
-        setActiveTab('outreach')
-      }
-    } else {
-      alert("Issue with saving template, please try again later.")
-    }
-    setComposedChanged(1)
-  }
 
   const utcToLocal = (datetime: string) => {
     const utcTime = new Date(datetime); // Your original UTC time
@@ -255,101 +225,6 @@ export default function ColdOutreachUI() {
     }
   }
 
-  const handleAddResume = async() => {
-    setUploading(true)
-    const filePath = `resume/${user?.id}/${file?.name}`;
-
-
-    if (file && resumeFilePath) {
-      const { data, error } = await supabase
-        .storage
-        .from('resume_link')
-        .remove([resumeFilePath])
-
-      if (error) {
-        alert("Code F3: File replace error. Please try again later.")
-      } else {
-
-        const { data, error } = await supabase
-          .storage
-          .from('resume_link')
-          .upload(filePath, file);
-        
-        const publicUrl = await getFileUrl(filePath, "resume_link")
-
-        if (error) {
-          alert("Code F4: File replace error. Please try again later.")
-
-        } else {
-          const { error } = await supabase.from('composed').upsert([{
-            user_profile_id: user?.id,
-            resume_link_filepath: filePath,
-            resume_link: publicUrl
-          }])
-  
-          if (error) {
-            alert("Code F5: File replace error. Please try again later.")
-          } else {
-            setResumeFileUrl(publicUrl)
-            setResumeFilePath(filePath)
-            // alert("Your file has been re-uploaded!")
-          }
-        }
-        
-      }
-
-    }
-
-    if (file && !resumeFilePath) {
-      const { data, error } = await supabase.storage
-        .from('resume_link')  // Replace with your actual bucket name
-        .upload(filePath, file);
-
-      if (error) {
-        console.log(error)
-        alert("Code F1: File upload error. Please try again later.")
-        
-      } else {
-        const publicUrl = await getFileUrl(filePath, "resume_link")
-
-        const { error } = await supabase.from('composed').upsert([{
-          user_profile_id: user?.id,
-          resume_link_filepath: filePath,
-          resume_link: publicUrl
-        }])
-
-        if (error) {
-          alert("Code F2: File upload error. Please try again later.")
-        } else {
-          setResumeFileUrl(publicUrl)
-          setResumeFilePath(filePath)
-          // alert("Your file has been uploaded!")
-        }
-      }
-      
-    }
-    setUploading(false)
-    setFile(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''; // Reset the file input to an empty string
-    }
-  }
-
-  const viewResume = () => {
-    if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setFileNameTemp(file.name)
-      window.open(fileURL);
-      // Revoke the object URL after opening to free memory
-      URL.revokeObjectURL(fileURL);
-    } else if (resumeFileUrl) {
-      setFileNameTemp(decodeURIComponent(resumeFileUrl?.split("/").pop() || ''))
-      window.open(resumeFileUrl || '', '_blank', 'noopener,noreferrer')
-    } else {
-      setFileNameTemp("No Resume Uploaded")
-    }
-  }
-
   const handleActiveTab = (tab: string) => {
     if (tab !== 'composed' && composedChanged > 1) {
       setPopupChanged(true)
@@ -424,23 +299,6 @@ export default function ColdOutreachUI() {
     setPageLoadingComplete(true)
   }, [user])
 
-  useEffect(() => {
-    setFileNameTemp(decodeURIComponent(resumeFileUrl?.split("/").pop() || ''))
-  }, [resumeFileUrl])
-
-  useEffect(() => {
-    if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setFileNameTemp(file.name)
-    }
-  }, [file])
-
-  useEffect(() => {
-    if (pageLoadingComplete) {
-      setComposedChanged((prev) => prev + 1)
-    }
-  }, [emailSubject, emailTemplate, file])
-
   return (
     <div className="flex h-screen bg-white">
       {/* Sidebar */}
@@ -506,107 +364,22 @@ export default function ColdOutreachUI() {
         {/* Content Area */}
         <main className="flex-1 p-6 overflow-auto">
           {activeTab === 'compose' && (
-            <div className="max-w-5xl mx-auto">
-              <h2 className="text-lg font-semibold mb-4">Compose Email Template</h2>
-              <div className="flex flex-row">
-                
-                <div className='flex flex-grow justify-between gap-8'>
-                  <div className="flex-1 space-y-4">
-                    <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                        Subject
-                      </label>
-                      <Input 
-                        id="subject" 
-                        placeholder="Enter email subject" 
-                        value={emailSubject}
-                        onChange={(e) => setEmailSubject(e.target.value)}
-                      />
-                    </div>
-                  <div>
-                    <label htmlFor="template" className="block text-sm font-medium text-gray-700 mb-1">
-                      Email Template
-                    </label>
-                    <Textarea
-                      id="template"
-                      placeholder="Write your email template here... Use [NAME] and [FIRM_NAME] as placeholders."
-                      className="min-h-[200px]"
-                      value={emailTemplate}
-                      onChange={(e) => setEmailTemplate(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col mt-6">
-                    <Input 
-                      type='file' 
-                      accept='application/pdf'
-                      ref={fileInputRef}
-                      onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    />
-                    <Label className='mt-10 max-w-72 leading-normal' >
-                      <div className="mb-2"><b>Uploaded File:</b></div>
-                      {fileNameTemp}
-                    </Label>
-                    <div className="flex mt-2 gap-2 justify-start">
-                      <Button 
-                        variant="outline" 
-                        disabled={!resumeFileUrl && !file}
-                        onClick={viewResume}
-                      >
-                        <EyeIcon className="mr-2 h-4 w-4" />
-                        View Resume
-                      </Button>
-                      {/* <Button variant="outline" onClick={handleAddResume} disabled={!file}>
-                        <Paperclip className="mr-2 h-4 w-4" />
-                        {uploading ? 'Attaching...' : 'Attach Resume '}
-                      </Button> */}
-                    </div> 
-                  </div>
-
-              </div>
-              </div>
-              <div className="flex justify-between mt-2">
-                <div className="flex">
-                  <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
-                </div>
-              </div>
-              <Dialog open={popupChanged} onOpenChange={setPopupChanged}>
-                <DialogContent className="sm:max-w-[425px] hideClose" >
-                  <DialogHeader>
-                    <DialogTitle>Are you sure?</DialogTitle>
-                  </DialogHeader>
-                  <div className="mt-2 space-y-2">
-                    <p className="text-sm">
-                      Before switching tabs, We noticed you forgot to save your template.
-                    </p>
-                    <p className="text-sm">
-                      Confirm below to save.
-                    </p>
-                  </div>
-                  <div className="flex flex-row flex-grow mt-4 items-center gap-2">
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant='default' 
-                        size="sm" 
-                        className="w-full"
-                        onClick={saveTemplate}
-                      >
-                        Confirm
-                      </Button>
-                    </DialogTrigger>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant='outline'
-                        size="sm"
-                        className="w-full"
-                      >
-                        Cancel
-                      </Button>
-                    </DialogTrigger>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
+            <ComposedPage 
+              user={user}
+              pageLoadingComplete={pageLoadingComplete}
+              setActiveTab={setActiveTab}
+              setComposedChanged={setComposedChanged}
+              resumeFilePath={resumeFilePath}
+              setResumeFilePath={setResumeFilePath}
+              resumeFileUrl={resumeFileUrl}
+              setResumeFileUrl={setResumeFileUrl}
+              popupChanged={popupChanged}
+              setPopupChanged={setPopupChanged}
+              emailSubject={emailSubject}
+              setEmailSubject={setEmailSubject}
+              emailTemplate={emailTemplate}
+              setEmailTemplate={setEmailTemplate}
+            /> 
           )}
           {activeTab === 'outreach' && (
             <div className="max-w-6xl mx-auto">
