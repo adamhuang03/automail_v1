@@ -231,18 +231,18 @@ export default function ComposedPage({
               onChange={handleInputChange}
             />
             {showDropdown && (
-        <div className="absolute bg-white border shadow-md mt-1 p-2">
-          {dropdownOptions.map((option, index) => (
-                <div
-                  key={index}
-                  className="p-1 cursor-pointer hover:bg-gray-200"
-                  onClick={() => handleOptionClick(option)}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          )}
+              <div className="absolute bg-white border shadow-md mt-1 p-2">
+                {dropdownOptions.map((option, index) => (
+                  <div
+                    key={index}
+                    className="p-1 cursor-pointer hover:bg-gray-200"
+                    onClick={() => handleOptionClick(option)}
+                  >
+                    {option}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col mt-6">
