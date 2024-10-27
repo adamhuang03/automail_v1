@@ -50,6 +50,7 @@ export default function ColdOutreachUI() {
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
   const [composedChanged, setComposedChanged] = useState<number>(0)
   const [popupChanged, setPopupChanged] = useState<boolean>(false)
+  const [pageLoadingComplete, setPageLoadingComplete] = useState<boolean>(false);
 
   const saveTemplate = async () => {
     const { error } = await supabase.from('composed').upsert([{
@@ -64,16 +65,18 @@ export default function ColdOutreachUI() {
         try {
           handleAddResume()
           alert("Template and file has been saved!")
+          setActiveTab('outreach')
         } catch (error) {
           alert("An error has occured, please try again later.")
         }
       } else {
         alert("Template has been saved!")
+        setActiveTab('outreach')
       }
     } else {
       alert("Issue with saving template, please try again later.")
     }
-    setComposedChanged(0)
+    setComposedChanged(1)
   }
 
   const utcToLocal = (datetime: string) => {
@@ -348,13 +351,14 @@ export default function ColdOutreachUI() {
   }
 
   const handleActiveTab = (tab: string) => {
-    if (tab !== 'composed' && composedChanged) {
+    if (tab !== 'composed' && composedChanged > 1) {
       setPopupChanged(true)
     } else {
       setActiveTab(tab)
     }
   }
 
+  //Loading useEffect
   useEffect(() => {
     (async() => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -396,19 +400,9 @@ export default function ColdOutreachUI() {
 
     })();
 
-    (async() => {
-      // const { data: emails, error }: { data: Outreach[] | any; error: any } = await supabase
-      // .from('outreach')
-      // .select(`
-      //     *,
-      //     user_profile!user_profile_id (provider_token, provider_refresh_token)
-      // `)
-      // .eq('status', 'Scheduled')
-      // console.log(new Date().toISOString().slice(0, 16))
-    })();
-
   }, [])
 
+  //Page load part 2
   useEffect(() => {
     (async() => {
 
@@ -426,6 +420,8 @@ export default function ColdOutreachUI() {
       }
 
     })();
+
+    setPageLoadingComplete(true)
   }, [user])
 
   useEffect(() => {
@@ -440,7 +436,9 @@ export default function ColdOutreachUI() {
   }, [file])
 
   useEffect(() => {
-    setComposedChanged((prev) => prev + 1)
+    if (pageLoadingComplete) {
+      setComposedChanged((prev) => prev + 1)
+    }
   }, [emailSubject, emailTemplate, file])
 
   return (
@@ -579,18 +577,23 @@ export default function ColdOutreachUI() {
                   </DialogHeader>
                   <div className="mt-2 space-y-2">
                     <p className="text-sm">
-                      This action cannot be reversed. Please confirm below.
+                      We noticed you forgot to save your template.
+                    </p>
+                    <p className="text-sm">
+                      Confirm below to save.
                     </p>
                   </div>
                   <div className="flex flex-row flex-grow mt-4 items-center gap-2">
-                    <Button 
-                      variant='destructive' 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => console.log(composedChanged)}
-                    >
-                      Confirm
-                    </Button>
+                    <DialogTrigger asChild>
+                      <Button 
+                        variant='default' 
+                        size="sm" 
+                        className="w-full"
+                        onClick={saveTemplate}
+                      >
+                        Confirm
+                      </Button>
+                    </DialogTrigger>
                     <DialogTrigger asChild>
                       <Button
                         variant='outline'
