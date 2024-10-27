@@ -287,7 +287,7 @@ export default function ColdOutreachUI() {
           } else {
             setResumeFileUrl(publicUrl)
             setResumeFilePath(filePath)
-            alert("Your file has been re-uploaded!")
+            // alert("Your file has been re-uploaded!")
           }
         }
         
@@ -318,7 +318,7 @@ export default function ColdOutreachUI() {
         } else {
           setResumeFileUrl(publicUrl)
           setResumeFilePath(filePath)
-          alert("Your file has been uploaded!")
+          // alert("Your file has been uploaded!")
         }
       }
       
