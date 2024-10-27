@@ -47,6 +47,9 @@ export default function ComposedPage({
 }: PageProps) {
   const [fileNameTemp, setFileNameTemp] = useState<string>('')
   const [file, setFile] = useState<File | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [caretPosition, setCaretPosition] = useState(0);
+  const [dropdownOptions] = useState(["Option 1", "Option 2", "Option 3"]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const saveTemplate = async () => {
@@ -156,6 +159,32 @@ export default function ComposedPage({
     }
   }
 
+  const handleInputChange = (e: any) => {
+    const { value } = e.target;
+    const cursorPosition = e.target.selectionStart;
+    
+    setEmailTemplate(value);
+    
+    // Check if the last character typed is '/'
+    if (value[cursorPosition - 1] === '/') {
+      setShowDropdown(true);
+      setCaretPosition(cursorPosition); // save the caret position to show dropdown near it
+    } else {
+      setShowDropdown(false);
+    }
+  }
+
+  const handleOptionClick = (option: string) => {
+    // Replace '/' with the selected option in the email template
+    const newTemplate = 
+      emailTemplate.substring(0, caretPosition - 1) + 
+      option + 
+      emailTemplate.substring(caretPosition);
+
+    setEmailTemplate(newTemplate);
+    setShowDropdown(false);
+  };
+
   useEffect(() => {
     setFileNameTemp(decodeURIComponent(resumeFileUrl?.split("/").pop() || ''))
   }, [resumeFileUrl])
@@ -199,8 +228,21 @@ export default function ComposedPage({
               placeholder="Write your email template here... Use [NAME] and [FIRM_NAME] as placeholders."
               className="min-h-[200px]"
               value={emailTemplate}
-              onChange={(e) => setEmailTemplate(e.target.value)}
+              onChange={handleInputChange}
             />
+            {showDropdown && (
+        <div className="absolute bg-white border shadow-md mt-1 p-2">
+          {dropdownOptions.map((option, index) => (
+                <div
+                  key={index}
+                  className="p-1 cursor-pointer hover:bg-gray-200"
+                  onClick={() => handleOptionClick(option)}
+                >
+                  {option}
+                </div>
+              ))}
+            </div>
+          )}
           </div>
         </div>
         <div className="flex flex-col mt-6">
