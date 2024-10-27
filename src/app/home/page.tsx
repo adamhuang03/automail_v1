@@ -573,11 +573,11 @@ export default function ColdOutreachUI() {
               <Dialog open={popupChanged} onOpenChange={setPopupChanged}>
                 <DialogContent className="sm:max-w-[425px] hideClose" >
                   <DialogHeader>
-                    <DialogTitle>Save your template</DialogTitle>
+                    <DialogTitle>Are you sure?</DialogTitle>
                   </DialogHeader>
                   <div className="mt-2 space-y-2">
                     <p className="text-sm">
-                      We noticed you forgot to save your template.
+                      Before switching tabs, We noticed you forgot to save your template.
                     </p>
                     <p className="text-sm">
                       Confirm below to save.
