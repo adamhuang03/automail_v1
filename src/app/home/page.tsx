@@ -48,6 +48,8 @@ export default function ColdOutreachUI() {
   const [fileNameTemp, setFileNameTemp] = useState<string>('')
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
+  const [composedChanged, setComposedChanged] = useState<boolean>(false)
+  const [popupChanged, setPopupChanged] = useState<boolean>(false)
 
   const saveTemplate = async () => {
     const { error } = await supabase.from('composed').upsert([{
@@ -71,6 +73,7 @@ export default function ColdOutreachUI() {
     } else {
       alert("Issue with saving template, please try again later.")
     }
+    setComposedChanged(false)
   }
 
   const utcToLocal = (datetime: string) => {
@@ -344,6 +347,14 @@ export default function ColdOutreachUI() {
     }
   }
 
+  const handleActiveTab = (tab: string) => {
+    if (tab !== 'composed' && composedChanged) {
+      setPopupChanged(true)
+    } else {
+      setActiveTab(tab)
+    }
+  }
+
   useEffect(() => {
     (async() => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -428,6 +439,10 @@ export default function ColdOutreachUI() {
     }
   }, [file])
 
+  useEffect(() => {
+    setComposedChanged(true)
+  }, [emailSubject, emailTemplate, file])
+
   return (
     <div className="flex h-screen bg-white">
       {/* Sidebar */}
@@ -443,7 +458,7 @@ export default function ColdOutreachUI() {
           <Button
             variant={activeTab === 'compose' ? 'outline' : 'ghost'}
             className="w-full justify-start mb-2"
-            onClick={() => setActiveTab('compose')}
+            onClick={() => handleActiveTab('compose')}
           >
             <PlusCircle className="mr-2 h-4 w-4" />
             Compose
@@ -451,7 +466,7 @@ export default function ColdOutreachUI() {
           <Button
             variant={activeTab === 'outreach' ? 'outline' : 'ghost'}
             className="w-full justify-start mb-2"
-            onClick={() => setActiveTab('outreach')}
+            onClick={() => handleActiveTab('outreach')}
           >
             <Mail className="mr-2 h-4 w-4" />
             Outreach
@@ -459,7 +474,7 @@ export default function ColdOutreachUI() {
           <Button
             variant={activeTab === 'manage' ? 'outline' : 'ghost'}
             className="w-full justify-start mb-2"
-            onClick={() => setActiveTab('manage')}
+            onClick={() => handleActiveTab('manage')}
           >
             <InboxIcon className="mr-2 h-4 w-4" />
             Manage
@@ -467,7 +482,7 @@ export default function ColdOutreachUI() {
           <Button
             variant={activeTab === 'settings' ? 'outline' : 'ghost'}
             className="w-full justify-start mb-2"
-            onClick={() => setActiveTab('settings')}
+            onClick={() => handleActiveTab('settings')}
           >
             <Settings className="mr-2 h-4 w-4" />
             Settings
@@ -552,11 +567,42 @@ export default function ColdOutreachUI() {
 
               </div>
               </div>
-                <div className="flex justify-between mt-2">
-                  <div className="flex">
-                    <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
-                  </div>
+              <div className="flex justify-between mt-2">
+                <div className="flex">
+                  <Button variant="outline" onClick={saveTemplate}>Save Template</Button>
                 </div>
+              </div>
+              <Dialog open={popupChanged} onOpenChange={setPopupChanged}>
+                <DialogContent className="sm:max-w-[425px] hideClose" >
+                  <DialogHeader>
+                    <DialogTitle className="text-red-600">Delete Draft</DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-2 space-y-2">
+                    <p className="text-sm">
+                      This action cannot be reversed. Please confirm below.
+                    </p>
+                  </div>
+                  <div className="flex flex-row flex-grow mt-4 items-center gap-2">
+                    <Button 
+                      variant='destructive' 
+                      size="sm" 
+                      className="w-full"
+                      onClick={}
+                    >
+                      Confirm
+                    </Button>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant='outline'
+                        size="sm"
+                        className="w-full"
+                      >
+                        Cancel
+                      </Button>
+                    </DialogTrigger>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           )}
           {activeTab === 'outreach' && (
