@@ -538,10 +538,10 @@ export default function ColdOutreachUI() {
                         <EyeIcon className="mr-2 h-4 w-4" />
                         View Resume
                       </Button>
-                      <Button variant="outline" onClick={handleAddResume} disabled={!file}>
+                      {/* <Button variant="outline" onClick={handleAddResume} disabled={!file}>
                         <Paperclip className="mr-2 h-4 w-4" />
                         {uploading ? 'Attaching...' : 'Attach Resume '}
-                      </Button>
+                      </Button> */}
                     </div> 
                     <Label className='mt-4 max-w-72 leading-normal' >
                       <div className="mb-2"><b>Uploaded File:</b></div>
