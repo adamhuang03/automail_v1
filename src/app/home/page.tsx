@@ -48,7 +48,6 @@ export default function ColdOutreachUI() {
   const [fileNameTemp, setFileNameTemp] = useState<string>('')
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the file input
-  const [availTemplate, setAvailTemplate] = useState<boolean>(false)
 
   const saveTemplate = async () => {
     const { error } = await supabase.from('composed').upsert([{
@@ -330,8 +329,21 @@ export default function ColdOutreachUI() {
     }
   }
 
-  
-  
+  const viewResume = () => {
+    if (file) {
+      const fileURL = URL.createObjectURL(file);
+      setFileNameTemp(file.name)
+      window.open(fileURL);
+      // Revoke the object URL after opening to free memory
+      URL.revokeObjectURL(fileURL);
+    } else if (resumeFileUrl) {
+      setFileNameTemp(decodeURIComponent(resumeFileUrl?.split("/").pop() || ''))
+      window.open(resumeFileUrl || '', '_blank', 'noopener,noreferrer')
+    } else {
+      setFileNameTemp("No Resume Uploaded")
+    }
+  }
+
   useEffect(() => {
     (async() => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -394,10 +406,7 @@ export default function ColdOutreachUI() {
         .select('*')
         .filter('user_profile_id', 'eq', user?.id)
 
-        console.log(user)
-
         if (data && Object.keys(data).length > 0) {
-          setAvailTemplate(true)
           setEmailSubject(data[0].subject)
           setEmailTemplate(data[0].composed_template)
           setResumeFilePath(data[0].resume_link_filepath)
@@ -407,6 +416,17 @@ export default function ColdOutreachUI() {
 
     })();
   }, [user])
+
+  useEffect(() => {
+    setFileNameTemp(decodeURIComponent(resumeFileUrl?.split("/").pop() || ''))
+  }, [resumeFileUrl])
+
+  useEffect(() => {
+    if (file) {
+      const fileURL = URL.createObjectURL(file);
+      setFileNameTemp(file.name)
+    }
+  }, [file])
 
   return (
     <div className="flex h-screen bg-white">
@@ -512,19 +532,13 @@ export default function ColdOutreachUI() {
                     />
                     <Label className='mt-10 max-w-72 leading-normal' >
                       <div className="mb-2"><b>Uploaded File:</b></div>
-                      {resumeFilePath ? decodeURIComponent(resumeFileUrl?.split("/").pop() || '') : "No Resume Uploaded"}
+                      {fileNameTemp}
                     </Label>
                     <div className="flex mt-2 gap-2 justify-start">
                       <Button 
                         variant="outline" 
                         disabled={!resumeFileUrl && !file}
-                        onClick={() => {
-                          if (file) {
-
-                          } else if (resumeFileUrl) {
-                            window.open(resumeFileUrl || '', '_blank', 'noopener,noreferrer')
-                          }
-                        }}
+                        onClick={viewResume}
                       >
                         <EyeIcon className="mr-2 h-4 w-4" />
                         View Resume
