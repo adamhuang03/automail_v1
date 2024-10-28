@@ -184,8 +184,8 @@ export default function ComposedPage({
     const value = e.target.value;
     setChosenRef((e.target as HTMLTextAreaElement))
     setAction(value)
-    console.log(commandMode)
-    console.log(filteredOptions)
+    // console.log(commandMode)
+    // console.log(filteredOptions)
 
     if (value.charAt(commandCursorPosition - 1) !== '/') {
       resetCommand()
@@ -215,7 +215,7 @@ export default function ComposedPage({
 
     const cursorPosition = (e.target as HTMLTextAreaElement).selectionStart;
     const isAlphaNumeric = /^[a-zA-Z0-9]$/.test(e.key);
-    console.log("Cursor", cursorPosition, "command Cursor", commandCursorPosition)
+    // console.log("Cursor", cursorPosition, "command Cursor", commandCursorPosition)
     
     if (e.key === '/') {
       setCommandCursorPosition(cursorPosition)
@@ -247,7 +247,7 @@ export default function ComposedPage({
 
   useEffect(() => {
     if (commandMode) {
-      console.log(command, "Command Start:", commandCursorPosition, 'Command len:', command.length)
+      // console.log(command, "Command Start:", commandCursorPosition, 'Command len:', command.length)
       if (prevCommandLen <= command.length) {
         const filteredEntries = Object.entries(dropdownOptions).filter(([key, value]) =>
           key.toLocaleLowerCase().includes(command)
@@ -265,7 +265,7 @@ export default function ComposedPage({
   },[command] )
 
   const handleOptionSelect = (option: string, setAction: React.Dispatch<React.SetStateAction<string>>) => {
-    console.log(commandCursorPosition, commandCursorPosition + prevCommandLen)
+    // console.log(commandCursorPosition, commandCursorPosition + prevCommandLen)
     setAction(prevTemplate => 
       prevTemplate.slice(0, commandCursorPosition - 1) + option + prevTemplate.slice(commandCursorPosition + prevCommandLen, prevTemplate.length)
     );
