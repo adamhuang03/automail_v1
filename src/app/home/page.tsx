@@ -226,10 +226,12 @@ export default function ColdOutreachUI() {
   }
 
   const handleActiveTab = (tab: string) => {
+    console.log(composedChanged)
     if (tab !== 'composed' && composedChanged > 1) {
       setPopupChanged(true)
     } else {
       setActiveTab(tab)
+      setComposedChanged(-1)
     }
   }
 

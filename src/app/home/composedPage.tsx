@@ -187,74 +187,7 @@ export default function ComposedPage({
     if (value.charAt(commandCursorPosition - 1) !== '/') {
       resetCommand()
     }
-
-    // const lastChar = value[value.length - 1];
-    // if (lastChar === '/' && !commandMode) {
-    //   setShowDropdown(true);
-    //   setFilteredOptions(dropdownOptions);
-    //   setCommandMode(true);
-    // } else if (filteredOptions.length < 1 && commandMode) {
-    //   setCommandMode(false);
-    //   setShowDropdown(false);
-    //   setFilteredOptions(dropdownOptions);
-    // }
   }
-
-  // const getCaretCoordinates = (element: HTMLTextAreaElement, position: number) => {
-  //   // Create a hidden div
-  //   const div = document.createElement('div');
-  //   const style = window.getComputedStyle(element);
-  
-  //   // Copy styles from the textarea to the div
-  //   Array.from(style).forEach((propName) => {
-  //     div.style.setProperty(propName, style.getPropertyValue(propName));
-  //   });
-  
-  //   // Apply necessary styling to ensure the div behaves like a textarea
-  //   div.style.position = 'absolute';
-  //   div.style.whiteSpace = 'pre-wrap';
-  //   div.style.wordWrap = 'break-word';
-  //   // div.style.overflow = 'hidden';
-  
-  //   // Set the text content of the div to the same as the textarea up to the cursor position
-  //   const text = element.value.substring(0, position);
-  //   div.textContent = text;
-  
-  //   // If the text ends with a newline, add a zero-width space to the end to account for the new line height
-  //   if (text.endsWith("\n")) {
-  //     div.textContent += "\u200b";
-  //   }
-  
-  //   // Append a span to get the exact position
-  //   const span = document.createElement('span');
-  //   span.textContent = element.value.substring(position) || '.';
-  //   div.appendChild(span);
-  
-  //   // Add the div to the document body to calculate the position
-  //   document.body.appendChild(div);
-  
-  //   // Get the textarea's position relative to the viewport
-  //   const rect = element.getBoundingClientRect();
-  //   const { top, left } = span.getBoundingClientRect();
-  //   const { top: topDiv, left: leftDiv } = div.getBoundingClientRect();
-  
-  //   // Calculate the coordinates relative to the whole screen
-  //   const screenTop = rect.top + (top - topDiv);
-  //   const screenLeft = rect.left + left;
-  
-  //   // Clean up by removing the div from the document
-  //   document.body.removeChild(div);
-  
-  //   return { 
-  //     rectTop: rect.top, 
-  //     rectLeft: rect.left, 
-  //     spanTop: top,
-  //     spanLeft: left,
-  //     divTop: topDiv,
-  //     divLeft: leftDiv
-
-  //   };
-  // };
   
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const keysArray = Object.keys(filteredOptions); // Convert keys to an array
@@ -286,17 +219,7 @@ export default function ComposedPage({
       setCommandCursorPosition(cursorPosition)
       setCommandMode(true);
       setFilteredOptions(dropdownOptions)
-      setShowDropdown(true);
-      const caretCoords = getCaretCoordinates((e.target as HTMLTextAreaElement), cursorPosition);
-      setDropdownCoords((coords) => ({
-        ...coords,
-        caretTop: caretCoords.caretTop,
-        caretLeft: caretCoords.caretLeft,
-      }));
-      console.log(caretCoords, dropdownCoords)
-      // const coords = getCaretCoordinates(e.target as HTMLTextAreaElement, cursorPosition);
-      // setDropdownCoords(coords)
-      // console.log("Slash typed at index:", cursorPosition, "Coordinates:", coords);
+      setShowDropdown(true)
     } else if (e.key === 'Escape') {
 
       resetCommand()
@@ -411,7 +334,7 @@ export default function ComposedPage({
             <Textarea
               id="template"
               ref={textareaRef}
-              placeholder="Write template here, and ‘ / ’ for placeholders..."
+              placeholder="Write template here, use ‘ / ’ for placeholders..."
               className="min-h-[200px]"
               value={emailTemplate}
               onChange={handleInputChange}
