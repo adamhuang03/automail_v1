@@ -93,7 +93,7 @@ export function ManagePage () {
 
           const sent = data
             .filter(email => email.status === 'Sent w Attachment' || email.status === 'Sent')
-            .sort((a, b) => new Date(a.scheduled_datetime_utc).getTime() - new Date(b.scheduled_datetime_utc).getTime()); // Sort sent emails by date
+            .sort((a, b) => new Date(b.scheduled_datetime_utc).getTime() - new Date(a.scheduled_datetime_utc).getTime()); // Sort sent emails by date
 
           setDraftedEmails([...drafts, ...sent])
           setRefreshBool(false)
