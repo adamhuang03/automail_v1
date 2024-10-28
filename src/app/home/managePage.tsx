@@ -16,6 +16,7 @@ export function ManagePage () {
   const [localTimeMap, setLocalTimeMap] = useState<{ [id: string]: string }>({});
   const [editableMap, setEditableMap] = useState<{ [id: string]: boolean }>({});
   const router = useRouter();
+  // Adding a variable to track refreshes => going to use a quick bool toggle
 
   const toggleEditable = (id: string) => {
     setEditableMap((prev) => ({
@@ -79,6 +80,7 @@ export function ManagePage () {
     setDraftedEmails((prevRows) => prevRows.filter(row => row.id !== id));
   }
 
+  // Editing this
   useEffect(() => {
     (async() => {
       const { data, error } = await supabase.auth.getSession()
@@ -107,7 +109,8 @@ export function ManagePage () {
   return (
       <div className="max-w-6xl mx-auto">
             <h2 className="text-lg font-semibold mb-4">Manage Drafted Emails</h2>
-            <Table>
+            {/* Editing this */}
+            <Table> 
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
