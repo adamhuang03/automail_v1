@@ -9,7 +9,7 @@ import { use, useEffect, useState } from "react"
 import { Outreach } from "@/utils/types"
 import { supabase } from "@/lib/db/supabase"
 import { useRouter } from "next/navigation"
-import { Eye, PencilIcon, Trash2Icon } from "lucide-react"
+import { Eye, PencilIcon, RefreshCcwDot, RefreshCw, RefreshCwIcon, Trash2Icon } from "lucide-react"
 
 export function ManagePage () {
   const [draftedEmails, setDraftedEmails] = useState<Outreach[]>([]);
@@ -17,6 +17,7 @@ export function ManagePage () {
   const [editableMap, setEditableMap] = useState<{ [id: string]: boolean }>({});
   const router = useRouter();
   // Adding a variable to track refreshes => going to use a quick bool toggle
+  const [refreshBool, setRefreshBool] = useState<boolean>(true) //True to call first refresh
 
   const toggleEditable = (id: string) => {
     setEditableMap((prev) => ({
@@ -86,39 +87,56 @@ export function ManagePage () {
       const { data, error } = await supabase.auth.getSession()
       const session = data.session
 
-      if (session) {
+      if (session && refreshBool) {
         const { data, error }: {data: Outreach[] | null, error: any} = await supabase.from('outreach')
         .select('*')
-        .or('status.eq.Scheduled,status.eq.Editing')
+        .or('status.eq.Scheduled,status.eq.Editing,status.eq.Sent w Attachment, status.eq.Sent') // spaces work here
         .eq('user_profile_id', session.user.id)
 
         if (data) {
-          for (const draft of data) {
-            // console.log(draft)
-            setDraftedEmails(data)
-            // if editing add it to the map
-          }
+          const drafts = data
+            .filter(email => email.status === 'Scheduled' || email.status === 'Editing')
+            .sort((a, b) => new Date(a.scheduled_datetime_utc).getTime() - new Date(b.scheduled_datetime_utc).getTime()); // Sort drafts by date
+
+          const sent = data
+            .filter(email => email.status === 'Sent w Attachment' || email.status === 'Sent')
+            .sort((a, b) => new Date(a.scheduled_datetime_utc).getTime() - new Date(b.scheduled_datetime_utc).getTime()); // Sort sent emails by date
+
+          setDraftedEmails([...drafts, ...sent])
+          setRefreshBool(false)
         }
 
-      } else {
+      } else if (!session) {
         router.replace('/login')
       }
     })()
-  }, [router])
+  }, [router, refreshBool])
 
   return (
-      <div className="max-w-6xl mx-auto">
-            <h2 className="text-lg font-semibold mb-4">Manage Drafted Emails</h2>
+      <div className="max-w-7xl mx-auto">
+            <h2 className="flex text-lg font-semibold mb-4 items-center">
+              Manage Drafted Emails
+
+            <Button variant='outline' className="ml-4" onClick={() => {
+                setRefreshBool(true)
+                setDraftedEmails([])
+              }}
+            >
+              <RefreshCw className="w-4 h-4" color="#71797E"/>
+            </Button>
+            </h2>
             {/* Editing this */}
             <Table> 
               <TableHeader>
                 <TableRow>
+                <TableHead>Actions</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Firm</TableHead>
                   <TableHead>Scheduled Time</TableHead>
                   <TableHead>View Draft</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -129,6 +147,33 @@ export function ManagePage () {
                   // console.log( localTimeMap[draft.id] !== undefined ? localTimeMap[draft.id] : utcToLocal(draft.scheduled_datetime_utc))
                   return (
                   <TableRow key={draft.id}>
+                    <TableCell>
+                      <Button variant="outline" size="sm" className="w-20 justify-start" disabled={draft.status.includes('Sent')} onClick={() => {
+                          toggleEditable(draft.id)
+                          if (isEditable && draft.status === 'Editing') {
+                            draft.status = 'Scheduled'
+                            setScheduledOutreach(draft)
+                          } else {
+                            draft.status = 'Editing'
+                            setEditingOutreach(draft)
+                          }
+                        }}>
+                        <PencilIcon className="h-4 w-4 mr-2" />
+                        {isEditable ? "Save" : "Edit"}
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      <Label 
+                        htmlFor={`${draft.id}-${draft.status}`}
+                        className={`flex items-center text-white font-bold h-10 px-3 w-full rounded-md ${
+                          draft.status === 'Scheduled' ? 'bg-[#c67a4e]/75'
+                          : isEditable ? 'bg-[#afafaf]/75'
+                          : 'bg-[#74b75c]/75'
+                        }`}
+                      >
+                        {draft.status}
+                      </Label>
+                    </TableCell>
                     <TableCell>
                       <Input
                         value={draft.to_name}
@@ -202,21 +247,6 @@ export function ManagePage () {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-row">
-
-                        <Button variant="outline" size="sm" onClick={() => {
-                            toggleEditable(draft.id)
-                            if (isEditable && draft.status === 'Scheduled') {
-                              setScheduledOutreach(draft)
-                            } else if (isEditable && draft.status === 'Editing') {
-                              draft.status = 'Scheduled'
-                              setScheduledOutreach(draft)
-                            } else {
-                              setEditingOutreach(draft)
-                            }
-                          }}>
-                          <PencilIcon className="h-4 w-4 mr-2" />
-                          {isEditable ? "Save" : "Edit"}
-                        </Button>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button 
