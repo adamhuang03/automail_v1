@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Command, CommandList, CommandItem, CommandGroup, CommandInput } from "@/components/ui/command"
 
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, MutableRefObject } from "react"
 import { supabase } from "@/lib/db/supabase"
 import { User } from '@supabase/supabase-js'
 import { getFileUrl } from '@/utils/getFile'
@@ -51,6 +51,8 @@ export default function ComposedPage({
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const [chosenRef, setChosenRef] = useState<MutableRefObject<HTMLTextAreaElement | null>>(null);
 
   // Dropdown
   const dropdownOptions: Record<string, string> = {
@@ -178,9 +180,10 @@ export default function ComposedPage({
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>, setAction: React.Dispatch<React.SetStateAction<string>>) => {
     const value = e.target.value;
-    setEmailTemplate(value);
+    setChosenRef(e.target)
+    setAction(value)
     console.log(commandMode)
     console.log(filteredOptions)
 
@@ -189,9 +192,8 @@ export default function ComposedPage({
     }
   }
   
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>, setAction: React.Dispatch<React.SetStateAction<string>>) => {
     const keysArray = Object.keys(filteredOptions); // Convert keys to an array
-    
     if (commandMode) {
       // e.preventDefault()// Prevent cursor movement
       if (e.key === 'ArrowDown') {
@@ -204,7 +206,7 @@ export default function ComposedPage({
           (prevIndex - 1 + keysArray.length) % keysArray.length); // Move up
       } else if (e.key === 'Tab' || e.key === 'Enter') {
         e.preventDefault()
-        handleOptionSelect(filteredOptions[keysArray[activeOptionIndex]]);
+        handleOptionSelect(filteredOptions[keysArray[activeOptionIndex]], setAction);
       }
     }
   }, [commandMode, filteredOptions, activeOptionIndex])
@@ -262,9 +264,9 @@ export default function ComposedPage({
     }
   },[command] )
 
-  const handleOptionSelect = (option: string) => {
+  const handleOptionSelect = (option: string, setAction: React.Dispatch<React.SetStateAction<string>>) => {
     console.log(commandCursorPosition, commandCursorPosition + prevCommandLen)
-    setEmailTemplate(prevTemplate => 
+    setAction(prevTemplate => 
       prevTemplate.slice(0, commandCursorPosition - 1) + option + prevTemplate.slice(commandCursorPosition + prevCommandLen, prevTemplate.length)
     );
     resetCommand()
@@ -278,9 +280,9 @@ export default function ComposedPage({
     setCommandCursorPosition(position)
   }
 
-  const getTextareaPosition = () => {
-    if (textareaRef.current) {
-      const { top, left } = textareaRef.current.getBoundingClientRect();
+  const getTextareaPosition = (ref: MutableRefObject<HTMLTextAreaElement | null>) => {
+    if (ref.current) {
+      const { top, left } = ref.current.getBoundingClientRect();
       setDropdownCoords((coords) => ({
         ...coords,
         rectTop: top,
@@ -307,8 +309,8 @@ export default function ComposedPage({
   }, [emailSubject, emailTemplate, file])
   
   useEffect(() => {
-    getTextareaPosition();
-  }, [])
+    getTextareaPosition(chosenRef);
+  }, [chosenRef])
 
   return (
     <div className="max-w-5xl mx-auto overflow-visible">
@@ -320,11 +322,15 @@ export default function ComposedPage({
               <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
                 Subject
               </label>
-              <Input
+              <Textarea
                 id="subject"
                 placeholder="Enter email subject"
+                className="min-h-[40px] max-h-[40px]"
                 value={emailSubject}
-                onChange={(e) => setEmailSubject(e.target.value)}
+                ref={inputRef}
+                onChange={(e) => handleInputChange(e, setEmailSubject)}
+                onKeyDownCapture={(e) => handleKeyDown(e, setEmailSubject)}
+                onKeyUpCapture={handleKeyUp}
               />
             </div>
           <div>
@@ -337,8 +343,8 @@ export default function ComposedPage({
               placeholder="Write template here, use ‘ / ’ for placeholders..."
               className="min-h-[200px]"
               value={emailTemplate}
-              onChange={handleInputChange}
-              onKeyDownCapture={handleKeyDown} // captures it early than onKeyDown
+              onChange={(e) => handleInputChange(e, setEmailTemplate)}
+              onKeyDownCapture={(e) => handleKeyDown(e, setEmailTemplate)}
               onKeyUpCapture={handleKeyUp}
             />
             
@@ -357,7 +363,7 @@ export default function ComposedPage({
                         {Object.entries(filteredOptions).map(([key, value], index) => (
                           <CommandItem 
                             key={index} 
-                            onSelect={() => handleOptionSelect(value)}
+                            onSelect={() => handleOptionSelect(value, chosenRef)}
                             className={`hideHighlight cursor-pointer p-2 hover:bg-gray-100 ${index === activeOptionIndex ? 'bg-gray-200 !important' : ''}`}
                             aria-selected={index === activeOptionIndex}
                             data-selected={index === activeOptionIndex}
