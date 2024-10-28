@@ -58,7 +58,12 @@ export default function ComposedPage({
     "Firm": "[FIRM_NAME]"
   }
   const [showDropdown, setShowDropdown] = useState(false);
-  const [dropdownCords, setDropdownCords] = useState<Record<string, number>>({'na': 0})
+  const [dropdownCoords, setDropdownCoords] = useState({
+    rectTop: 0,
+    rectLeft: 0,
+    caretTop: 0,
+    caretLeft: 0,
+  });
   const [commandMode, setCommandMode] = useState(false);
   const [prevCommandLen, setPrevCommandLen] = useState(0);
   const [commandCursorPosition, setCommandCursorPosition] = useState(0);
@@ -195,46 +200,61 @@ export default function ComposedPage({
     // }
   }
 
-  const getCaretCoordinates = (element: HTMLTextAreaElement, position: number) => {
-    // Create a hidden div
-    const div = document.createElement('div');
-    const style = window.getComputedStyle(element);
+  // const getCaretCoordinates = (element: HTMLTextAreaElement, position: number) => {
+  //   // Create a hidden div
+  //   const div = document.createElement('div');
+  //   const style = window.getComputedStyle(element);
   
-    // Copy styles from the textarea to the div
-    Array.from(style).forEach((propName) => {
-      div.style.setProperty(propName, style.getPropertyValue(propName));
-    });
+  //   // Copy styles from the textarea to the div
+  //   Array.from(style).forEach((propName) => {
+  //     div.style.setProperty(propName, style.getPropertyValue(propName));
+  //   });
   
-    // Apply necessary styling to ensure the div behaves like a textarea
-    div.style.position = 'absolute';
-    // div.style.visibility = 'hidden';
-    div.style.whiteSpace = 'pre-wrap';
-    div.style.wordWrap = 'break-word';
-    div.style.overflow = 'hidden'; // Ensure it doesn't expand beyond the text
+  //   // Apply necessary styling to ensure the div behaves like a textarea
+  //   div.style.position = 'absolute';
+  //   div.style.whiteSpace = 'pre-wrap';
+  //   div.style.wordWrap = 'break-word';
+  //   // div.style.overflow = 'hidden';
   
-    // Set the text content of the div to the same as the textarea up to the cursor position
-    const text = element.value.substring(0, position);
-    div.textContent = text;
+  //   // Set the text content of the div to the same as the textarea up to the cursor position
+  //   const text = element.value.substring(0, position);
+  //   div.textContent = text;
   
-    // If the text ends with a newline, add a zero-width space to the end to account for the new line height
-    if (text.endsWith("\n")) {
-      div.textContent += "\u200b";
-    }
+  //   // If the text ends with a newline, add a zero-width space to the end to account for the new line height
+  //   if (text.endsWith("\n")) {
+  //     div.textContent += "\u200b";
+  //   }
   
-    // Append a span to get the exact position
-    const span = document.createElement('span');
-    span.textContent = element.value.substring(position) || '.';
-    div.appendChild(span);
+  //   // Append a span to get the exact position
+  //   const span = document.createElement('span');
+  //   span.textContent = element.value.substring(position) || '.';
+  //   div.appendChild(span);
   
-    // Add the div to the document body to calculate the position
-    document.body.appendChild(div);
+  //   // Add the div to the document body to calculate the position
+  //   document.body.appendChild(div);
   
-    const { top, left } = span.getBoundingClientRect();
-    // document.body.removeChild(div);
-    console.log(top, left)
+  //   // Get the textarea's position relative to the viewport
+  //   const rect = element.getBoundingClientRect();
+  //   const { top, left } = span.getBoundingClientRect();
+  //   const { top: topDiv, left: leftDiv } = div.getBoundingClientRect();
   
-    return { top, left };
-  };
+  //   // Calculate the coordinates relative to the whole screen
+  //   const screenTop = rect.top + (top - topDiv);
+  //   const screenLeft = rect.left + left;
+  
+  //   // Clean up by removing the div from the document
+  //   document.body.removeChild(div);
+  
+  //   return { 
+  //     rectTop: rect.top, 
+  //     rectLeft: rect.left, 
+  //     spanTop: top,
+  //     spanLeft: left,
+  //     divTop: topDiv,
+  //     divLeft: leftDiv
+
+  //   };
+  // };
   
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const keysArray = Object.keys(filteredOptions); // Convert keys to an array
@@ -267,9 +287,16 @@ export default function ComposedPage({
       setCommandMode(true);
       setFilteredOptions(dropdownOptions)
       setShowDropdown(true);
-      const coords = getCaretCoordinates(e.target as HTMLTextAreaElement, cursorPosition);
-      setDropdownCords(coords)
-      console.log("Slash typed at index:", cursorPosition, "Coordinates:", coords);
+      const caretCoords = getCaretCoordinates((e.target as HTMLTextAreaElement), cursorPosition);
+      setDropdownCoords((coords) => ({
+        ...coords,
+        caretTop: caretCoords.caretTop,
+        caretLeft: caretCoords.caretLeft,
+      }));
+      console.log(caretCoords, dropdownCoords)
+      // const coords = getCaretCoordinates(e.target as HTMLTextAreaElement, cursorPosition);
+      // setDropdownCoords(coords)
+      // console.log("Slash typed at index:", cursorPosition, "Coordinates:", coords);
     } else if (e.key === 'Escape') {
 
       resetCommand()
@@ -328,6 +355,56 @@ export default function ComposedPage({
     setCommandCursorPosition(position)
   }
 
+  const getTextareaPosition = () => {
+    if (textareaRef.current) {
+      const { top, left } = textareaRef.current.getBoundingClientRect();
+      setDropdownCoords((coords) => ({
+        ...coords,
+        rectTop: top,
+        rectLeft: left,
+      }));
+    }
+  };
+
+  const getCaretCoordinates = (element: HTMLTextAreaElement, position: number) => {
+    const div = document.createElement('div');
+    const style = window.getComputedStyle(element);
+
+    // Explicitly copy each relevant style property
+    for (let i = 0; i < style.length; i++) {
+        const property = style[i];
+        div.style.setProperty(property, style.getPropertyValue(property));
+    }
+
+    div.style.position = 'absolute';
+    // div.style.visibility = 'hidden'; // Ensure it remains in flow but not visible
+    div.style.whiteSpace = 'pre-wrap';
+    div.style.wordWrap = 'break-word';
+    div.style.width = `${element.offsetWidth}px`;
+    div.style.height = `${element.offsetHeight}px`;
+    div.style.padding = style.getPropertyValue('padding');
+    div.style.font = style.getPropertyValue('font');
+    div.style.lineHeight = style.getPropertyValue('line-height');
+    div.style.overflow = 'hidden'; // Prevent scrollbars
+
+    div.textContent = element.value.substring(0, position);
+
+    if (element.value[position] === '\n') {
+        div.textContent += '\n';
+    }
+
+    const span = document.createElement('span');
+    span.textContent = element.value.substring(position) || '.';
+    div.appendChild(span);
+
+    document.body.appendChild(div);
+
+    const caretCoords = span.getBoundingClientRect();
+    document.body.removeChild(div);
+
+    return { caretTop: caretCoords.top, caretLeft: caretCoords.left };
+};
+
   useEffect(() => {
     setFileNameTemp(decodeURIComponent(resumeFileUrl?.split("/").pop() || ''))
   }, [resumeFileUrl])
@@ -344,9 +421,13 @@ export default function ComposedPage({
       setComposedChanged((prev) => prev + 1)
     }
   }, [emailSubject, emailTemplate, file])
+  
+  useEffect(() => {
+    getTextareaPosition();
+  }, [])
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto overflow-visible">
       <h2 className="text-lg font-semibold mb-4">Compose Email Template</h2>
       <div className="flex flex-row">
         <div className='flex flex-grow justify-between gap-8'>
@@ -376,8 +457,16 @@ export default function ComposedPage({
               onKeyDownCapture={handleKeyDown} // captures it early than onKeyDown
               onKeyUpCapture={handleKeyUp}
             />
-            {showDropdown && (
-                <div className={`absolute top-${5} left-${dropdownCords.left} bg-white border border-gray-300 rounded-md shadow-lg`}>
+            
+            {showDropdown && (//${Math.round(dropdownCoords.top)}
+                <div 
+                  className={`bg-white border border-gray-300 rounded-md shadow-lg`}
+                  style={{
+                    position: 'absolute',
+                    bottom: `${window.innerHeight - dropdownCoords.rectTop}px`,
+                    left: `${dropdownCoords.rectLeft}px`,
+                  }}
+                >
                   <Command>
                     <CommandList>
                       <CommandGroup>
