@@ -12,7 +12,8 @@ import { useState, useRef, useEffect, useCallback, MutableRefObject } from "reac
 import { supabase } from "@/lib/db/supabase"
 import { User } from '@supabase/supabase-js'
 import { getFileUrl } from '@/utils/getFile'
-import { EyeIcon } from "lucide-react"
+import { EyeIcon, HandHelping, HelpCircle, HelpCircleIcon } from "lucide-react"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@radix-ui/react-hover-card"
 
 type PageProps = {
   user: User | null
@@ -324,16 +325,42 @@ export default function ComposedPage({
               <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
                 Subject
               </label>
-              <Textarea
-                id="subject"
-                placeholder="Enter email subject"
-                className="min-h-[40px] max-h-[40px]"
-                value={emailSubject}
-                ref={inputRef}
-                onChange={(e) => handleInputChange(e, setEmailSubject)}
-                onKeyDownCapture={(e) => handleKeyDown(e, setEmailSubject)}
-                onKeyUpCapture={handleKeyUp}
-              />
+              <div className="flex flex-row gap-2">
+                <Textarea
+                  id="subject"
+                  placeholder="Enter email subject"
+                  className="min-h-[40px] max-h-[40px]"
+                  value={emailSubject}
+                  ref={inputRef}
+                  onChange={(e) => handleInputChange(e, setEmailSubject)}
+                  onKeyDownCapture={(e) => handleKeyDown(e, setEmailSubject)}
+                  onKeyUpCapture={handleKeyUp}
+                />
+                <HoverCard openDelay={400} closeDelay={300}>
+                  <HoverCardTrigger asChild>
+                    <Button variant="outline">
+                      <HelpCircle />
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-100 p-4 bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <div className="flex space-x-4">
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold text-gray-800">Having trouble?</h4>
+                        <p className="text-sm text-gray-600">
+                          You can start by typing in a subject and template!
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {`... Feel free to also attach a file afterwards whenever you get a chance :)`}
+                        </p>
+                        <br></br>
+                        <p className="text-sm text-gray-600">
+                          If you ever want to add <b>placeholders</b>, simply type ‘ / ’ ...
+                        </p>
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
             </div>
           <div>
             <label htmlFor="template" className="block text-sm font-medium text-gray-700 mb-1">
