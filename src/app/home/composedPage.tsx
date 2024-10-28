@@ -52,7 +52,7 @@ export default function ComposedPage({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
-  const [chosenRef, setChosenRef] = useState<MutableRefObject<HTMLTextAreaElement | null>>(null);
+  const [chosenRef, setChosenRef] = useState<HTMLTextAreaElement | null>(null);
 
   // Dropdown
   const dropdownOptions: Record<string, string> = {
@@ -182,7 +182,7 @@ export default function ComposedPage({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>, setAction: React.Dispatch<React.SetStateAction<string>>) => {
     const value = e.target.value;
-    setChosenRef(e.target)
+    setChosenRef((e.target as HTMLTextAreaElement))
     setAction(value)
     console.log(commandMode)
     console.log(filteredOptions)
@@ -231,7 +231,7 @@ export default function ComposedPage({
     } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       
       if (cursorPosition < commandCursorPosition) {
-        resetCommand()
+        resetCommand({ resetCommandCursor: false })
       } else if (cursorPosition >= commandCursorPosition && Math.abs(cursorPosition-commandCursorPosition) <= 1) {
         setCommandMode(true);
         setFilteredOptions(dropdownOptions)
@@ -272,17 +272,19 @@ export default function ComposedPage({
     resetCommand()
   }
 
-  const resetCommand = (position: number=-5) => {
+  const resetCommand = ({position = -5, resetCommandCursor = true}: { position?: number; resetCommandCursor?: boolean; } = {}) => {
     setCommand('')
     setShowDropdown(false);
     setCommandMode(false);
     setFilteredOptions(dropdownOptions)
-    setCommandCursorPosition(position)
+    if (resetCommandCursor) {
+      setCommandCursorPosition(position)
+    }
   }
 
-  const getTextareaPosition = (ref: MutableRefObject<HTMLTextAreaElement | null>) => {
-    if (ref.current) {
-      const { top, left } = ref.current.getBoundingClientRect();
+  const getTextareaPosition = (ref: HTMLTextAreaElement | null) => {
+    if (ref) {
+      const { top, left } = ref.getBoundingClientRect();
       setDropdownCoords((coords) => ({
         ...coords,
         rectTop: top,
@@ -363,7 +365,7 @@ export default function ComposedPage({
                         {Object.entries(filteredOptions).map(([key, value], index) => (
                           <CommandItem 
                             key={index} 
-                            onSelect={() => handleOptionSelect(value, chosenRef)}
+                            onSelect={() => handleOptionSelect(value, chosenRef === inputRef.current ? setEmailSubject : setEmailTemplate)}
                             className={`hideHighlight cursor-pointer p-2 hover:bg-gray-100 ${index === activeOptionIndex ? 'bg-gray-200 !important' : ''}`}
                             aria-selected={index === activeOptionIndex}
                             data-selected={index === activeOptionIndex}
