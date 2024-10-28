@@ -179,11 +179,9 @@ export default function ComposedPage({
     console.log(commandMode)
     console.log(filteredOptions)
 
-    // if (value.charAt(commandCursorPosition) !== '/') {
-    //   setShowDropdown(false);
-    //   setFilteredOptions(dropdownOptions)
-    //   setCommandMode(false);
-    // }
+    if (value.charAt(commandCursorPosition - 1) !== '/') {
+      resetCommand()
+    }
 
     // const lastChar = value[value.length - 1];
     // if (lastChar === '/' && !commandMode) {
@@ -237,45 +235,8 @@ export default function ComposedPage({
     return { top, left };
   };
   
-  const handleKeyUp = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-
-    const cursorPosition = (e.target as HTMLTextAreaElement).selectionStart;
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const keysArray = Object.keys(filteredOptions); // Convert keys to an array
-    const isAlphaNumeric = /^[a-zA-Z0-9]$/.test(e.key);
-    
-    if (e.key === '/') {
-      setCommandCursorPosition(cursorPosition)
-      setCommandMode(true);
-      setFilteredOptions(dropdownOptions)
-      setShowDropdown(true);
-      const coords = getCaretCoordinates(e.target as HTMLTextAreaElement, cursorPosition);
-      setDropdownCords(coords)
-      console.log("Slash typed at index:", cursorPosition, "Coordinates:", coords);
-    } else if (e.key === 'Escape') {
-      setShowDropdown(false);
-      setCommand('')
-      setFilteredOptions(dropdownOptions)
-      setCommandMode(false);
-    } else if (e.key === ' ') {
-      setShowDropdown(false);
-      setCommand('')
-      setFilteredOptions(dropdownOptions)
-      setCommandMode(false);
-    } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      console.log("Cursor", cursorPosition, "command Cursor", commandCursorPosition)
-      if (cursorPosition < commandCursorPosition) {
-        setShowDropdown(false);
-        setCommand('')
-        setFilteredOptions(dropdownOptions)
-        setCommandMode(false);
-      } else if (cursorPosition >= commandCursorPosition) {
-        setCommandMode(true);
-        setFilteredOptions(dropdownOptions)
-        setShowDropdown(true);
-      }
-    } else if (isAlphaNumeric) {
-        setCommand((prev) => prev + e.key)
-    }
     
     if (commandMode) {
       // e.preventDefault()// Prevent cursor movement
@@ -287,16 +248,53 @@ export default function ComposedPage({
         e.preventDefault()
         setActiveOptionIndex((prevIndex) => 
           (prevIndex - 1 + keysArray.length) % keysArray.length); // Move up
-      } else if (e.key === 'Tab') {
+      } else if (e.key === 'Tab' || e.key === 'Enter') {
         e.preventDefault()
         handleOptionSelect(filteredOptions[keysArray[activeOptionIndex]]);
       }
     }
-  }, [commandMode]); 
+  }, [commandMode, filteredOptions, activeOptionIndex])
+
+  const handleKeyUp = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+
+    const cursorPosition = (e.target as HTMLTextAreaElement).selectionStart;
+    const isAlphaNumeric = /^[a-zA-Z0-9]$/.test(e.key);
+    console.log("Cursor", cursorPosition, "command Cursor", commandCursorPosition)
+    
+    if (e.key === '/') {
+      setCommandCursorPosition(cursorPosition)
+      setCommandMode(true);
+      setFilteredOptions(dropdownOptions)
+      setShowDropdown(true);
+      const coords = getCaretCoordinates(e.target as HTMLTextAreaElement, cursorPosition);
+      setDropdownCords(coords)
+      console.log("Slash typed at index:", cursorPosition, "Coordinates:", coords);
+    } else if (e.key === 'Escape') {
+
+      resetCommand()
+    } else if (e.key === ' ') {
+
+      resetCommand()
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      
+      if (cursorPosition < commandCursorPosition) {
+        resetCommand()
+      } else if (cursorPosition >= commandCursorPosition && Math.abs(cursorPosition-commandCursorPosition) <= 1) {
+        setCommandMode(true);
+        setFilteredOptions(dropdownOptions)
+        setShowDropdown(true);
+      }
+    } else if (e.key === 'Backspace') {
+      setCommand((prev) => prev.slice(0, -1))
+    } else if (isAlphaNumeric) {
+      setCommand((prev) => prev + e.key)
+    }
+    
+  }, [commandMode, commandCursorPosition, dropdownOptions]); 
 
   useEffect(() => {
     if (commandMode) {
-      console.log(command, "Command Start:", commandCursorPosition)
+      console.log(command, "Command Start:", commandCursorPosition, 'Command len:', command.length)
       if (prevCommandLen <= command.length) {
         const filteredEntries = Object.entries(dropdownOptions).filter(([key, value]) =>
           key.toLocaleLowerCase().includes(command)
@@ -316,11 +314,17 @@ export default function ComposedPage({
   const handleOptionSelect = (option: string) => {
     console.log(commandCursorPosition, commandCursorPosition + prevCommandLen)
     setEmailTemplate(prevTemplate => 
-      prevTemplate.slice(0, commandCursorPosition) + option + prevTemplate.slice(commandCursorPosition + 1 + prevCommandLen, prevTemplate.length)
+      prevTemplate.slice(0, commandCursorPosition - 1) + option + prevTemplate.slice(commandCursorPosition + prevCommandLen, prevTemplate.length)
     );
+    resetCommand()
+  }
+
+  const resetCommand = (position: number=-5) => {
     setCommand('')
     setShowDropdown(false);
     setCommandMode(false);
+    setFilteredOptions(dropdownOptions)
+    setCommandCursorPosition(position)
   }
 
   useEffect(() => {
@@ -368,7 +372,8 @@ export default function ComposedPage({
               className="min-h-[200px]"
               value={emailTemplate}
               onChange={handleInputChange}
-              onKeyUpCapture={handleKeyUp} // captures it early than onKeyDown
+              onKeyDownCapture={handleKeyDown} // captures it early than onKeyDown
+              onKeyUpCapture={handleKeyUp}
             />
             {showDropdown && (
                 <div className={`absolute top-${dropdownCords.top} left-${dropdownCords.left} bg-white border border-gray-300 rounded-md shadow-lg`}>
