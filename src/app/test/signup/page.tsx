@@ -1,22 +1,41 @@
-'use client'
-import { signup } from "@/utils/signupSupabase";
-import { Button } from "@/components/ui/button";
-import { handleSocialLogin } from "@/utils/signupSocial";
+// 'use client'
+// import { KBarProvider, KBarPortal, KBarPositioner, KBarAnimator, KBarSearch } from 'kbar'
+// import { useEffect } from 'react'
 
-export default function LoginComponent() {
+// function Page() {
+//   const actions = [
+//     {
+//       id: 'blog',
+//       name: 'Blog',
+//       shortcut: ['b'],
+//       keywords: 'writing words',
+//       perform: () => (window.location.pathname = 'blog'),
+//     },
+//     // Add more actions here
+//   ]
 
-  const handleSignUp = async () => {
-    const res = await signup('huangadam9@gmail.com', 'testpassword')
-    console.log(res)
-  }
+//   // useEffect(() => {
+//   //   const down = (e: KeyboardEvent) => {
+//   //     if (e.key === '/' && (e.metaKey || e.ctrlKey)) {
+//   //       e.preventDefault()
+//   //       kbar.query.toggle()
+//   //     }
+//   //   }
   
-  return (
-    <main className="flex flex-1 justify-center">
-      <Button variant="outline" onClick={handleSignUp}>Sign Up</Button>
-      <Button variant="outline" onClick={() => handleSocialLogin('google', true)}>
-        Sign in with Google
-      </Button>
-    </main>
-    
-  )
-}
+//   //   document.addEventListener('keydown', down)
+//   //   return () => document.removeEventListener('keydown', down)
+//   // }, [])
+
+//   return (
+//     <KBarProvider actions={actions}>
+//       <KBarPortal>
+//         <KBarPositioner>
+//           <KBarAnimator>
+//             <KBarSearch />
+//             {/* Add more kbar components here */}
+//           </KBarAnimator>
+//         </KBarPositioner>
+//       </KBarPortal>
+//     </KBarProvider>
+//   )
+// }
