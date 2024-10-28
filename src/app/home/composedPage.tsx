@@ -207,7 +207,7 @@ export default function ComposedPage({
   
     // Apply necessary styling to ensure the div behaves like a textarea
     div.style.position = 'absolute';
-    div.style.visibility = 'hidden';
+    // div.style.visibility = 'hidden';
     div.style.whiteSpace = 'pre-wrap';
     div.style.wordWrap = 'break-word';
     div.style.overflow = 'hidden'; // Ensure it doesn't expand beyond the text
@@ -230,7 +230,8 @@ export default function ComposedPage({
     document.body.appendChild(div);
   
     const { top, left } = span.getBoundingClientRect();
-    document.body.removeChild(div);
+    // document.body.removeChild(div);
+    console.log(top, left)
   
     return { top, left };
   };
@@ -376,7 +377,7 @@ export default function ComposedPage({
               onKeyUpCapture={handleKeyUp}
             />
             {showDropdown && (
-                <div className={`absolute top-${dropdownCords.top} left-${dropdownCords.left} bg-white border border-gray-300 rounded-md shadow-lg`}>
+                <div className={`absolute top-${5} left-${dropdownCords.left} bg-white border border-gray-300 rounded-md shadow-lg`}>
                   <Command>
                     <CommandList>
                       <CommandGroup>
