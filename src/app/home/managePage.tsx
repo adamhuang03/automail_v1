@@ -9,14 +9,13 @@ import { use, useEffect, useState } from "react"
 import { Outreach } from "@/utils/types"
 import { supabase } from "@/lib/db/supabase"
 import { useRouter } from "next/navigation"
-import { Eye, PencilIcon, RefreshCcwDot, RefreshCw, RefreshCwIcon, Trash2Icon } from "lucide-react"
+import { Dot, Eye, PencilIcon, RefreshCcwDot, RefreshCw, RefreshCwIcon, SaveIcon, Trash2Icon } from "lucide-react"
 
 export function ManagePage () {
   const [draftedEmails, setDraftedEmails] = useState<Outreach[]>([]);
   const [localTimeMap, setLocalTimeMap] = useState<{ [id: string]: string }>({});
   const [editableMap, setEditableMap] = useState<{ [id: string]: boolean }>({});
   const router = useRouter();
-  // Adding a variable to track refreshes => going to use a quick bool toggle
   const [refreshBool, setRefreshBool] = useState<boolean>(true) //True to call first refresh
 
   const toggleEditable = (id: string) => {
@@ -51,12 +50,6 @@ export function ManagePage () {
       scheduled_datetime_utc: draft.scheduled_datetime_utc,
     })
     .eq('id', draft.id)
-
-    // if (error) {
-    //   console.log("Error setScheduledOutreach: ", error)
-    // } else {
-    //   console.log("Good setScheduledOutreach")
-    // }
   }
 
   const updateDraftedEmail = (id: string, field: keyof Outreach, value: string) => {
@@ -125,16 +118,15 @@ export function ManagePage () {
               <RefreshCw className="w-4 h-4" color="#71797E"/>
             </Button>
             </h2>
-            {/* Editing this */}
             <Table> 
               <TableHeader>
                 <TableRow>
-                <TableHead>Actions</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="px-2"></TableHead>
+                  <TableHead className="px-0"></TableHead>
+                  <TableHead>Scheduled Time</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Firm</TableHead>
-                  <TableHead>Scheduled Time</TableHead>
                   <TableHead>View Draft</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
@@ -142,37 +134,53 @@ export function ManagePage () {
               <TableBody>
                 {draftedEmails.map((draft) => {
                   var isEditable = draft.status === 'Editing' ? true : editableMap[draft.id] || false; // Default to false if not set
-                  // console.log('1: ', utcToLocal(draft.scheduled_datetime_utc))
-                  // console.log(Object.keys(localTimeMap))
-                  // console.log( localTimeMap[draft.id] !== undefined ? localTimeMap[draft.id] : utcToLocal(draft.scheduled_datetime_utc))
                   return (
                   <TableRow key={draft.id}>
-                    <TableCell>
-                      <Button variant="outline" size="sm" className="w-20 justify-start" disabled={draft.status.includes('Sent')} onClick={() => {
-                          toggleEditable(draft.id)
-                          if (isEditable && draft.status === 'Editing') {
-                            draft.status = 'Scheduled'
-                            setScheduledOutreach(draft)
-                          } else {
-                            draft.status = 'Editing'
-                            setEditingOutreach(draft)
-                          }
-                        }}>
-                        <PencilIcon className="h-4 w-4 mr-2" />
-                        {isEditable ? "Save" : "Edit"}
-                      </Button>
+                    <TableCell className="px-2">
+                      <div className="flex items-center justify-center">
+                        {!draft.status.includes('Sent') && 
+                          <Button variant="outline" size="sm" className="w-10 px-0 justify-center" onClick={() => {
+                              toggleEditable(draft.id)
+                              if (isEditable && draft.status === 'Editing') {
+                                draft.status = 'Scheduled'
+                                setScheduledOutreach(draft)
+                              } else {
+                                draft.status = 'Editing'
+                                setEditingOutreach(draft)
+                              }
+                            }}>
+                            
+                            {isEditable ? <SaveIcon className="h-4 w-4" /> : <PencilIcon className="h-4 w-4" />}
+                          </Button>
+                        }
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-0">
+                      <div className="flex items-center justify-center">
+                        <Dot 
+                          className={`w-10 h-10`}
+                          color={`${
+                            draft.status === 'Scheduled' ? '#ffa66f'
+                            : isEditable ? '#bbbbbb'
+                            : '#5ff670'
+                          }`}
+                        />
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <Label 
-                        htmlFor={`${draft.id}-${draft.status}`}
-                        className={`flex items-center text-white font-bold h-10 px-3 w-full rounded-md ${
-                          draft.status === 'Scheduled' ? 'bg-[#c67a4e]/75'
-                          : isEditable ? 'bg-[#afafaf]/75'
-                          : 'bg-[#74b75c]/75'
-                        }`}
-                      >
-                        {draft.status}
-                      </Label>
+                      <Input
+                        type="datetime-local"
+                        value={
+                          localTimeMap[draft.id] !== undefined ? localTimeMap[draft.id] : 
+                          utcToLocal(draft.scheduled_datetime_utc)
+                        }
+                        onChange={(e) => {
+                          editLocalTime(draft.id, e.target.value)
+                          const utcTime = new Date(e.target.value).toISOString().slice(0, 16);
+                          updateDraftedEmail(draft.id, 'scheduled_datetime_utc', utcTime)
+                        }}
+                        disabled={!isEditable}
+                      />
                     </TableCell>
                     <TableCell>
                       <Input
@@ -191,22 +199,6 @@ export function ManagePage () {
                       <Input
                         value={draft.to_firm}
                         disabled={true}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="datetime-local"
-                        value={
-                          localTimeMap[draft.id] !== undefined ? localTimeMap[draft.id] : 
-                          utcToLocal(draft.scheduled_datetime_utc)
-                        }
-                        onChange={(e) => {
-                          // console.log(localTimeMap[draft.id])
-                          editLocalTime(draft.id, e.target.value)
-                          const utcTime = new Date(e.target.value).toISOString().slice(0, 16);
-                          updateDraftedEmail(draft.id, 'scheduled_datetime_utc', utcTime)
-                        }}
-                        disabled={!isEditable}
                       />
                     </TableCell>
                     <TableCell>
