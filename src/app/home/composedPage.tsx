@@ -368,7 +368,7 @@ export default function ComposedPage({
             <Textarea
               id="template"
               ref={textareaRef}
-              placeholder="Write your email template here... Use [NAME] and [FIRM_NAME] as placeholders."
+              placeholder="Write template here, and ‘ / ’ for placeholders..."
               className="min-h-[200px]"
               value={emailTemplate}
               onChange={handleInputChange}
@@ -384,7 +384,7 @@ export default function ComposedPage({
                           <CommandItem 
                             key={index} 
                             onSelect={() => handleOptionSelect(value)}
-                            className={`cursor-pointer p-2 hover:bg-gray-100 ${index === activeOptionIndex ? 'bg-gray-200 !important' : ''}`}
+                            className={`hideHighlight cursor-pointer p-2 hover:bg-gray-100 ${index === activeOptionIndex ? 'bg-gray-200 !important' : ''}`}
                             aria-selected={index === activeOptionIndex}
                             data-selected={index === activeOptionIndex}
                           >
