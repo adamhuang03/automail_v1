@@ -366,45 +366,6 @@ export default function ComposedPage({
     }
   };
 
-  const getCaretCoordinates = (element: HTMLTextAreaElement, position: number) => {
-    const div = document.createElement('div');
-    const style = window.getComputedStyle(element);
-
-    // Explicitly copy each relevant style property
-    for (let i = 0; i < style.length; i++) {
-        const property = style[i];
-        div.style.setProperty(property, style.getPropertyValue(property));
-    }
-
-    div.style.position = 'absolute';
-    // div.style.visibility = 'hidden'; // Ensure it remains in flow but not visible
-    div.style.whiteSpace = 'pre-wrap';
-    div.style.wordWrap = 'break-word';
-    div.style.width = `${element.offsetWidth}px`;
-    div.style.height = `${element.offsetHeight}px`;
-    div.style.padding = style.getPropertyValue('padding');
-    div.style.font = style.getPropertyValue('font');
-    div.style.lineHeight = style.getPropertyValue('line-height');
-    div.style.overflow = 'hidden'; // Prevent scrollbars
-
-    div.textContent = element.value.substring(0, position);
-
-    if (element.value[position] === '\n') {
-        div.textContent += '\n';
-    }
-
-    const span = document.createElement('span');
-    span.textContent = element.value.substring(position) || '.';
-    div.appendChild(span);
-
-    document.body.appendChild(div);
-
-    const caretCoords = span.getBoundingClientRect();
-    document.body.removeChild(div);
-
-    return { caretTop: caretCoords.top, caretLeft: caretCoords.left };
-};
-
   useEffect(() => {
     setFileNameTemp(decodeURIComponent(resumeFileUrl?.split("/").pop() || ''))
   }, [resumeFileUrl])
