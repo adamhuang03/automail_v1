@@ -205,11 +205,18 @@ export default function ColdOutreachUI() {
     setActiveTab('manage')
   }
 
-  const generateDraft = (prospect: Prospect, firm: string) => { // First name only
-    let subject = emailSubject.replace('[NAME]', prospect.name.split(' ')[0]).replace('[FIRM_NAME]', firm)
-    let body = emailTemplate.replace('[NAME]', prospect.name.split(' ')[0]).replace('[FIRM_NAME]', firm)
-    return { subject, body }
-  }
+  const generateDraft = (prospect: Prospect, firm: string) => {
+    // Use regular expressions with the `g` flag to replace all instances
+    let subject = emailSubject
+      .replace(/\[NAME\]/g, prospect.name.split(' ')[0])
+      .replace(/\[FIRM_NAME\]/g, firm);
+    
+    let body = emailTemplate
+      .replace(/\[NAME\]/g, prospect.name.split(' ')[0])
+      .replace(/\[FIRM_NAME\]/g, firm);
+    
+    return { subject, body };
+  };
 
   const handleLogout = async() => {
     const { error } = await supabase.auth.signOut();
