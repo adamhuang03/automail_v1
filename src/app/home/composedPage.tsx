@@ -5,8 +5,10 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Command, CommandList, CommandItem, CommandGroup, CommandInput } from "@/components/ui/command"
 
-import { useState, useRef, useEffect } from "react"
+
+import { useState, useRef, useEffect, useCallback } from "react"
 import { supabase } from "@/lib/db/supabase"
 import { User } from '@supabase/supabase-js'
 import { getFileUrl } from '@/utils/getFile'
@@ -47,11 +49,23 @@ export default function ComposedPage({
 }: PageProps) {
   const [fileNameTemp, setFileNameTemp] = useState<string>('')
   const [file, setFile] = useState<File | null>(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [caretPosition, setCaretPosition] = useState(0);
-  const [dropdownOptions] = useState(["Option 1", "Option 2", "Option 3"]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
+  // Dropdown
+  const dropdownOptions: Record<string, string> = {
+    "Name": "[NAME]", 
+    "Firm": "[FIRM_NAME]"
+  }
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [dropdownCords, setDropdownCords] = useState<Record<string, number>>({'na': 0})
+  const [commandMode, setCommandMode] = useState(false);
+  const [prevCommandLen, setPrevCommandLen] = useState(0);
+  const [commandCursorPosition, setCommandCursorPosition] = useState(0);
+  const [command, setCommand] = useState<string>('')
+  const [activeOptionIndex, setActiveOptionIndex] = useState<number>(0);
+  const [filteredOptions, setFilteredOptions] = useState<Record<string, string>>(dropdownOptions);
+  
   const saveTemplate = async () => {
     const { error } = await supabase.from('composed').upsert([{
       user_profile_id: user?.id,
@@ -159,31 +173,155 @@ export default function ComposedPage({
     }
   }
 
-  const handleInputChange = (e: any) => {
-    const { value } = e.target;
-    const cursorPosition = e.target.selectionStart;
-    
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
     setEmailTemplate(value);
-    
-    // Check if the last character typed is '/'
-    if (value[cursorPosition - 1] === '/') {
-      setShowDropdown(true);
-      setCaretPosition(cursorPosition); // save the caret position to show dropdown near it
-    } else {
-      setShowDropdown(false);
-    }
+    console.log(commandMode)
+    console.log(filteredOptions)
+
+    // if (value.charAt(commandCursorPosition) !== '/') {
+    //   setShowDropdown(false);
+    //   setFilteredOptions(dropdownOptions)
+    //   setCommandMode(false);
+    // }
+
+    // const lastChar = value[value.length - 1];
+    // if (lastChar === '/' && !commandMode) {
+    //   setShowDropdown(true);
+    //   setFilteredOptions(dropdownOptions);
+    //   setCommandMode(true);
+    // } else if (filteredOptions.length < 1 && commandMode) {
+    //   setCommandMode(false);
+    //   setShowDropdown(false);
+    //   setFilteredOptions(dropdownOptions);
+    // }
   }
 
-  const handleOptionClick = (option: string) => {
-    // Replace '/' with the selected option in the email template
-    const newTemplate = 
-      emailTemplate.substring(0, caretPosition - 1) + 
-      option + 
-      emailTemplate.substring(caretPosition);
-
-    setEmailTemplate(newTemplate);
-    setShowDropdown(false);
+  const getCaretCoordinates = (element: HTMLTextAreaElement, position: number) => {
+    // Create a hidden div
+    const div = document.createElement('div');
+    const style = window.getComputedStyle(element);
+  
+    // Copy styles from the textarea to the div
+    Array.from(style).forEach((propName) => {
+      div.style.setProperty(propName, style.getPropertyValue(propName));
+    });
+  
+    // Apply necessary styling to ensure the div behaves like a textarea
+    div.style.position = 'absolute';
+    div.style.visibility = 'hidden';
+    div.style.whiteSpace = 'pre-wrap';
+    div.style.wordWrap = 'break-word';
+    div.style.overflow = 'hidden'; // Ensure it doesn't expand beyond the text
+  
+    // Set the text content of the div to the same as the textarea up to the cursor position
+    const text = element.value.substring(0, position);
+    div.textContent = text;
+  
+    // If the text ends with a newline, add a zero-width space to the end to account for the new line height
+    if (text.endsWith("\n")) {
+      div.textContent += "\u200b";
+    }
+  
+    // Append a span to get the exact position
+    const span = document.createElement('span');
+    span.textContent = element.value.substring(position) || '.';
+    div.appendChild(span);
+  
+    // Add the div to the document body to calculate the position
+    document.body.appendChild(div);
+  
+    const { top, left } = span.getBoundingClientRect();
+    document.body.removeChild(div);
+  
+    return { top, left };
   };
+  
+  const handleKeyUp = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+
+    const cursorPosition = (e.target as HTMLTextAreaElement).selectionStart;
+    const keysArray = Object.keys(filteredOptions); // Convert keys to an array
+    const isAlphaNumeric = /^[a-zA-Z0-9]$/.test(e.key);
+    
+    if (e.key === '/') {
+      setCommandCursorPosition(cursorPosition)
+      setCommandMode(true);
+      setFilteredOptions(dropdownOptions)
+      setShowDropdown(true);
+      const coords = getCaretCoordinates(e.target as HTMLTextAreaElement, cursorPosition);
+      setDropdownCords(coords)
+      console.log("Slash typed at index:", cursorPosition, "Coordinates:", coords);
+    } else if (e.key === 'Escape') {
+      setShowDropdown(false);
+      setCommand('')
+      setFilteredOptions(dropdownOptions)
+      setCommandMode(false);
+    } else if (e.key === ' ') {
+      setShowDropdown(false);
+      setCommand('')
+      setFilteredOptions(dropdownOptions)
+      setCommandMode(false);
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      console.log("Cursor", cursorPosition, "command Cursor", commandCursorPosition)
+      if (cursorPosition < commandCursorPosition) {
+        setShowDropdown(false);
+        setCommand('')
+        setFilteredOptions(dropdownOptions)
+        setCommandMode(false);
+      } else if (cursorPosition >= commandCursorPosition) {
+        setCommandMode(true);
+        setFilteredOptions(dropdownOptions)
+        setShowDropdown(true);
+      }
+    } else if (isAlphaNumeric) {
+        setCommand((prev) => prev + e.key)
+    }
+    
+    if (commandMode) {
+      // e.preventDefault()// Prevent cursor movement
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setActiveOptionIndex((prevIndex) => 
+          (prevIndex + 1) % keysArray.length); // Move down
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setActiveOptionIndex((prevIndex) => 
+          (prevIndex - 1 + keysArray.length) % keysArray.length); // Move up
+      } else if (e.key === 'Tab') {
+        e.preventDefault()
+        handleOptionSelect(filteredOptions[keysArray[activeOptionIndex]]);
+      }
+    }
+  }, [commandMode]); 
+
+  useEffect(() => {
+    if (commandMode) {
+      console.log(command, "Command Start:", commandCursorPosition)
+      if (prevCommandLen <= command.length) {
+        const filteredEntries = Object.entries(dropdownOptions).filter(([key, value]) =>
+          key.toLocaleLowerCase().includes(command)
+        );
+        setFilteredOptions(Object.fromEntries(filteredEntries));
+      } else {
+        setFilteredOptions(dropdownOptions)
+        const filteredEntries = Object.entries(dropdownOptions).filter(([key, value]) =>
+          key.toLocaleLowerCase().includes(command)
+        );
+        setFilteredOptions(Object.fromEntries(filteredEntries));
+      }
+      setPrevCommandLen(command.length)
+    }
+  },[command] )
+
+  const handleOptionSelect = (option: string) => {
+    console.log(commandCursorPosition, commandCursorPosition + prevCommandLen)
+    setEmailTemplate(prevTemplate => 
+      prevTemplate.slice(0, commandCursorPosition) + option + prevTemplate.slice(commandCursorPosition + 1 + prevCommandLen, prevTemplate.length)
+    );
+    setCommand('')
+    setShowDropdown(false);
+    setCommandMode(false);
+  }
 
   useEffect(() => {
     setFileNameTemp(decodeURIComponent(resumeFileUrl?.split("/").pop() || ''))
@@ -225,24 +363,34 @@ export default function ComposedPage({
             </label>
             <Textarea
               id="template"
+              ref={textareaRef}
               placeholder="Write your email template here... Use [NAME] and [FIRM_NAME] as placeholders."
               className="min-h-[200px]"
               value={emailTemplate}
               onChange={handleInputChange}
+              onKeyUpCapture={handleKeyUp} // captures it early than onKeyDown
             />
             {showDropdown && (
-              <div className="absolute bg-white border shadow-md mt-1 p-2">
-                {dropdownOptions.map((option, index) => (
-                  <div
-                    key={index}
-                    className="p-1 cursor-pointer hover:bg-gray-200"
-                    onClick={() => handleOptionClick(option)}
-                  >
-                    {option}
-                  </div>
-                ))}
-              </div>
-            )}
+                <div className={`absolute top-${dropdownCords.top} left-${dropdownCords.left} bg-white border border-gray-300 rounded-md shadow-lg`}>
+                  <Command>
+                    <CommandList>
+                      <CommandGroup>
+                        {Object.entries(filteredOptions).map(([key, value], index) => (
+                          <CommandItem 
+                            key={index} 
+                            onSelect={() => handleOptionSelect(value)}
+                            className={`cursor-pointer p-2 hover:bg-gray-100 ${index === activeOptionIndex ? 'bg-gray-200 !important' : ''}`}
+                            aria-selected={index === activeOptionIndex}
+                            data-selected={index === activeOptionIndex}
+                          >
+                            {key}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </div>
+              )}
           </div>
         </div>
         <div className="flex flex-col mt-6">
@@ -310,6 +458,7 @@ export default function ComposedPage({
           </div>
         </DialogContent>
       </Dialog>
+      
     </div>
   )
 }
