@@ -72,4 +72,5 @@ export type FirmEmailUserInsert = {
   firm_name: string
   email_ending: string
 }
+
   

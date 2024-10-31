@@ -54,7 +54,7 @@ export default function SettingsPage({
 
     // Inserting Process
     const addedFirmFormats = Object.entries(userFirmFormats).reduce((acc, [uuid, firmFormatInfo ]) => {
-      if (firmFormatInfo.added && user) {
+      if (firmFormatInfo.added && !firmFormatInfo.cleared && user) {
           acc.push({
             user_profile_id: user.id,
             firm_name: firmFormatInfo.firmName,
@@ -64,7 +64,7 @@ export default function SettingsPage({
       return acc;
     }, [] as FirmEmailUserInsert[])
 
-    const { data, error: insertError } = await supabase
+    const { data: insertedData, error: insertError } = await supabase
       .from('firm_email_user')
       .insert(addedFirmFormats);
 
@@ -72,7 +72,31 @@ export default function SettingsPage({
       console.error("Could not be inserted", error)
     }
 
+    // Inserting Process
+    const clearedFirmFormatUUIDs = Object.entries(userFirmFormats).reduce((acc, [uuid, firmFormatInfo ]) => {
+      if (firmFormatInfo.cleared && !firmFormatInfo.added && user) {
+          acc.push(uuid)
+      }
+      return acc;
+    }, [] as string[])
+
+    deleteMultipleRecords(clearedFirmFormatUUIDs)
+
   }
+
+  const deleteMultipleRecords = async (uuids: string[]) => {
+    //uuids would be Object.keys()
+    const { data, error } = await supabase
+        .from('firm_email_user')
+        .delete()
+        .in('id', uuids);
+
+    if (error) {
+        console.error("Error deleting records:", error.message);
+    } else {
+        console.log("Records deleted successfully:", data);
+    }
+  };
 
   const addFirmFormat = (e: React.FormEvent) => {
     // e.preventDefault()
@@ -117,20 +141,6 @@ export default function SettingsPage({
       )
     )
   }
-
-  const deleteMultipleRecords = async (uuids: string[]) => {
-    //uuids would be Object.keys()
-    const { data, error } = await supabase
-        .from('firm_email_user')
-        .delete()
-        .in('id', uuids);
-
-    if (error) {
-        console.error("Error deleting records:", error.message);
-    } else {
-        console.log("Records deleted successfully:", data);
-    }
-  };
 
   const toggleFirmSelection = (key: string) => {
     setUserFirmFormats(prevFirms => ({
