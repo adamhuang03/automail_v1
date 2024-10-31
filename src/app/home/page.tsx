@@ -43,7 +43,7 @@ export default function ColdOutreachUI() {
   const [resumeFileUrl, setResumeFileUrl] = useState<string | null>(null)
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
   const [firms, setFirms] = useState<string[] | null>(null)
-  const [firmEmails, setFirmEmails] = useState<Record<string, [string, string, number]> | null>(null)
+  const [firmEmails, setFirmEmails] = useState<Record<string, (string | number)[]> | null>(null)
   const [addTempMap, setAddTempMap] = useState<{ [id: number]: string }>({});
 
   const [user, setUser] = useState<User | null>(null)
@@ -472,6 +472,9 @@ export default function ColdOutreachUI() {
               <h2 className="text-xl font-semibold mb-2">Outreach Campaign</h2>
               <p className="text-sm text-gray-400 mb-8 italic">Note: Custom emails can be edited on the "Manage" tab after scheduling</p>
               <div className="space-y-8">
+                <Button variant='outline' onClick={() => console.log(firmEmails)}>
+                  Log
+                </ Button>
                 {firmGroups.map((firmGroup, firmIndex) => (
                   <div key={firmIndex} className="border p-4 rounded-lg">
                     <div className="mb-4">
@@ -616,7 +619,12 @@ export default function ColdOutreachUI() {
               </div>
             </div>
           )}
-          {activeTab === 'settings' && <SettingsPage />}
+          {activeTab === 'settings' && 
+            <SettingsPage 
+              user={user}
+              firmEmails={firmEmails}
+              setFirmEmails={setFirmEmails}
+            />}
           {activeTab === 'manage' && <ManagePage />}
         </main>
       </div>

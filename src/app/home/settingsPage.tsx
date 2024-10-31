@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { AlertCircle, X } from "lucide-react"
+import { AlertCircle, LucideUtensilsCrossed, X } from "lucide-react"
 import { User } from "@supabase/supabase-js"
 import { supabase } from "@/lib/db/supabase"
 import { siIterm2 } from "simple-icons"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface Firm {
   name: string
@@ -17,15 +18,10 @@ interface Firm {
 
 type PageProps = {
   user: User | null
-  firmEmails: Record<string, [string, string, number]>
-  setFirmEmails: React.Dispatch<Record<string, [string, string, number]>>
+  firmEmails: Record<string, (string | number)[]> | null
+  setFirmEmails: React.Dispatch<React.SetStateAction<Record<string, (string | number)[]> | null>>
 
 };
-
-type EmailCollection = {
-  firmName: string
-  emailEnding: string
-}
 
 interface OutreachFirmEmailModified {
   [uuid: string]: {
@@ -43,11 +39,10 @@ export default function SettingsPage({
   firmEmails,
   setFirmEmails
 }: PageProps) {
-  const [initLoad, setInitLoad] = useState<boolean>(true)
+  const [initLoad, setInitLoad] = useState<boolean>(false)
   const [firmName, setFirmName] = useState<string>("")
   const [emailEnding, setEmailEnding] = useState<string>("")
   const [userFirmFormats, setUserFirmFormats] = useState<OutreachFirmEmailModified>({})
-  const [userFirmFormatHolder, setUserFirmFormatHolder] = useState<EmailCollection[]>([])
   const [selectAll, setSelectAll] = useState(false)
   const [error, setError] = useState("")
 
@@ -57,14 +52,21 @@ export default function SettingsPage({
   }
 
   const addFirmFormat = (e: React.FormEvent) => {
-    e.preventDefault()
+    // e.preventDefault()
     const uuid = crypto.randomUUID();
     
-    //Feed back to Outreach
-    setFirmEmails({
-      ...firmEmails,
-      [`temp-${uuid}`]: [firmName, emailEnding, 1],
+    //Feed back to Outreach -- you cannot see if you tried logging?
+    setFirmEmails((prev) => {
+      // ...prev,
+      // [`temp-${uuid}`]: [firmName, emailEnding, 1],
+      const updatedFirms = { 
+          ...(prev ?? {}), 
+          [`temp-${uuid}`]: [firmName, emailEnding, 1] 
+      };
+      console.log("Updated firmEmails:", updatedFirms); // Log the updated object
+      return updatedFirms;
     });
+    
     
     //Prepare for database update
     setUserFirmFormats((prev) => ({
@@ -84,13 +86,16 @@ export default function SettingsPage({
 
   }
 
-  const clearFirms = (index: number) => {
+  const clearSelected = () => {
     setUserFirmFormats(prevFirms => 
       Object.fromEntries( // convert the iteration back into an interface format
         // Iterate each to select true => {key: {...} } => [key, {...}]
         Object.entries(prevFirms).map(([uuid, firm]) => [
           uuid,
-          {...firm, cleared: true}
+          { 
+            ...firm, 
+            cleared: firm.selected ? true : firm.cleared 
+          }
         ])
 
       )
@@ -136,7 +141,7 @@ export default function SettingsPage({
   }
 
   useEffect(() => {
-    if (initLoad) {
+    if (!initLoad && firmEmails) {
       const filteredFirmEmails = Object.entries(firmEmails).reduce((acc, [key, [str1, str2, num]]) => {
           if (num === 1) {
               acc[key] = {
@@ -151,8 +156,13 @@ export default function SettingsPage({
           return acc;
       }, {} as OutreachFirmEmailModified)
       setUserFirmFormats(filteredFirmEmails)
+      setInitLoad(true)
     }
   }, [firmEmails])
+  
+  const logger = (num: number) => {
+    console.log(num, "userFirmFormats: ", userFirmFormats, "\nfirmEmails: ", firmEmails,)
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -161,6 +171,9 @@ export default function SettingsPage({
           <CardTitle className="text-2xl font-bold">Firm Information</CardTitle>
           <CardDescription>Add multiple firms one by one</CardDescription>
         </CardHeader>
+        <Button variant="outline" onClick={() => logger(1)} className="w-full">
+          Log
+        </Button>
         <form onSubmit={handleSave}>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -189,7 +202,13 @@ export default function SettingsPage({
                 <span className="text-sm">{error}</span>
               </div>
             )}
-            <Button type="submit" className="w-full">Add Firm</Button>
+            <Button type="submit" className="w-full" onClick={(e) => {
+                  addFirmFormat(e)
+                }
+              }
+            >
+              Add Firm
+            </Button>
           </CardContent>
         </form>
         <CardContent>
@@ -200,32 +219,39 @@ export default function SettingsPage({
                 <Checkbox
                   id="selectAll"
                   checked={selectAll}
-                  onCheckedChange={toggleSelectAll}
+                  onCheckedChange={() => {
+                      toggleSelectAll()
+                    }
+                  }
                 />
                 <Label htmlFor="selectAll">Select All</Label>
               </div>
             </div>
-            {firms.length === 0 ? (
+            {Object.keys(userFirmFormats).length === 0 ? (
               <p className="text-gray-500">No firms added yet.</p>
             ) : (
               <ul className="space-y-2">
-                {firms.map((firm, index) => (
-                  <li key={index} className={`flex justify-between items-center p-2 rounded shadow ${firm.selected ? 'bg-blue-50' : 'bg-white'}`}>
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id={`firm-${index}`}
-                        checked={firm.selected}
-                        onCheckedChange={() => toggleFirmSelection(index)}
-                      />
-                      <Label htmlFor={`firm-${index}`} className="flex-grow">
-                        {firm.name} - {firm.emailEnding}
-                      </Label>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={() => removeFirm(index)}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </li>
-                ))}
+                {Object.entries(userFirmFormats).map(([uuid, firmFormat]) => 
+                  !firmFormat.cleared && (
+                    <li key={uuid} className={`flex justify-between items-center p-2 rounded shadow ${firmFormat.selected ? 'bg-blue-50' : 'bg-white'}`}>
+                      <div className="flex items-center space-x-3">
+                        <Checkbox
+                          id={`firm-${uuid}`}
+                          checked={firmFormat.selected}
+                          onCheckedChange={() => {
+                            toggleFirmSelection(uuid)
+                          }}
+                        />
+                        <Label htmlFor={`firm-${uuid}`} className="flex-grow">
+                          {firmFormat.firmName} - {firmFormat.firmEnding}
+                        </Label>
+                      </div>
+                      {/* <Button variant="ghost" size="icon" onClick={() => removeFirm(index)}>
+                        <X className="h-4 w-4" />
+                      </Button> */}
+                    </li>
+                  )
+                )}
               </ul>
             )}
           </div>
