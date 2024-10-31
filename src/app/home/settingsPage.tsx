@@ -46,6 +46,7 @@ export default function SettingsPage({
   const [userFirmFormats, setUserFirmFormats] = useState<OutreachFirmEmailModified>({})
   const [selectAll, setSelectAll] = useState(false)
   const [error, setError] = useState("")
+  const [emailEndingError, setEmailEndingError] = useState<boolean>(false)
 
   const handleSave = async(e: React.FormEvent) => {
     // Save to supabase -- don't let them leave unless they save
@@ -225,7 +226,11 @@ export default function SettingsPage({
                 placeholder="e.g. firmname.com"
                 value={emailEnding}
                 onChange={(e) => {
-                  if (e.target)
+                  if (/@/.test(e.target.value)) {// test if @ exists
+                    setError("Email format must not contain @")
+                  } else {
+                    setError("")
+                  }
                   setEmailEnding(e.target.value)
                 }}
               />
