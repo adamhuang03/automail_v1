@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation'
 import { ManagePage } from './managePage'
 import { getFileUrl } from '@/utils/getFile'
 import ComposedPage from './composedPage'
+import SettingsPage from './settingsPage'
 
 type Prospect = {
   name: string
@@ -29,6 +30,8 @@ type Prospect = {
 
 type FirmGroup = {
   firm: string
+  firmId: string
+  userPrivate: number
   prospects: Prospect[]
 }
 
@@ -40,7 +43,7 @@ export default function ColdOutreachUI() {
   const [resumeFileUrl, setResumeFileUrl] = useState<string | null>(null)
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
   const [firms, setFirms] = useState<string[] | null>(null)
-  const [firmEmails, setFirmEmails] = useState<Record<string, [string, string]> | null>(null)
+  const [firmEmails, setFirmEmails] = useState<Record<string, [string, string, number]> | null>(null)
   const [addTempMap, setAddTempMap] = useState<{ [id: number]: string }>({});
 
   const [user, setUser] = useState<User | null>(null)
@@ -58,7 +61,7 @@ export default function ColdOutreachUI() {
   const addFirm = () => {
     const currentDate = utcToLocal(new Date().toISOString())
     const currentDateUtc = new Date(currentDate).toISOString().slice(0, 16);
-    const updatedFirmGroups = [...firmGroups, { firm: '', prospects: [{ name: '', email: '', scheduledTime: {utcTime: currentDateUtc, localTime: currentDate} }] }]
+    const updatedFirmGroups = [...firmGroups, { firm: '', firmId: '', userPrivate: 0, prospects: [{ name: '', email: '', scheduledTime: {utcTime: currentDateUtc, localTime: currentDate} }] }]
     setFirmGroups(updatedFirmGroups)
     const newFirmIndex = updatedFirmGroups.length - 1;
     setAddTempMap((prev) => ({
@@ -89,16 +92,25 @@ export default function ColdOutreachUI() {
     setFirmGroups(updatedFirmGroups)
   }
 
-  const updateFirm = (firmIndex: number, newFirm: string) => {
+  const updateFirm = (firmIndex: number, newFirmId: string) => {
     const updatedFirmGroups = [...firmGroups]
-    updatedFirmGroups[firmIndex].firm = newFirm
-    updatedFirmGroups[firmIndex].prospects.forEach(prospect => {
-      if (prospect.name && firmEmails) {
-        const [firstName, lastName] = prospect.name.split(' ')
-        prospect.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${firmEmails[newFirm][0]}`
-      }
-    })
-    setFirmGroups(updatedFirmGroups)
+    if (firmEmails) {
+      updatedFirmGroups[firmIndex].firm = firmEmails[newFirmId][0]
+      updatedFirmGroups[firmIndex].firmId = newFirmId
+      console.log(newFirmId, firmEmails[newFirmId][0])
+      
+      updatedFirmGroups[firmIndex].userPrivate = firmEmails[newFirmId][2]
+      updatedFirmGroups[firmIndex].prospects.forEach(prospect => {
+        if (prospect.name && firmEmails) {
+          const [firstName, lastName] = prospect.name.split(' ')
+          prospect.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${firmEmails[newFirmId][0]}`
+        }
+      })
+      setFirmGroups(updatedFirmGroups)
+      console.log(updatedFirmGroups)
+    } else {
+      console.error("Firm Emails was not loaded properly...")
+    }
   }
 
   const updateProspect = (firmIndex: number, prospectIndex: number, field: keyof Prospect, value: string) => {
@@ -110,7 +122,7 @@ export default function ColdOutreachUI() {
       currentProspect[field] = value
       const [firstName, lastName] = value.split(' ')
       if (firstName && lastName && firmEmails) {
-        currentProspect.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${firmEmails[currentFirmGroup.firm][0]}`
+        currentProspect.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${firmEmails[currentFirmGroup.firmId][1]}`
       } else {
         currentProspect.email = ''
       }
@@ -148,7 +160,8 @@ export default function ColdOutreachUI() {
       to_name: string,
       to_email: string,
       to_firm: string,
-      firm_email_id: number,
+      firm_email_id: string | null,
+      firm_email_user_id: string | null,
       subject_generated: string,
       email_generated: string,
       scheduled_datetime_utc: string,
@@ -180,20 +193,64 @@ export default function ColdOutreachUI() {
     firmGroups.forEach(firmGroup => {
       let prospects = firmGroup.prospects
       prospects.forEach(prospect => {
-        if (firmEmails && user) {
+        if (firmEmails && user && firmGroup.userPrivate === 0) {
           const draft = generateDraft(prospect, firmGroup.firm)
-          data.push({
+          // data.push({
+          //   status: "Scheduled",
+          //   user_profile_id: user.id,
+          //   to_name: prospect.name,
+          //   to_email: prospect.email,
+          //   to_firm: firmGroup.firm,
+          //   firm_email_id: firmGroup.firmId,
+          //   firm_email_user_id: null,
+          //   subject_generated: draft.subject,
+          //   email_generated: draft.body,
+          //   scheduled_datetime_utc: prospect.scheduledTime.utcTime,
+          //   provider_name: user.app_metadata.provider || ''
+          // });
+          console.log(
+            {
+              status: "Scheduled",
+              user_profile_id: user.id,
+              to_name: prospect.name,
+              to_email: prospect.email,
+              to_firm: firmGroup.firm,
+              firm_email_id: firmGroup.firmId,
+              firm_email_user_id: null,
+              subject_generated: draft.subject,
+              email_generated: draft.body,
+              scheduled_datetime_utc: prospect.scheduledTime.utcTime,
+              provider_name: user.app_metadata.provider || ''
+            }
+          )
+        } else if (firmEmails && user && firmGroup.userPrivate === 1) {
+          const draft = generateDraft(prospect, firmGroup.firm)
+          // data.push({
+          //   status: "Scheduled",
+          //   user_profile_id: user.id,
+          //   to_name: prospect.name,
+          //   to_email: prospect.email,
+          //   to_firm: firmGroup.firm,
+          //   firm_email_id: null,
+          //   firm_email_user_id: firmGroup.firmId,
+          //   subject_generated: draft.subject,
+          //   email_generated: draft.body,
+          //   scheduled_datetime_utc: prospect.scheduledTime.utcTime,
+          //   provider_name: user.app_metadata.provider || ''
+          // });
+          console.log({
             status: "Scheduled",
             user_profile_id: user.id,
             to_name: prospect.name,
             to_email: prospect.email,
             to_firm: firmGroup.firm,
-            firm_email_id: Number(firmEmails[firmGroup.firm][1]),
+            firm_email_id: null,
+            firm_email_user_id: firmGroup.firmId,
             subject_generated: draft.subject,
             email_generated: draft.body,
             scheduled_datetime_utc: prospect.scheduledTime.utcTime,
             provider_name: user.app_metadata.provider || ''
-          });
+          })
         }
       })
     })
@@ -262,29 +319,21 @@ export default function ColdOutreachUI() {
         router.push('/login')
       }
 
-      const { data, error } = await supabase.from('firm_email')
-      .select('firm_name')
+      // const { data, error } = await supabase.from('firm_email')
+      // .select('firm_name')
 
-      if (data) {
-        const firmNames = data.map<string>((item) => item.firm_name);
-        setFirms(firmNames)
-      }
+      // if (data) {
+      //   const firmNames = data.map<string>((item) => item.firm_name);
+      //   setFirms(firmNames)
+      // }
     })();
 
     (async() => {
-      const { data, error } = await supabase.from('firm_email')
-      .select('id, firm_name, email_ending')
-      if (data) {
-        const firmEmailsDict = data.reduce<Record<string, [string, string]>>((acc, item) => {
-          acc[item.firm_name] = [item.email_ending, item.id];
-          return acc;
-        }, {});
-        setFirmEmails(firmEmailsDict)
-      }
+      
 
     })();
 
-  }, [])
+  }, [user])
 
   //Page load part 2
   useEffect(() => {
@@ -301,6 +350,34 @@ export default function ColdOutreachUI() {
           setResumeFilePath(data[0].resume_link_filepath)
           setResumeFileUrl(data[0].resume_link)
         }
+
+        const { data: publicFirmData, error: errorPublic } = await supabase.from('firm_email')
+          .select('id, firm_name, email_ending');
+
+        if (publicFirmData) {
+          // Initialize with public data
+          const firmEmailsDict = publicFirmData.reduce<Record<string, [string, string, number]>>((acc, item) => {
+            acc[item.id] = [item.firm_name, item.email_ending, 0];
+            return acc;
+          }, {});
+
+          const { data: privateFirmData, error: errorPrivate } = await supabase.from('firm_email_user')
+            .select('id, user_profile_id, firm_name, email_ending')
+            .eq('user_profile_id', user?.id)
+
+          if (privateFirmData) {
+            // Merge private data into the existing dictionary
+            privateFirmData.forEach(item => {
+              firmEmailsDict[item.id] = [item.firm_name, item.email_ending, 1];
+            });
+          } else {
+            console.log(errorPrivate)
+          }
+
+          // Set the combined dictionary to state
+          setFirmEmails(firmEmailsDict);
+        }
+
       }
 
     })();
@@ -399,7 +476,7 @@ export default function ColdOutreachUI() {
                   <div key={firmIndex} className="border p-4 rounded-lg">
                     <div className="mb-4">
                       <Select
-                        value={firmGroup.firm}
+                        value={firmGroup.firmId} // some reason, id will work here as it will find the firmEmails for me????
                         onValueChange={(value) => updateFirm(firmIndex, value)}
                         disabled={firmGroup.prospects.some(p => p.name !== '')}
                       >
@@ -407,9 +484,9 @@ export default function ColdOutreachUI() {
                           <SelectValue placeholder="Select firm" />
                         </SelectTrigger>
                         <SelectContent>
-                          {firms?.map((firm) => (
-                            <SelectItem key={firm} value={firm}>
-                              {firm}
+                          {firmEmails && Object.keys(firmEmails).map((firmId) => (
+                            <SelectItem key={firmId} value={firmId}>
+                              {firmEmails[firmId][0]}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -539,7 +616,7 @@ export default function ColdOutreachUI() {
               </div>
             </div>
           )}
-          {activeTab === 'settings' && <div>Settings page coming soon!</div>}
+          {activeTab === 'settings' && <SettingsPage />}
           {activeTab === 'manage' && <ManagePage />}
         </main>
       </div>

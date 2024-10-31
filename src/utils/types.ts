@@ -43,6 +43,7 @@ export type OutreachUser = {
     to_email: string
     to_firm: string
     firm_email_id: number
+    firm_email_user_id: number
     subject_generated: string
     email_generated: string
     scheduled_datetime_utc: string
@@ -58,6 +59,7 @@ export type Outreach = {
     to_email: string
     to_firm: string
     firm_email_id: number
+    firm_email_user_id: number
     subject_generated: string
     email_generated: string
     scheduled_datetime_utc: string
