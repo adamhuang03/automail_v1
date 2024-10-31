@@ -476,9 +476,6 @@ export default function ColdOutreachUI() {
               <h2 className="text-xl font-semibold mb-2">Outreach Campaign</h2>
               <p className="text-sm text-gray-400 mb-8 italic">Note: Custom emails can be edited on the "Manage" tab after scheduling</p>
               <div className="space-y-8">
-                <Button variant='outline' onClick={() => console.log(firmEmails)}>
-                  Log
-                </ Button>
                 {firmGroups.map((firmGroup, firmIndex) => (
                   <div key={firmIndex} className="border p-4 rounded-lg">
                     <div className="mb-4">
@@ -492,8 +489,17 @@ export default function ColdOutreachUI() {
                         </SelectTrigger>
                         <SelectContent>
                           {firmEmails && Object.keys(firmEmails).map((firmId) => (
-                            <SelectItem key={firmId} value={firmId}>
-                              {firmEmails[firmId][0]}
+                            <SelectItem key={firmId} value={firmId} className=''>
+                              {/* <div className="max-w-full border"> */}
+                                {/* <div className='border'> */}
+                                  {firmEmails[firmId][0]}
+                                {/* </div>
+                                {firmEmails[firmId][2] === 1 && 
+                                  <div className="text-green-500 rounded-sm border-spacing-2 border shadow border-green-500">
+                                    Personal
+                                  </div>
+                                } */}
+                              {/* </div> */}
                             </SelectItem>
                           ))}
                         </SelectContent>
