@@ -21,7 +21,7 @@ type PageProps = {
   user: User | null
   firmEmails: Record<string, (string | number)[]> | null
   setFirmEmails: React.Dispatch<React.SetStateAction<Record<string, (string | number)[]> | null>>
-
+  setActiveTab: React.Dispatch<React.SetStateAction<string>>
 };
 
 interface OutreachFirmEmailModified {
@@ -38,7 +38,8 @@ interface OutreachFirmEmailModified {
 export default function SettingsPage({
   user,
   firmEmails,
-  setFirmEmails
+  setFirmEmails,
+  setActiveTab
 }: PageProps) {
   const [initLoad, setInitLoad] = useState<boolean>(false)
   const [firmName, setFirmName] = useState<string>("")
@@ -69,6 +70,7 @@ export default function SettingsPage({
 
     if (insertError) {
       console.error("Could not be inserted", error)
+      return;
     }
 
     // Inserting Process
@@ -80,6 +82,7 @@ export default function SettingsPage({
     }, [] as string[])
 
     deleteMultipleRecords(clearedFirmFormatUUIDs)
+    setActiveTab('outreach')
 
   }
 
@@ -92,6 +95,7 @@ export default function SettingsPage({
 
     if (error) {
         console.error("Error deleting records:", error.message);
+        return;
     } else {
         console.log("Records deleted successfully");
     }
