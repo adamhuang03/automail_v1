@@ -94,7 +94,11 @@ export default function ColdOutreachUI() {
 
   const updateFirm = (firmIndex: number, newFirmId: string) => {
     const updatedFirmGroups = [...firmGroups]
-    if (firmEmails) {
+    if (
+      firmEmails &&
+      typeof firmEmails[newFirmId][0] === 'string' &&
+      typeof  firmEmails[newFirmId][2] === 'number'
+    ) {
       updatedFirmGroups[firmIndex].firm = firmEmails[newFirmId][0]
       updatedFirmGroups[firmIndex].firmId = newFirmId
       console.log(newFirmId, firmEmails[newFirmId][0])

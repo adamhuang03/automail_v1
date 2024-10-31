@@ -222,9 +222,12 @@ export default function SettingsPage({
               <Label htmlFor="emailEnding">Email Ending</Label>
               <Input
                 id="emailEnding"
-                placeholder="e.g. @firmname.com"
+                placeholder="e.g. firmname.com"
                 value={emailEnding}
-                onChange={(e) => setEmailEnding(e.target.value)}
+                onChange={(e) => {
+                  if (e.target)
+                  setEmailEnding(e.target.value)
+                }}
               />
             </div>
           </div>
