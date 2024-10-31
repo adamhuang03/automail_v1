@@ -10,6 +10,7 @@ import { User } from "@supabase/supabase-js"
 import { supabase } from "@/lib/db/supabase"
 import { siIterm2 } from "simple-icons"
 import { Checkbox } from "@/components/ui/checkbox"
+import { FirmEmailUserInsert } from "@/utils/types"
 
 interface Firm {
   name: string
@@ -49,6 +50,13 @@ export default function SettingsPage({
   const handleSave = (e: React.FormEvent) => {
     // Save to supabase -- don't let them leave unless they save
     e.preventDefault()
+    console.log('saving')
+    const addedFirmFormats = Object.entries(userFirmFormats).reduce((acc, [uuid, firmFormatInfo ]) => {
+      if (firmFormatInfo.added) {
+          acc.push({})
+      }
+      return acc;
+    }, {} as OutreachFirmEmailModified)
   }
 
   const addFirmFormat = (e: React.FormEvent) => {
@@ -56,17 +64,10 @@ export default function SettingsPage({
     const uuid = crypto.randomUUID();
     
     //Feed back to Outreach -- you cannot see if you tried logging?
-    setFirmEmails((prev) => {
-      // ...prev,
-      // [`temp-${uuid}`]: [firmName, emailEnding, 1],
-      const updatedFirms = { 
-          ...(prev ?? {}), 
-          [`temp-${uuid}`]: [firmName, emailEnding, 1] 
-      };
-      console.log("Updated firmEmails:", updatedFirms); // Log the updated object
-      return updatedFirms;
-    });
-    
+    setFirmEmails((prev) => ({
+      ...prev,
+      [`temp-${uuid}`]: [firmName, emailEnding, 1],
+    }));
     
     //Prepare for database update
     setUserFirmFormats((prev) => ({
@@ -133,7 +134,7 @@ export default function SettingsPage({
         // Iterate each to select true => {key: {...} } => [key, {...}]
         Object.entries(prevFirms).map(([uuid, firm]) => [
           uuid,
-          {...firm, selected: true}
+          {...firm, selected: !selectAll}
         ])
 
       )
@@ -145,8 +146,8 @@ export default function SettingsPage({
       const filteredFirmEmails = Object.entries(firmEmails).reduce((acc, [key, [str1, str2, num]]) => {
           if (num === 1) {
               acc[key] = {
-                firmName: str1,
-                firmEnding: str2,
+                firmName: str1.toLocaleString(),
+                firmEnding: str2.toLocaleString(),
                 userPrivate: num,
                 selected: false,
                 cleared: false,
@@ -165,52 +166,57 @@ export default function SettingsPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+    <div className="min-h-scree flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl bg-gray-50">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Firm Information</CardTitle>
-          <CardDescription>Add multiple firms one by one</CardDescription>
-        </CardHeader>
-        <Button variant="outline" onClick={() => logger(1)} className="w-full">
-          Log
-        </Button>
-        <form onSubmit={handleSave}>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firmName">Firm Name</Label>
-                <Input
-                  id="firmName"
-                  placeholder="Enter firm name"
-                  value={firmName}
-                  onChange={(e) => setFirmName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="emailEnding">Email Ending</Label>
-                <Input
-                  id="emailEnding"
-                  placeholder="e.g. @firmname.com"
-                  value={emailEnding}
-                  onChange={(e) => setEmailEnding(e.target.value)}
-                />
-              </div>
-            </div>
-            {error && (
-              <div className="flex items-center text-red-600 space-x-2">
-                <AlertCircle size={20} />
-                <span className="text-sm">{error}</span>
-              </div>
-            )}
-            <Button type="submit" className="w-full" onClick={(e) => {
-                  addFirmFormat(e)
-                }
-              }
-            >
-              Add Firm
+          <div className="flex justify-between">
+            <CardTitle className="text-2xl font-bold">Settings</CardTitle>
+            <Button variant='default' type="submit" onClick={handleSave}>
+              Save
             </Button>
-          </CardContent>
-        </form>
+          </div>
+        </CardHeader>
+        <CardHeader>
+          <CardTitle className="text-lg font-bold">Custom Firm Formats</CardTitle>
+          <Button variant="outline" onClick={() => logger(1)} className="w-full">
+            Log
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="firmName">Firm Name</Label>
+              <Input
+                id="firmName"
+                placeholder="Enter firm name"
+                value={firmName}
+                onChange={(e) => setFirmName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="emailEnding">Email Ending</Label>
+              <Input
+                id="emailEnding"
+                placeholder="e.g. @firmname.com"
+                value={emailEnding}
+                onChange={(e) => setEmailEnding(e.target.value)}
+              />
+            </div>
+          </div>
+          {error && (
+            <div className="flex items-center text-red-600 space-x-2">
+              <AlertCircle size={20} />
+              <span className="text-sm">{error}</span>
+            </div>
+          )}
+          <Button variant='outline' type='button' className="w-full" onClick={(e) => {
+                addFirmFormat(e)
+              }
+            }
+          >
+            Add Firm
+          </Button>
+        </CardContent>
         <CardContent>
           <div className="mt-6">
             <div className="flex justify-between items-center mb-4">
@@ -233,7 +239,7 @@ export default function SettingsPage({
               <ul className="space-y-2">
                 {Object.entries(userFirmFormats).map(([uuid, firmFormat]) => 
                   !firmFormat.cleared && (
-                    <li key={uuid} className={`flex justify-between items-center p-2 rounded shadow ${firmFormat.selected ? 'bg-blue-50' : 'bg-white'}`}>
+                    <li key={uuid} className={`flex justify-between items-center p-4 rounded-lg shadow ${firmFormat.selected ? 'bg-blue-50' : 'bg-white'}`}>
                       <div className="flex items-center space-x-3">
                         <Checkbox
                           id={`firm-${uuid}`}
@@ -260,7 +266,11 @@ export default function SettingsPage({
           <Button variant="outline" onClick={clearSelected} className="w-full">
             Clear Selected
           </Button>
+          
         </CardFooter>
+        <CardHeader>
+          <CardTitle className="text-lg font-bold">More preferences are comming soon...</CardTitle>
+        </CardHeader>
       </Card>
     </div>
   )

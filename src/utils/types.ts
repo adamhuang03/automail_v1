@@ -66,4 +66,10 @@ export type Outreach = {
     provider_name: string
     created_at: string
   }
+
+export type FirmEmailUserInsert = {
+  user_profile_id: string
+  firm_name: string
+  email_ending: string
+}
   
