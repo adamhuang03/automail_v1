@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { AlertCircle, X } from "lucide-react"
+import { User } from "@supabase/supabase-js"
 
 interface Firm {
   name: string
@@ -13,26 +14,19 @@ interface Firm {
 }
 
 type PageProps = {
-    user: User | null
-    pageLoadingComplete: boolean
-    setActiveTab: React.Dispatch<React.SetStateAction<string>>
-    setComposedChanged: React.Dispatch<React.SetStateAction<number>>
-    resumeFilePath: string | null
-    setResumeFilePath: React.Dispatch<React.SetStateAction<string | null>>
-    resumeFileUrl: string | null
-    setResumeFileUrl: React.Dispatch<React.SetStateAction<string | null>>
-    popupChanged: boolean
-    setPopupChanged: React.Dispatch<React.SetStateAction<boolean>>
-    emailSubject: string
-    setEmailSubject: React.Dispatch<React.SetStateAction<string>>
-    emailTemplate: string
-    setEmailTemplate: React.Dispatch<React.SetStateAction<string>>
-  };
+  user: User | null
+  firmEmails: Record<string, [string, string, number]>
+  setFirmEmails: React.Dispatch<Record<string, [string, string, number]>>
 
-export default function SettingsPage() {
-  const [firmName, setFirmName] = useState("")
-  const [emailEnding, setEmailEnding] = useState("")
-  const [firms, setFirms] = useState<Firm[]>([])
+};
+
+export default function SettingsPage({
+  user,
+  firmEmails,
+  setFirmEmails
+}: PageProps) {
+  const [firmName, setFirmName] = useState<string>("")
+  const [emailEnding, setEmailEnding] = useState<string>("")
   const [error, setError] = useState("")
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -42,7 +36,12 @@ export default function SettingsPage() {
       return
     }
     setError("")
-    setFirms([...firms, { name: firmName, emailEnding }])
+    
+    const uuid = crypto.randomUUID();
+    setFirmEmails({
+      ...firmEmails,
+      [`temp-${uuid}`]: [firmName, emailEnding, 1],
+    });
     setFirmName("")
     setEmailEnding("")
   }
@@ -50,14 +49,6 @@ export default function SettingsPage() {
   const removeFirm = (index: number) => {
     setFirms(firms.filter((_, i) => i !== index))
   }
-
-  const clearAll = () => {
-    setFirms([])
-  }
-
-  useEffect(() => {
-
-  }, [])
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
