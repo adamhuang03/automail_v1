@@ -634,6 +634,7 @@ export default function ColdOutreachUI() {
               user={user}
               firmEmails={firmEmails}
               setFirmEmails={setFirmEmails}
+              setActiveTab={setActiveTab}
             />}
           {activeTab === 'manage' && <ManagePage />}
         </main>
