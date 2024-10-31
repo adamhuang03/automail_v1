@@ -46,12 +46,10 @@ export default function SettingsPage({
   const [userFirmFormats, setUserFirmFormats] = useState<OutreachFirmEmailModified>({})
   const [selectAll, setSelectAll] = useState(false)
   const [error, setError] = useState("")
-  const [emailEndingError, setEmailEndingError] = useState<boolean>(false)
 
   const handleSave = async(e: React.FormEvent) => {
     // Save to supabase -- don't let them leave unless they save
     e.preventDefault()
-    console.log('saving')
 
     // Inserting Process
     const addedFirmFormats = Object.entries(userFirmFormats).reduce((acc, [uuid, firmFormatInfo ]) => {
@@ -95,7 +93,7 @@ export default function SettingsPage({
     if (error) {
         console.error("Error deleting records:", error.message);
     } else {
-        console.log("Records deleted successfully:", data);
+        console.log("Records deleted successfully");
     }
   };
 
@@ -204,9 +202,9 @@ export default function SettingsPage({
         </CardHeader>
         <CardHeader>
           <CardTitle className="text-lg font-bold">Custom Firm Formats</CardTitle>
-          <Button variant="outline" onClick={() => logger(1)} className="w-full">
+          {/* <Button variant="outline" onClick={() => logger(1)} className="w-full">
             Log
-          </Button>
+          </Button> */}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
