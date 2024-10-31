@@ -47,16 +47,31 @@ export default function SettingsPage({
   const [selectAll, setSelectAll] = useState(false)
   const [error, setError] = useState("")
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async(e: React.FormEvent) => {
     // Save to supabase -- don't let them leave unless they save
     e.preventDefault()
     console.log('saving')
+
+    // Inserting Process
     const addedFirmFormats = Object.entries(userFirmFormats).reduce((acc, [uuid, firmFormatInfo ]) => {
-      if (firmFormatInfo.added) {
-          acc.push({})
+      if (firmFormatInfo.added && user) {
+          acc.push({
+            user_profile_id: user.id,
+            firm_name: firmFormatInfo.firmName,
+            email_ending: firmFormatInfo.firmEnding
+          })
       }
       return acc;
-    }, {} as OutreachFirmEmailModified)
+    }, [] as FirmEmailUserInsert[])
+
+    const { data, error: insertError } = await supabase
+      .from('firm_email_user')
+      .insert(addedFirmFormats);
+
+    if (insertError) {
+      console.error("Could not be inserted", error)
+    }
+
   }
 
   const addFirmFormat = (e: React.FormEvent) => {
