@@ -1,10 +1,10 @@
 'use client'
-import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon, InboxIcon, EyeIcon } from 'lucide-react'
+import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon, InboxIcon, EyeIcon, SearchCheckIcon, SearchIcon } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -44,6 +44,9 @@ export default function ColdOutreachUI() {
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
   const [firms, setFirms] = useState<string[] | null>(null)
   const [firmEmails, setFirmEmails] = useState<Record<string, (string | number)[]> | null>(null)
+  const [filterInput, setFilterInput] = useState<string>('')
+  const [prevFilterInputLen, setPrevFilterInputLen] = useState<number>(0)
+  const [tempFirmEmails, setTempFirmEmails] = useState<Record<string, (string | number)[]> | null>(null)
   const [addTempMap, setAddTempMap] = useState<{ [id: number]: string }>({});
 
   const [user, setUser] = useState<User | null>(null)
@@ -51,6 +54,7 @@ export default function ColdOutreachUI() {
   const [composedChanged, setComposedChanged] = useState<number>(0)
   const [popupChanged, setPopupChanged] = useState<boolean>(false)
   const [pageLoadingComplete, setPageLoadingComplete] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const utcToLocal = (datetime: string) => {
     const utcTime = new Date(datetime); // Your original UTC time
@@ -337,7 +341,7 @@ export default function ColdOutreachUI() {
 
     })();
 
-  }, [user])
+  }, [])
 
   //Page load part 2
   useEffect(() => {
@@ -380,6 +384,7 @@ export default function ColdOutreachUI() {
 
           // Set the combined dictionary to state
           setFirmEmails(firmEmailsDict);
+          setTempFirmEmails(firmEmailsDict)
         }
 
       }
@@ -388,6 +393,35 @@ export default function ColdOutreachUI() {
 
     setPageLoadingComplete(true)
   }, [user])
+
+  const handleFilterInputKeyUp = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    const isAlphaNumeric = /^[a-zA-Z0-9]$/.test(e.key);
+    console.log(filterInput, tempFirmEmails, e.key)
+    
+    if (e.key === 'Backspace') {
+      setFilterInput((prev) => prev.slice(0, -1))
+    } else if (isAlphaNumeric) {
+      setFilterInput((prev) => prev + e.key)
+    }
+  }, [filterInput, tempFirmEmails])
+
+
+  useEffect(() => {
+      // console.log(command, "Command Start:", commandCursorPosition, 'Command len:', command.length)
+      if (prevFilterInputLen <= filterInput.length && firmEmails) {
+        const filteredEntries = Object.entries(firmEmails).filter(([key, value]) =>
+          value[0].toLocaleString().toLocaleLowerCase().includes(filterInput)
+        );
+        setTempFirmEmails(Object.fromEntries(filteredEntries));
+      } else if (firmEmails) {
+        setTempFirmEmails(firmEmails)
+        const filteredEntries = Object.entries(firmEmails).filter(([key, value]) =>
+          value[0].toLocaleString().toLocaleLowerCase().includes(filterInput)
+        );
+        setTempFirmEmails(Object.fromEntries(filteredEntries));
+      }
+      setPrevFilterInputLen(filterInput.length)
+  },[filterInput] )
 
   return (
     <div className="flex h-screen bg-white">
@@ -483,23 +517,45 @@ export default function ColdOutreachUI() {
                         value={firmGroup.firmId} // some reason, id will work here as it will find the firmEmails for me????
                         onValueChange={(value) => updateFirm(firmIndex, value)}
                         disabled={firmGroup.prospects.some(p => p.name !== '')}
+                        onOpenChange={() => {
+                          setTimeout(() => { //allows rendering of content first before focusing
+                            inputRef.current?.focus();
+                          }, 0);
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select firm" />
                         </SelectTrigger>
-                        <SelectContent>
-                          {firmEmails && Object.keys(firmEmails).map((firmId) => (
-                            <SelectItem key={firmId} value={firmId} className=''>
-                              {/* <div className="max-w-full border"> */}
-                                {/* <div className='border'> */}
-                                  {firmEmails[firmId][0]}
-                                {/* </div>
-                                {firmEmails[firmId][2] === 1 && 
-                                  <div className="text-green-500 rounded-sm border-spacing-2 border shadow border-green-500">
-                                    Personal
+                        <SelectContent onKeyUpCapture={handleFilterInputKeyUp}>
+                          {/* <div className='flex flex-row items-center gap-2 py-2 px-4'>
+                            <SearchIcon color='#808080'/>
+                            <Input 
+                              ref={inputRef}
+                              className='relative flex pl-8 px-2'
+                              placeholder='Filter options here...'
+                              onKeyUpCapture={handleFilterInputKeyUp}
+                            />
+                          </div> */}
+                          <hr className="solid mb-1 mt-1.5"></hr>
+                          {firmEmails && Object.keys(firmEmails).map((firmId) => ( // flex in className for selectItem is the issue
+                            <SelectItem key={firmId} value={firmId} className='notFlex'>
+                                <div className='flex flex-row flex-grow w-full justify-between '>  
+                                  <div className='flex flex-row gap-2 m'>
+                                    <div>
+                                      {firmEmails[firmId][0]}
+                                    </div>
+                                    {firmEmails[firmId][2] === 1 && 
+                                      <div className="text-green-500 px-4 rounded-sm border-spacing-2 border shadow border-green-500 mr-4">
+                                        Personal
+                                      </div>
+                                    }
                                   </div>
-                                } */}
-                              {/* </div> */}
+                                  <div className="text-gray-500 px-4 rounded-sm border-spacing-2 border shadow border-gray-500 mr-4">
+                                    @{firmEmails[firmId][1]}
+                                  </div>
+
+                                </div>
+                              
                             </SelectItem>
                           ))}
                         </SelectContent>
