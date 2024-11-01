@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon, InboxIcon, EyeIcon, SearchCheckIcon, SearchIcon } from 'lucide-react'
+import { PlusCircle, Mail, Settings, Send, Paperclip, UserPlus, X, Trash2, Eye, SaveIcon, LogOutIcon, InboxIcon, EyeIcon, SearchCheckIcon, SearchIcon, ChevronsUpDown, ChevronsDown, ChevronsDownIcon, LucideChevronsDown, ChevronDown, Check } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -18,6 +18,19 @@ import { ManagePage } from './managePage'
 import { getFileUrl } from '@/utils/getFile'
 import ComposedPage from './composedPage'
 import SettingsPage from './settingsPage'
+import { Popover, PopoverTrigger } from '@/components/ui/popover'
+import { DropdownMenuArrow } from '@radix-ui/react-dropdown-menu'
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import { PopoverContent } from '@radix-ui/react-popover'
+import { cn } from '@/lib/utils'
 
 type Prospect = {
   name: string
@@ -65,7 +78,8 @@ export default function ColdOutreachUI() {
   const addFirm = () => {
     const currentDate = utcToLocal(new Date().toISOString())
     const currentDateUtc = new Date(currentDate).toISOString().slice(0, 16);
-    const updatedFirmGroups = [...firmGroups, { firm: '', firmId: '', userPrivate: 0, prospects: [{ name: '', email: '', scheduledTime: {utcTime: currentDateUtc, localTime: currentDate} }] }]
+    // const updatedFirmGroups = [...firmGroups, { firm: '', firmId: '', userPrivate: 0, prospects: [{ name: '', email: '', scheduledTime: {utcTime: currentDateUtc, localTime: currentDate} }] }]
+    const updatedFirmGroups = [...firmGroups, { firm: '', firmId: '', userPrivate: 0, prospects: [] }]
     setFirmGroups(updatedFirmGroups)
     const newFirmIndex = updatedFirmGroups.length - 1;
     setAddTempMap((prev) => ({
@@ -90,18 +104,24 @@ export default function ColdOutreachUI() {
   const removeProspect = (firmIndex: number, prospectIndex: number) => {
     const updatedFirmGroups = [...firmGroups]
     updatedFirmGroups[firmIndex].prospects = updatedFirmGroups[firmIndex].prospects.filter((_, index) => index !== prospectIndex)
-    if (updatedFirmGroups[firmIndex].prospects.length === 0) {
-      updatedFirmGroups.splice(firmIndex, 1)
-    }
+    // if (updatedFirmGroups[firmIndex].prospects.length === 0) {
+    //   updatedFirmGroups.splice(firmIndex, 1)
+    // }
     setFirmGroups(updatedFirmGroups)
   }
 
   const updateFirm = (firmIndex: number, newFirmId: string) => {
+    // Add prospect after selected a firm, only if previous firm === ''; using firmGroups so a copy is made after
+    if (firmGroups[firmIndex].firm === '') {
+      addProspect(firmIndex)
+    }
+
     const updatedFirmGroups = [...firmGroups]
+    
     if (
       firmEmails &&
       typeof firmEmails[newFirmId][0] === 'string' &&
-      typeof  firmEmails[newFirmId][2] === 'number'
+      typeof firmEmails[newFirmId][2] === 'number'
     ) {
       updatedFirmGroups[firmIndex].firm = firmEmails[newFirmId][0]
       updatedFirmGroups[firmIndex].firmId = newFirmId
@@ -109,12 +129,12 @@ export default function ColdOutreachUI() {
       
       updatedFirmGroups[firmIndex].userPrivate = firmEmails[newFirmId][2]
       updatedFirmGroups[firmIndex].prospects.forEach(prospect => {
-        if (prospect.name && firmEmails) {
-          const [firstName, lastName] = prospect.name.split(' ')
-          prospect.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${firmEmails[newFirmId][0]}`
+        if (firmEmails) {
+          prospect.email = `@${firmEmails[newFirmId][1]}`
         }
       })
       setFirmGroups(updatedFirmGroups)
+      // setTempFirmEmails(firmEmails)
       console.log(updatedFirmGroups)
     } else {
       console.error("Firm Emails was not loaded properly...")
@@ -126,13 +146,15 @@ export default function ColdOutreachUI() {
     const currentFirmGroup = updatedFirmGroups[firmIndex]
     const currentProspect = currentFirmGroup.prospects[prospectIndex]
 
-    if (field === 'name' && currentFirmGroup.firm) {
+    if (field === 'name' && currentFirmGroup.firm && firmEmails) {
       currentProspect[field] = value
       const [firstName, lastName] = value.split(' ')
-      if (firstName && lastName && firmEmails) {
+      if (firstName && lastName) {
         currentProspect.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${firmEmails[currentFirmGroup.firmId][1]}`
+      } else if (firstName) {
+        currentProspect.email = `${firstName.toLowerCase()}@${firmEmails[currentFirmGroup.firmId][1]}`
       } else {
-        currentProspect.email = ''
+        currentProspect.email = `@${firmEmails[currentFirmGroup.firmId][1]}`
       }
 
     } 
@@ -394,10 +416,16 @@ export default function ColdOutreachUI() {
     setPageLoadingComplete(true)
   }, [user])
 
+  const handleFilterInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    // const isAlphaNumeric = /^[a-zA-Z0-9]$/.test(e.key);
+    // if (isAlphaNumeric) {
+      e.preventDefault()
+    // }
+  },[])
+  
   const handleFilterInputKeyUp = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    // needed becuase need ot remove e.prevent.default
     const isAlphaNumeric = /^[a-zA-Z0-9]$/.test(e.key);
-    console.log(filterInput, tempFirmEmails, e.key)
-    
     if (e.key === 'Backspace') {
       setFilterInput((prev) => prev.slice(0, -1))
     } else if (isAlphaNumeric) {
@@ -422,6 +450,26 @@ export default function ColdOutreachUI() {
       }
       setPrevFilterInputLen(filterInput.length)
   },[filterInput] )
+
+  const handleFilterInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    // Update filter input with debouncing to avoid frequent re-renders
+    const value = e.target.value.toLowerCase();
+    setFilterInput(value);
+    e.preventDefault()
+  
+    if (firmEmails) {
+      const filteredEntries = Object.entries(firmEmails).filter(([_, value]) =>
+            value[0].toLocaleString().toLowerCase().includes((value.toLocaleString()))
+      );
+      setTempFirmEmails(Object.fromEntries(filteredEntries));
+    }
+  }, [firmEmails]);
+
+  // useEffect(() => {
+  //   setTimeout(() => { //allows rendering of content first before focusing
+  //     inputRef.current?.focus();
+  //   }, 0);
+  // }, [filterInput])
 
   return (
     <div className="flex h-screen bg-white">
@@ -513,34 +561,86 @@ export default function ColdOutreachUI() {
                 {firmGroups.map((firmGroup, firmIndex) => (
                   <div key={firmIndex} className="border p-4 rounded-lg">
                     <div className="mb-4">
+                      {/* Paused for search */}
+                      {/* <Popover>
+                        <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          // aria-expanded={open}
+                          className="w-[200px] justify-between"
+                        > test
+                          {value
+                            ? frameworks.find((framework) => framework.value === value)?.label
+                            : "Select framework..."}
+                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Search framework..." />
+                            <CommandList>
+                              <CommandEmpty>No framework found.</CommandEmpty>
+                              <CommandGroup>
+                                {tempFirmEmails && firmEmails && Object.keys(tempFirmEmails).map((firmId) => (
+                                  <CommandItem
+                                    key={firmId}
+                                    value={firmId}
+                                    onSelect={(value) => updateFirm(firmIndex, value)}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        value === firmId ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {framework.label}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover> */}
+
                       <Select
                         value={firmGroup.firmId} // some reason, id will work here as it will find the firmEmails for me????
                         onValueChange={(value) => updateFirm(firmIndex, value)}
                         disabled={firmGroup.prospects.some(p => p.name !== '')}
-                        onOpenChange={() => {
-                          setTimeout(() => { //allows rendering of content first before focusing
-                            inputRef.current?.focus();
-                          }, 0);
+                        onOpenChange={(open) => {
+                          console.log("inputRef", inputRef.current, "\nopenChange", open, '\nfilterInput', filterInput)
+                          if (open) {
+                            setTimeout(() => { //allows rendering of content first before focusing
+                              inputRef.current?.focus();
+                            }, 0);
+                          } else {
+                            setFilterInput('')
+                          }
                         }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select firm" />
                         </SelectTrigger>
-                        <SelectContent onKeyUpCapture={handleFilterInputKeyUp}>
-                          {/* <div className='flex flex-row items-center gap-2 py-2 px-4'>
+                        <SelectContent 
+                          // onKeyDownCapture={handleFilterInputKeyDown}
+                        >
+                          <div className='flex flex-row items-center gap-2 py-2 px-4'>
                             <SearchIcon color='#808080'/>
                             <Input 
                               ref={inputRef}
                               className='relative flex pl-8 px-2'
                               placeholder='Filter options here...'
-                              onKeyUpCapture={handleFilterInputKeyUp}
+                              value={filterInput}
+                              onChange={handleFilterInputChange}
+                              // onChange={(e) => setFilterInput(e.target.value)}
+                              // onKeyUpCapture={handleFilterInputKeyUp}
                             />
-                          </div> */}
+                          </div>
                           <hr className="solid mb-1 mt-1.5"></hr>
-                          {firmEmails && Object.keys(firmEmails).map((firmId) => ( // flex in className for selectItem is the issue
+                          {tempFirmEmails && firmEmails && Object.keys(tempFirmEmails).map((firmId) => ( // flex in className for selectItem is the issue
                             <SelectItem key={firmId} value={firmId} className='notFlex'>
                                 <div className='flex flex-row flex-grow w-full justify-between'>  
-                                  <div className='flex flex-row gap-2  mr-4'>
+                                  <div className='flex flex-row gap-2 mr-4'>
                                     <div>
                                       {firmEmails[firmId][0]}
                                     </div>
@@ -562,14 +662,16 @@ export default function ColdOutreachUI() {
                       </Select>
                     </div>
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Scheduled Time</TableHead>
-                          <TableHead className="w-[80px]">View Draft</TableHead>
-                        </TableRow>
-                      </TableHeader>
+                      { firmGroup.prospects.length > 0 &&
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Scheduled Time</TableHead>
+                            <TableHead className="w-[80px]">View Draft</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                      }
                       <TableBody>
                         {firmGroup.prospects.map((prospect, prospectIndex) => {
                           return (
