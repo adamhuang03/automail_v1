@@ -539,8 +539,8 @@ export default function ColdOutreachUI() {
                           <hr className="solid mb-1 mt-1.5"></hr>
                           {firmEmails && Object.keys(firmEmails).map((firmId) => ( // flex in className for selectItem is the issue
                             <SelectItem key={firmId} value={firmId} className='notFlex'>
-                                <div className='flex flex-row flex-grow w-full justify-between '>  
-                                  <div className='flex flex-row gap-2 m'>
+                                <div className='flex flex-row flex-grow w-full justify-between'>  
+                                  <div className='flex flex-row gap-2  mr-4'>
                                     <div>
                                       {firmEmails[firmId][0]}
                                     </div>
