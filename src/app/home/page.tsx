@@ -283,8 +283,16 @@ export default function ColdOutreachUI() {
     const { error } = await supabase.from('outreach').insert(data)
     if (error) {
       console.error(error)
+    } else {
+      setFirmGroups(prev => prev.map(
+        (firm) => ({
+          ...firm,
+          prospects: []
+         })
+        )
+      )
+      setActiveTab('manage')
     }
-    setActiveTab('manage')
   }
 
   const generateDraft = (prospect: Prospect, firm: string) => {
