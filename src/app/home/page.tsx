@@ -55,11 +55,7 @@ export default function ColdOutreachUI() {
   const [resumeFilePath, setResumeFilePath] = useState<string | null>(null)
   const [resumeFileUrl, setResumeFileUrl] = useState<string | null>(null)
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
-  const [firms, setFirms] = useState<string[] | null>(null)
   const [firmEmails, setFirmEmails] = useState<Record<string, (string | number)[]> | null>(null)
-  const [filterInput, setFilterInput] = useState<string>('')
-  const [prevFilterInputLen, setPrevFilterInputLen] = useState<number>(0)
-  const [tempFirmEmails, setTempFirmEmails] = useState<Record<string, (string | number)[]> | null>(null)
   const [addTempMap, setAddTempMap] = useState<{ [id: number]: string }>({});
 
   const [user, setUser] = useState<User | null>(null)
@@ -67,7 +63,6 @@ export default function ColdOutreachUI() {
   const [composedChanged, setComposedChanged] = useState<number>(0)
   const [popupChanged, setPopupChanged] = useState<boolean>(false)
   const [pageLoadingComplete, setPageLoadingComplete] = useState<boolean>(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const utcToLocal = (datetime: string) => {
     const utcTime = new Date(datetime); // Your original UTC time
@@ -225,50 +220,37 @@ export default function ColdOutreachUI() {
       prospects.forEach(prospect => {
         if (firmEmails && user && firmGroup.userPrivate === 0) {
           const draft = generateDraft(prospect, firmGroup.firm)
-          // data.push({
-          //   status: "Scheduled",
-          //   user_profile_id: user.id,
-          //   to_name: prospect.name,
-          //   to_email: prospect.email,
-          //   to_firm: firmGroup.firm,
-          //   firm_email_id: firmGroup.firmId,
-          //   firm_email_user_id: null,
-          //   subject_generated: draft.subject,
-          //   email_generated: draft.body,
-          //   scheduled_datetime_utc: prospect.scheduledTime.utcTime,
-          //   provider_name: user.app_metadata.provider || ''
-          // });
-          console.log(
-            {
-              status: "Scheduled",
-              user_profile_id: user.id,
-              to_name: prospect.name,
-              to_email: prospect.email,
-              to_firm: firmGroup.firm,
-              firm_email_id: firmGroup.firmId,
-              firm_email_user_id: null,
-              subject_generated: draft.subject,
-              email_generated: draft.body,
-              scheduled_datetime_utc: prospect.scheduledTime.utcTime,
-              provider_name: user.app_metadata.provider || ''
-            }
-          )
+          data.push({
+            status: "Scheduled",
+            user_profile_id: user.id,
+            to_name: prospect.name,
+            to_email: prospect.email,
+            to_firm: firmGroup.firm,
+            firm_email_id: firmGroup.firmId,
+            firm_email_user_id: null,
+            subject_generated: draft.subject,
+            email_generated: draft.body,
+            scheduled_datetime_utc: prospect.scheduledTime.utcTime,
+            provider_name: user.app_metadata.provider || ''
+          });
+          // console.log(
+          //   {
+          //     status: "Scheduled",
+          //     user_profile_id: user.id,
+          //     to_name: prospect.name,
+          //     to_email: prospect.email,
+          //     to_firm: firmGroup.firm,
+          //     firm_email_id: firmGroup.firmId,
+          //     firm_email_user_id: null,
+          //     subject_generated: draft.subject,
+          //     email_generated: draft.body,
+          //     scheduled_datetime_utc: prospect.scheduledTime.utcTime,
+          //     provider_name: user.app_metadata.provider || ''
+          //   }
+          // )
         } else if (firmEmails && user && firmGroup.userPrivate === 1) {
           const draft = generateDraft(prospect, firmGroup.firm)
-          // data.push({
-          //   status: "Scheduled",
-          //   user_profile_id: user.id,
-          //   to_name: prospect.name,
-          //   to_email: prospect.email,
-          //   to_firm: firmGroup.firm,
-          //   firm_email_id: null,
-          //   firm_email_user_id: firmGroup.firmId,
-          //   subject_generated: draft.subject,
-          //   email_generated: draft.body,
-          //   scheduled_datetime_utc: prospect.scheduledTime.utcTime,
-          //   provider_name: user.app_metadata.provider || ''
-          // });
-          console.log({
+          data.push({
             status: "Scheduled",
             user_profile_id: user.id,
             to_name: prospect.name,
@@ -280,7 +262,20 @@ export default function ColdOutreachUI() {
             email_generated: draft.body,
             scheduled_datetime_utc: prospect.scheduledTime.utcTime,
             provider_name: user.app_metadata.provider || ''
-          })
+          });
+          // console.log({
+          //   status: "Scheduled",
+          //   user_profile_id: user.id,
+          //   to_name: prospect.name,
+          //   to_email: prospect.email,
+          //   to_firm: firmGroup.firm,
+          //   firm_email_id: null,
+          //   firm_email_user_id: firmGroup.firmId,
+          //   subject_generated: draft.subject,
+          //   email_generated: draft.body,
+          //   scheduled_datetime_utc: prospect.scheduledTime.utcTime,
+          //   provider_name: user.app_metadata.provider || ''
+          // })
         }
       })
     })
@@ -405,8 +400,15 @@ export default function ColdOutreachUI() {
           }
 
           // Set the combined dictionary to state
-          setFirmEmails(firmEmailsDict);
-          setTempFirmEmails(firmEmailsDict)
+
+          const sortedFirmEmailsDict = Object.entries(firmEmailsDict)
+          .sort(([, a], [, b]) => a[0].localeCompare(b[0]))  // Sort by firm_name (a[0] and b[0])
+          .reduce<Record<string, [string, string, number]>>((acc, [key, value]) => {
+            acc[key] = value;
+            return acc;
+          }, {});
+
+          setFirmEmails(sortedFirmEmailsDict);
         }
 
       }
@@ -415,61 +417,6 @@ export default function ColdOutreachUI() {
 
     setPageLoadingComplete(true)
   }, [user])
-
-  const handleFilterInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    // const isAlphaNumeric = /^[a-zA-Z0-9]$/.test(e.key);
-    // if (isAlphaNumeric) {
-      e.preventDefault()
-    // }
-  },[])
-  
-  const handleFilterInputKeyUp = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    // needed becuase need ot remove e.prevent.default
-    const isAlphaNumeric = /^[a-zA-Z0-9]$/.test(e.key);
-    if (e.key === 'Backspace') {
-      setFilterInput((prev) => prev.slice(0, -1))
-    } else if (isAlphaNumeric) {
-      setFilterInput((prev) => prev + e.key)
-    }
-  }, [filterInput, tempFirmEmails])
-
-
-  useEffect(() => {
-      // console.log(command, "Command Start:", commandCursorPosition, 'Command len:', command.length)
-      if (prevFilterInputLen <= filterInput.length && firmEmails) {
-        const filteredEntries = Object.entries(firmEmails).filter(([key, value]) =>
-          value[0].toLocaleString().toLocaleLowerCase().includes(filterInput)
-        );
-        setTempFirmEmails(Object.fromEntries(filteredEntries));
-      } else if (firmEmails) {
-        setTempFirmEmails(firmEmails)
-        const filteredEntries = Object.entries(firmEmails).filter(([key, value]) =>
-          value[0].toLocaleString().toLocaleLowerCase().includes(filterInput)
-        );
-        setTempFirmEmails(Object.fromEntries(filteredEntries));
-      }
-      setPrevFilterInputLen(filterInput.length)
-  },[filterInput] )
-
-  const handleFilterInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    // Update filter input with debouncing to avoid frequent re-renders
-    const value = e.target.value.toLowerCase();
-    setFilterInput(value);
-    e.preventDefault()
-  
-    if (firmEmails) {
-      const filteredEntries = Object.entries(firmEmails).filter(([_, value]) =>
-            value[0].toLocaleString().toLowerCase().includes((value.toLocaleString()))
-      );
-      setTempFirmEmails(Object.fromEntries(filteredEntries));
-    }
-  }, [firmEmails]);
-
-  // useEffect(() => {
-  //   setTimeout(() => { //allows rendering of content first before focusing
-  //     inputRef.current?.focus();
-  //   }, 0);
-  // }, [filterInput])
 
   return (
     <div className="flex h-screen bg-white">
@@ -607,37 +554,12 @@ export default function ColdOutreachUI() {
                         value={firmGroup.firmId} // some reason, id will work here as it will find the firmEmails for me????
                         onValueChange={(value) => updateFirm(firmIndex, value)}
                         disabled={firmGroup.prospects.some(p => p.name !== '')}
-                        onOpenChange={(open) => {
-                          console.log("inputRef", inputRef.current, "\nopenChange", open, '\nfilterInput', filterInput)
-                          if (open) {
-                            setTimeout(() => { //allows rendering of content first before focusing
-                              inputRef.current?.focus();
-                            }, 0);
-                          } else {
-                            setFilterInput('')
-                          }
-                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select firm" />
                         </SelectTrigger>
-                        <SelectContent 
-                          // onKeyDownCapture={handleFilterInputKeyDown}
-                        >
-                          <div className='flex flex-row items-center gap-2 py-2 px-4'>
-                            <SearchIcon color='#808080'/>
-                            <Input 
-                              ref={inputRef}
-                              className='relative flex pl-8 px-2'
-                              placeholder='Filter options here...'
-                              value={filterInput}
-                              onChange={handleFilterInputChange}
-                              // onChange={(e) => setFilterInput(e.target.value)}
-                              // onKeyUpCapture={handleFilterInputKeyUp}
-                            />
-                          </div>
-                          <hr className="solid mb-1 mt-1.5"></hr>
-                          {tempFirmEmails && firmEmails && Object.keys(tempFirmEmails).map((firmId) => ( // flex in className for selectItem is the issue
+                        <SelectContent>
+                          {firmEmails && Object.keys(firmEmails).map((firmId) => ( // flex in className for selectItem is the issue
                             <SelectItem key={firmId} value={firmId} className='notFlex'>
                                 <div className='flex flex-row flex-grow w-full justify-between'>  
                                   <div className='flex flex-row gap-2 mr-4'>
@@ -645,7 +567,7 @@ export default function ColdOutreachUI() {
                                       {firmEmails[firmId][0]}
                                     </div>
                                     {firmEmails[firmId][2] === 1 && 
-                                      <div className="text-green-500 px-4 rounded-sm border-spacing-2 border shadow border-green-500 mr-4">
+                                      <div className="text-green-500 px-4 rounded-sm border-spacing-2 border shadow border-green-500">
                                         Personal
                                       </div>
                                     }
@@ -653,9 +575,7 @@ export default function ColdOutreachUI() {
                                   <div className="text-gray-500 px-4 rounded-sm border-spacing-2 border shadow border-gray-500 mr-4">
                                     @{firmEmails[firmId][1]}
                                   </div>
-
                                 </div>
-                              
                             </SelectItem>
                           ))}
                         </SelectContent>
