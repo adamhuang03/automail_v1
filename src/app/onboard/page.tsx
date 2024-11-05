@@ -84,7 +84,6 @@ export default function RegistrationPage() {
       }
 
       const { data: { session } } = await supabase.auth.getSession();
-      // console.log(session)
       if (session) {
         setUser(session.user)
         setName(session.user?.user_metadata?.full_name)

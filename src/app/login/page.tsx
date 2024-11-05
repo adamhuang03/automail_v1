@@ -56,7 +56,7 @@ export default function LoginComponent() {
       if (Date.now() >= expiresAt * 1000) {
         console.log('Session has expired, please log in again.');
       } else {
-        // console.log(session.user.id)
+        console.log(session.user.id)
         router.push('/home');
       } // Mail.Send Mail.ReadWrite
     } else {

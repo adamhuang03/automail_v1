@@ -59,6 +59,7 @@ export default function ColdOutreachUI() {
   const [addTempMap, setAddTempMap] = useState<{ [id: number]: string }>({});
 
   const [user, setUser] = useState<User | null>(null)
+  const [fullName, setFullName] = useState<string | null>(null) // in case metadata not avail
   const router = useRouter()
   const [composedChanged, setComposedChanged] = useState<number>(0)
   const [popupChanged, setPopupChanged] = useState<boolean>(false)
@@ -120,7 +121,7 @@ export default function ColdOutreachUI() {
     ) {
       updatedFirmGroups[firmIndex].firm = firmEmails[newFirmId][0]
       updatedFirmGroups[firmIndex].firmId = newFirmId
-      console.log(newFirmId, firmEmails[newFirmId][0])
+      // console.log(newFirmId, firmEmails[newFirmId][0])
       
       updatedFirmGroups[firmIndex].userPrivate = firmEmails[newFirmId][2]
       updatedFirmGroups[firmIndex].prospects.forEach(prospect => {
@@ -130,7 +131,7 @@ export default function ColdOutreachUI() {
       })
       setFirmGroups(updatedFirmGroups)
       // setTempFirmEmails(firmEmails)
-      console.log(updatedFirmGroups)
+      // console.log(updatedFirmGroups)
     } else {
       console.error("Firm Emails was not loaded properly...")
     }
@@ -153,9 +154,9 @@ export default function ColdOutreachUI() {
       }
 
     } 
-    console.log('here')
+    
     if (field === 'scheduledTime' && currentFirmGroup.firm) {
-      console.log('here')
+      
     
       const localDate = new Date(value); // Creates a Date object in local time
       const isoString = localDate.toISOString();
@@ -309,20 +310,30 @@ export default function ColdOutreachUI() {
   };
 
   const handleLogout = async() => {
-    const { error } = await supabase.auth.signOut();
-    document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; samesite=lax";
-    document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; samesite=lax";
-    document.cookie = "sb-provider-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; samesite=lax";
-    document.cookie = "sb-provider-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; samesite=lax";
+    const { data: { session } } = await supabase.auth.getSession();
 
-    if (error) {
-      console.error('Error logging out:', error.message);
+    if (session) {
+      // console.log(session)
+      const { error } = await supabase.auth.signOut();
 
+      if (error) {
+        console.error('Error logging out:', error.message);
+
+      } else {
+        // console.log(user)
+        if (user?.app_metadata.provider === 'azure' || user?.app_metadata.providers.includes('azure') ) {
+          // Post Logout not working
+          const postLogoutRedirectUri = encodeURIComponent(`${window.location.origin}/login`)
+          const azureLogoutUrl = `https://login.microsoftonline.com/${process.env.OUTLOOK_TENANT_ID}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
+          window.location.href = azureLogoutUrl;
+        } else {
+
+          // Redirect or update UI
+          router.push('/login'); // Redirect to the login page after logout
+        }
+      }
     } else {
-      // console.log('Logged out successfully!');
-
-      // Redirect or update UI
-      router.push('/login'); // Redirect to the login page after logout
+      console.log('Session not found')
     }
   }
 
@@ -342,13 +353,14 @@ export default function ColdOutreachUI() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session) {
-        // console.log(session.user)
+        console.log(session.user)
         const { data, error } = await supabase.from('user_profile')
         .select('*')
         .eq('id', session.user.id)
 
         if (data && data.length > 0) {
           setUser(session.user)
+          setFullName(data[0].full_name)
         } else {
           router.push('/onboard')
         }
@@ -437,9 +449,9 @@ export default function ColdOutreachUI() {
         <div className="flex items-center mb-8">
           <Avatar className="h-8 w-8 mr-2">
             <AvatarImage src={user?.user_metadata.avatar_url} alt={`${user?.user_metadata.full_name}} User`} />
-            <AvatarFallback className='bg-gray-300'>{user?.user_metadata.full_name[0]}</AvatarFallback>
+            <AvatarFallback className='bg-gray-300'>{fullName ? fullName[0] : 'U' }</AvatarFallback>
           </Avatar>
-          <span className="font-semibold">{user?.user_metadata.full_name}</span>
+          <span className="font-semibold">{fullName}</span>
         </div>
         <nav className='flex flex-col'>
           <Button

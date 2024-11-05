@@ -52,7 +52,7 @@ export default function AuthCallback() {
         router.replace('/login');
       }
     })();
-  }, [router]);
+  }, []);
 
   return <div>Loading...</div>; // Show a loading state while processing the tokens
 }
