@@ -5,11 +5,21 @@ import { OutreachUser } from '@/utils/types';
 import axios from 'axios';
 
 export const sendEmail = async (oAuth2Client: any, to: string, subject: string, message: string) => {
+  const p1 = Date.now();
+  console.log("Sending email p1: ", p1)
   const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+  
+  const p2 = Date.now();
+  const d2 = (p2 - p1)/1000
+  console.log("d2: ", d2)
 
   const rawMessage = Buffer.from(
     `To: ${to}\r\nSubject: ${subject}\r\n\r\n${message}`
   ).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+  const p3 = Date.now();
+  const d3 = (p3 - p2)/1000
+  console.log("d2: ", d3)
 
   try {
     const result = await gmail.users.messages.send({
@@ -18,6 +28,9 @@ export const sendEmail = async (oAuth2Client: any, to: string, subject: string, 
         raw: rawMessage,
       },
     });
+    const p4 = Date.now();
+    const d4 = (p4 - p3)/1000
+    console.log("d2: ", d4)
 
     return result.data;
   } catch (error) {
@@ -33,15 +46,26 @@ export const sendEmailWithPdfFromUrl = async (
   pdfUrl: string
 ) => {
   console.log("processGmail: Grabbing gmail")
+  const p1 = Date.now();
+  console.log("Sending email p1: ", p1)
   const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
   
   try {
     // Download the PDF from the URL
     console.log("processGmail: trying pdf download")
+
+    const p2 = Date.now();
+    const d2 = (p2 - p1)/1000
+    console.log("d2: ", d2)
+
     const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
     const pdfContent = Buffer.from(response.data).toString('base64');
     const fileName = pdfUrl.split('/').pop(); // You can also derive this from the URL if needed
     const decodedFileName = fileName ? decodeURIComponent(fileName) : ''
+
+    const p3 = Date.now();
+    const d3 = (p3 - p2)/1000
+    console.log("d2: ", d3)
 
     // Construct the raw email message with attachment
     console.log("processGmail: begin compiling message")
@@ -68,6 +92,10 @@ export const sendEmailWithPdfFromUrl = async (
       '', // could be causing the <end>
     ].join('\r\n');
 
+    const p4 = Date.now();
+    const d4 = (p4 - p3)/1000
+    console.log("d2: ", d4)
+
     // Base64 encode the raw message and format it
     console.log("processGmail: encoding message")
     const encodedMessage = Buffer.from(rawMessage)
@@ -75,6 +103,10 @@ export const sendEmailWithPdfFromUrl = async (
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=+$/, '');
+
+    const p5 = Date.now();
+    const d5 = (p5 - p4)/1000
+    console.log("d2: ", d5)
 
     // Send the email
     console.log("processGmail: preparing to send email")
@@ -85,6 +117,9 @@ export const sendEmailWithPdfFromUrl = async (
       },
     });
     console.log("processGmail: email sent ... ", result.data)
+    const p6 = Date.now();
+    const d6 = (p6 - p5)/1000
+    console.log("d6: ", d6)
 
     return result.data;
   } catch (error) {
