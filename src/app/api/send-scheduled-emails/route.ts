@@ -37,6 +37,7 @@ async function processScheduledEmails() {
   if (emails && emails.length > 0) {
     console.log("3 Email Loop Check Point:")
     for (const email of emails) {
+      await supabase.from('outreach').update({ status: 'Sending' }).eq('id', email.id);
       console.log('Email Copy: ', email)
       if (email.provider_name === 'azure') {
         console.log('Processing ms')
