@@ -74,6 +74,7 @@ async function processGmail(email: OutreachUser) {
   } catch (error) {
     console.log('Access token expired. Refreshing...');
     try {
+      await supabase.from('outreach').update({ status: 'Refreshing' }).eq('id', email.id);
       const newAccessToken = await refreshAccessToken(refreshToken);
 
       await supabase
