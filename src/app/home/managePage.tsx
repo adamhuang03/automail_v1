@@ -83,12 +83,12 @@ export function ManagePage () {
       if (session && refreshBool) {
         const { data, error }: {data: Outreach[] | null, error: any} = await supabase.from('outreach')
         .select('*')
-        .or('status.eq.Scheduled,status.eq.Editing,status.eq.Sent w Attachment, status.eq.Sent') // spaces work here
+        .or('status.eq.Scheduled, status.eq.Editing, status.eq.Sending, status.eq.Refreshing, status.eq.Sent w Attachment, status.eq.Sent') // spaces work here
         .eq('user_profile_id', session.user.id)
 
         if (data) {
           const drafts = data
-            .filter(email => email.status === 'Scheduled' || email.status === 'Editing')
+            .filter(email => email.status === 'Scheduled' || email.status === 'Editing' || email.status === 'Sending' || email.status === 'Refreshing')
             .sort((a, b) => new Date(a.scheduled_datetime_utc).getTime() - new Date(b.scheduled_datetime_utc).getTime()); // Sort drafts by date
 
           const sent = data
@@ -118,6 +118,7 @@ export function ManagePage () {
               <RefreshCw className="w-4 h-4" color="#71797E"/>
             </Button>
             </h2>
+            <p className="text-xs text-gray-500 mb-4"><i>Note: Emails may have 1-3 min delay temporarily.</i></p>
             <Table> 
               <TableHeader>
                 <TableRow>
@@ -135,10 +136,10 @@ export function ManagePage () {
                 {draftedEmails.map((draft) => {
                   var isEditable = draft.status === 'Editing' ? true : editableMap[draft.id] || false; // Default to false if not set
                   return (
-                  <TableRow key={draft.id}>
+                  <TableRow key={draft.id} className={`${draft.status === "Sending" || draft.status === "Refreshing" ? 'bg-gray-100' : ""}`}>
                     <TableCell className="px-2">
                       <div className="flex items-center justify-center">
-                        {!draft.status.includes('Sent') && 
+                        {!draft.status.includes('Sent') || !draft.status.includes('Refreshing') || !draft.status.includes('Sending') && 
                           <Button variant="outline" size="sm" className="w-10 px-0 justify-center" onClick={() => {
                               toggleEditable(draft.id)
                               if (isEditable && draft.status === 'Editing') {
@@ -160,7 +161,7 @@ export function ManagePage () {
                         <Dot 
                           className={`w-10 h-10`}
                           color={`${
-                            draft.status === 'Scheduled' ? '#ffa66f'
+                            draft.status === 'Scheduled' || draft.status === 'Refreshing' || draft.status === 'Sending' ? '#faab43'
                             : isEditable ? '#bbbbbb'
                             : '#5ff670'
                           }`}

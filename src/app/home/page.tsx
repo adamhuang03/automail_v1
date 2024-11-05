@@ -665,7 +665,7 @@ export default function ColdOutreachUI() {
                     </Table>
                     <div className="flex justify-between items-center mt-4">
                       <div className='flex'>
-                        <Button onClick={() => {
+                      {firmGroup.firm !== '' && <Button onClick={() => {
                             if (isNaN(Number(addTempMap[firmIndex]))) {
                               alert("Only numbers are permitted.")
                             } else {
@@ -677,12 +677,12 @@ export default function ColdOutreachUI() {
                           }}>
                           <UserPlus className="mr-2 h-4 w-4" />
                           Add Person
-                        </Button>
-                        <Input 
+                        </Button>}
+                        {firmGroup.firm !== '' && <Input 
                           className='ml-4 w-[75px]'
                           value={addTempMap[firmIndex]}
                           onChange={(e) => setAddTempMap((prev) => ({...prev, [firmIndex]: e.target.value}))}
-                        />
+                        />}
 
                       </div>
                       <Button

@@ -12,7 +12,7 @@ import { useState, useRef, useEffect, useCallback, MutableRefObject } from "reac
 import { supabase } from "@/lib/db/supabase"
 import { User } from '@supabase/supabase-js'
 import { getFileUrl } from '@/utils/getFile'
-import { EyeIcon, HandHelping, HelpCircle, HelpCircleIcon } from "lucide-react"
+import { EyeIcon, HandHelping, HelpCircle, HelpCircleIcon, Trash } from "lucide-react"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@radix-ui/react-hover-card"
 
 type PageProps = {
@@ -112,6 +112,61 @@ export default function ComposedPage({
     } else {
       setFileNameTemp("No Resume Uploaded")
     }
+  }
+
+  const deleteResume = async () => {
+    if (resumeFilePath && !file) {
+      const { data, error: removeError } = await supabase
+        .storage
+        .from('resume_link')
+        .remove([resumeFilePath])
+      
+      
+      
+      if (removeError) {
+        alert("Error removing resume, please try again later.")
+      } else {
+        await supabase.from('composed')
+        .update({ resume_link: null, resume_link_filepath: null })
+        .eq('user_profile_id', user?.id);
+      }
+      setResumeFilePath(null)
+      setFileNameTemp('')
+      setResumeFileUrl(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+    } else if (resumeFilePath && file) {
+      const { data, error: removeError } = await supabase
+        .storage
+        .from('resume_link')
+        .remove([resumeFilePath])
+      
+      if (removeError) {
+        alert("Error removing resume, please try again later.")
+      } else {
+        await supabase.from('composed')
+        .update({ resume_link: null, resume_link_filepath: null })
+        .eq('user_profile_id', user?.id);
+      }
+      setResumeFilePath(null)
+      setResumeFileUrl(null)
+      setFileNameTemp('')
+      setFile(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+    } else if (!resumeFilePath && file) {
+      setFile(null)
+      setFileNameTemp('')
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+    }
+    
   }
 
   const handleAddResume = async() => {
@@ -416,7 +471,7 @@ export default function ComposedPage({
             />
             <Label className='mt-10 max-w-72 leading-normal' >
               <div className="mb-2"><b>Uploaded File:</b></div>
-              {fileNameTemp}
+              {fileNameTemp ? fileNameTemp : <div><i>No file available</i></div>}
             </Label>
             <div className="flex mt-2 gap-2 justify-start">
               <Button
@@ -426,6 +481,13 @@ export default function ComposedPage({
               >
                 <EyeIcon className="mr-2 h-4 w-4" />
                 View Resume
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={!resumeFileUrl && !file}
+                onClick={deleteResume}
+              >
+                <Trash className="h-4 w-4" />
               </Button>
             </div>
           </div>
