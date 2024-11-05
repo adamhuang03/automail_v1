@@ -13,6 +13,7 @@ export async function POST() {
 
 async function processScheduledEmails() {
   const currentTime = new Date().toISOString().slice(0, 16);
+  console.log("1 Time Check: ", currentTime)
 
   // Fetch scheduled emails
   const { data: emails, error }: { data: OutreachUser[] | null; error: any } = await supabase
@@ -26,17 +27,22 @@ async function processScheduledEmails() {
     .eq('status', 'Scheduled')            
     .lte('scheduled_datetime_utc', currentTime);
   
+  console.log("2 Data Check: ", emails)
+  
   if (error) {
     console.error('Error fetching emails:', error);
     return { message: 'Error fetching scheduled emails', error, status: 500 };
   }
 
   if (emails && emails.length > 0) {
+    console.log("3 Email Loop Check Point:")
     for (const email of emails) {
-      
+      console.log('Email Copy: ', email)
       if (email.provider_name === 'azure') {
+        console.log('Processing ms')
         processMs(email)
       } else if (email.provider_name === 'google') {
+        console.log('Processing gmail')
         processGmail(email)
       }
       
@@ -56,6 +62,7 @@ async function processGmail(email: OutreachUser) {
   oAuth2Client.setCredentials({ access_token: accessToken });
 
   try {
+    console.log("trying processGmail: ", email)
     if (resumeLink) {
       await sendEmailWithPdfFromUrl(
         oAuth2Client, 
