@@ -137,12 +137,12 @@ export function ManagePage () {
                   />
                   <p className="text-xs text-gray-500 mr-4">Sending In Progress</p>
                   <Dot 
-                    className={`w-10 h-10`}
+                    className={`w-8 h-8`}
                     color={`${'#bbbbbb'}`}
                   />
                   <p className="text-xs text-gray-500 mr-4">Editing</p>
                   <Dot 
-                    className={`w-10 h-10`}
+                    className={`w-8 h-8`}
                     color={`${
                       '#5ff670'
                     }`}
