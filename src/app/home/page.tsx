@@ -580,9 +580,12 @@ export default function ColdOutreachUI() {
                                       </div>
                                     }
                                   </div>
-                                  <div className="text-gray-500 px-4 rounded-sm border-spacing-2 border shadow border-gray-500 mr-4">
+                                  {firmEmails[firmId][2] === 0 && <div className="text-gray-500 px-4 rounded-sm border-spacing-2 border shadow border-gray-500 mr-4">
                                     @{firmEmails[firmId][1]}
-                                  </div>
+                                  </div>}
+                                  {firmEmails[firmId][2] === 1 && <div className="text-green-500 px-4 rounded-sm border-spacing-2 border shadow border-green-500 mr-4">
+                                    @{firmEmails[firmId][1]}
+                                  </div>}
                                 </div>
                             </SelectItem>
                           ))}

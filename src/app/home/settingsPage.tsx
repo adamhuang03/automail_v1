@@ -75,7 +75,7 @@ export default function SettingsPage({
 
     // Inserting Process
     const clearedFirmFormatUUIDs = Object.entries(userFirmFormats).reduce((acc, [uuid, firmFormatInfo ]) => {
-      if (firmFormatInfo.cleared && !firmFormatInfo.added && user) {
+      if (firmFormatInfo.cleared && !firmFormatInfo.added && !uuid.includes('temp') && user) {
           acc.push(uuid)
       }
       return acc;
@@ -130,19 +130,38 @@ export default function SettingsPage({
   }
 
   const clearSelected = () => {
+    let store: string[] = []
+
     setUserFirmFormats(prevFirms => 
       Object.fromEntries( // convert the iteration back into an interface format
         // Iterate each to select true => {key: {...} } => [key, {...}]
-        Object.entries(prevFirms).map(([uuid, firm]) => [
+        Object.entries(prevFirms).map(([uuid, firm]) => {
+          if (firm.selected) {
+            store.push(uuid)
+          }
+          
+          return [
           uuid,
           { 
             ...firm, 
             cleared: firm.selected ? true : firm.cleared 
           }
-        ])
+        ]})
 
       )
     )
+    console.log(store)
+    setFirmEmails(prev => {
+      if (!prev) return {}; // Handle case where prev is null
+  
+      return Object.keys(prev)
+        .filter(uuid => !store.includes(uuid)) // Exclude UUIDs in `store`
+        .reduce((newEmails, uuid) => {
+          newEmails[uuid] = prev[uuid];
+          // console.log(newEmails)
+          return newEmails;
+        }, {} as Record<string, (string | number)[]>);
+    });
   }
 
   const toggleFirmSelection = (key: string) => {
@@ -304,7 +323,7 @@ export default function SettingsPage({
           
         </CardFooter>
         <CardHeader>
-          <CardTitle className="text-lg font-bold">More preferences are comming soon...</CardTitle>
+          <CardTitle className="text-lg font-bold">More preferences are coming soon...</CardTitle>
         </CardHeader>
       </Card>
     </div>
