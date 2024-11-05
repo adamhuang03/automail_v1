@@ -64,6 +64,7 @@ async function processGmail(email: OutreachUser) {
   try {
     console.log("trying processGmail: ", email)
     if (resumeLink) {
+      console.log("processGmail: ResumeLink")
       await sendEmailWithPdfFromUrl(
         oAuth2Client, 
         email.to_email, 

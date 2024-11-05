@@ -32,16 +32,19 @@ export const sendEmailWithPdfFromUrl = async (
   message: string,
   pdfUrl: string
 ) => {
+  console.log("processGmail: Grabbing gmail")
   const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
-
+  
   try {
     // Download the PDF from the URL
+    console.log("processGmail: trying pdf download")
     const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
     const pdfContent = Buffer.from(response.data).toString('base64');
     const fileName = pdfUrl.split('/').pop(); // You can also derive this from the URL if needed
     const decodedFileName = fileName ? decodeURIComponent(fileName) : ''
 
     // Construct the raw email message with attachment
+    console.log("processGmail: begin compiling message")
     const rawMessage = [
       `To: ${to}`,
       `Subject: ${subject}`,
@@ -66,6 +69,7 @@ export const sendEmailWithPdfFromUrl = async (
     ].join('\r\n');
 
     // Base64 encode the raw message and format it
+    console.log("processGmail: encoding message")
     const encodedMessage = Buffer.from(rawMessage)
       .toString('base64')
       .replace(/\+/g, '-')
@@ -73,12 +77,14 @@ export const sendEmailWithPdfFromUrl = async (
       .replace(/=+$/, '');
 
     // Send the email
+    console.log("processGmail: preparing to send email")
     const result = await gmail.users.messages.send({
       userId: 'me',
       requestBody: {
         raw: encodedMessage,
       },
     });
+    console.log("processGmail: email sent ... ", result.data)
 
     return result.data;
   } catch (error) {
