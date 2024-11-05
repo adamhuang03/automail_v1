@@ -27,6 +27,8 @@ async function processScheduledEmails() {
     .eq('status', 'Scheduled')            
     .lte('scheduled_datetime_utc', currentTime);
   
+  // === Update sending all at once
+
   console.log("2 Data Check: ", emails)
   
   if (error) {
