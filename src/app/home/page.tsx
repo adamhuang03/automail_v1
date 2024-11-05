@@ -310,6 +310,10 @@ export default function ColdOutreachUI() {
 
   const handleLogout = async() => {
     const { error } = await supabase.auth.signOut();
+    document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; samesite=lax";
+    document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; samesite=lax";
+    document.cookie = "sb-provider-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; samesite=lax";
+    document.cookie = "sb-provider-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; samesite=lax";
 
     if (error) {
       console.error('Error logging out:', error.message);
