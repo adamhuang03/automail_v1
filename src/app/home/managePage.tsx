@@ -139,7 +139,7 @@ export function ManagePage () {
                   <TableRow key={draft.id} className={`${draft.status === "Sending" || draft.status === "Refreshing" ? 'bg-gray-100' : ""}`}>
                     <TableCell className="px-2">
                       <div className="flex items-center justify-center">
-                        {!draft.status.includes('Sent') || !draft.status.includes('Refreshing') || !draft.status.includes('Sending') && 
+                        {(!draft.status.includes('Sent') && !draft.status.includes('Refreshing') && !draft.status.includes('Sending')) && 
                           <Button variant="outline" size="sm" className="w-10 px-0 justify-center" onClick={() => {
                               toggleEditable(draft.id)
                               if (isEditable && draft.status === 'Editing') {
