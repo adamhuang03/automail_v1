@@ -107,18 +107,50 @@ export function ManagePage () {
 
   return (
       <div className="max-w-7xl mx-auto">
-            <h2 className="flex text-lg font-semibold mb-4 items-center">
-              Manage Drafted Emails
+            <div className="flex mb-6 items-start justify-between">
+              <div className="flex items-center justify-between">
+                <p className="text-lg font-semibold">Manage Drafted Emails</p>
 
-            <Button variant='outline' className="ml-4" onClick={() => {
-                setRefreshBool(true)
-                setDraftedEmails([])
-              }}
-            >
-              <RefreshCw className="w-4 h-4" color="#71797E"/>
-            </Button>
-            </h2>
-            <p className="text-xs text-gray-500 mb-4"><i>Note: Emails may have 1-3 min delay temporarily.</i></p>
+                <Button variant='outline' className="ml-4" onClick={() => {
+                    setRefreshBool(true)
+                    setDraftedEmails([])
+                  }}
+                >
+                  <RefreshCw className="w-4 h-4" color="#71797E"/>
+                </Button>
+              </div>
+              <div className="flex flex-col items-end">
+                <div className="flex flex-row gap-2 items-center border shadow-sm rounded-md justify-center">
+                  <Dot 
+                    className={`w-8 h-8`}
+                    color={`${
+                      '#faab43'
+                    }`}
+                  />
+                  <p className="text-xs text-gray-500 mr-4">Scheduled</p>
+                  <Dot 
+                    className={`w-8 h-8 rounded-sm bg-gray-100`}
+                    color={`${
+                      '#faab43'
+                    }`}
+                  />
+                  <p className="text-xs text-gray-500 mr-4">Sending In Progress</p>
+                  <Dot 
+                    className={`w-10 h-10`}
+                    color={`${'#bbbbbb'}`}
+                  />
+                  <p className="text-xs text-gray-500 mr-4">Editing</p>
+                  <Dot 
+                    className={`w-10 h-10`}
+                    color={`${
+                      '#5ff670'
+                    }`}
+                  />
+                  <p className="text-xs text-gray-500 mr-4">Sent</p>
+                </div>
+                <p className="text-xs text-gray-500 mt-2"><i>Note: Emails may have 1-3 min delay temporarily.</i></p>
+              </div>
+            </div>
             <Table> 
               <TableHeader>
                 <TableRow>
