@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".archive/pageOld (HOME).tsx", ".archive/cron.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".archive/pageOld (HOME).tsx", ".archive/cron.ts", "src/utils/google/emailGoogleV2ts"],
   "exclude": ["node_modules"]
 }

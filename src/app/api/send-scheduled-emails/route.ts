@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { supabase } from '@/lib/db/supabase';
 import { OutreachUser } from '@/utils/types';
-import { sendEmailWithPdfFromUrl, sendEmail, refreshAccessToken } from '@/utils/google/emailGoogle';
+import { sendEmailWithPdfFromUrl, sendEmail, refreshAccessToken } from '@/utils/google/emailGoogleV2';
 import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from '@/utils/ms/emailMs';
 
 export async function POST() {
@@ -21,11 +21,12 @@ async function processScheduledEmails() {
     .select(`
         *,
         user_profile!user_profile_id (
-        provider_token, provider_refresh_token, composed!user_profile_id(resume_link)
+        provider_token, provider_refresh_token, composed!user_profile_id(resume_link, resume_link_pdfcontent)
         )
     `) // auth_user:auth__user!id(email)
     .eq('status', 'Scheduled')            
     .lte('scheduled_datetime_utc', currentTime);
+    // if (emails) console.log(emails[0].user_profile.composed)
   
   // === Update sending all at once
 
@@ -36,10 +37,20 @@ async function processScheduledEmails() {
     return { message: 'Error fetching scheduled emails', error, status: 500 };
   }
 
+  
+
   if (emails && emails.length > 0) {
+    
+    // Mass update id
+    const idsList = []
+    for (const email of emails) {
+      idsList.push(email.id)
+    }
+    await supabase.from('outreach').update({ status: 'Sending' }).in('id', idsList);
+
     console.log("3 Email Loop Check Point:")
     for (const email of emails) {
-      await supabase.from('outreach').update({ status: 'Sending' }).eq('id', email.id);
+
       console.log('Email Copy: ', email)
       if (email.provider_name === 'azure') {
         console.log('Processing ms')
@@ -59,6 +70,7 @@ async function processGmail(email: OutreachUser) {
   // This for loop need to be refactored to allow for MS and Google seperate flows based on account
   const accessToken = email.user_profile.provider_token;
   const resumeLink = email.user_profile.composed.resume_link;
+  const pdfContent = email.user_profile.composed.resume_link_pdfcontent;
   const refreshToken = email.user_profile.provider_refresh_token;
 
   const oAuth2Client = new google.auth.OAuth2();
@@ -66,14 +78,15 @@ async function processGmail(email: OutreachUser) {
 
   try {
     console.log("trying processGmail: ", email)
-    if (resumeLink) {
+    if (resumeLink && pdfContent) {
       console.log("processGmail: ResumeLink")
       await sendEmailWithPdfFromUrl(
         oAuth2Client, 
         email.to_email, 
         email.subject_generated, 
         email.email_generated,
-        resumeLink
+        resumeLink,
+        pdfContent
       );
       await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
       console.log(`Email w attachment sent to ${email.to_email}`);
@@ -94,13 +107,14 @@ async function processGmail(email: OutreachUser) {
         .eq('id', email.user_profile_id);
 
       oAuth2Client.setCredentials({ access_token: newAccessToken });
-      if (resumeLink) {
+      if (resumeLink && pdfContent) {
         await sendEmailWithPdfFromUrl(
           oAuth2Client, 
           email.to_email, 
           email.subject_generated, 
           email.email_generated,
-          resumeLink
+          resumeLink,
+          pdfContent
         );
         await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
         console.log(`Email w attachment sent to ${email.to_email} after refreshing token`);

@@ -35,6 +35,7 @@ export type OutreachUser = {
     user_profile: {
       composed: {
         resume_link: string
+        resume_link_pdfcontent: string
       }
       provider_token: string
       provider_refresh_token: string

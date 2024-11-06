@@ -208,7 +208,6 @@ export default function ComposedPage({
         }
       }
     }
-
     if (file && !resumeFilePath) {
       const { data, error } = await supabase.storage
         .from('resume_link')
@@ -219,11 +218,14 @@ export default function ComposedPage({
         alert("Code F1: File upload error. Please try again later.")
       } else {
         const publicUrl = await getFileUrl(filePath, "resume_link")
+        const response = await axios.get(publicUrl || "", { responseType: 'arraybuffer' });
+        const pdfContent = Buffer.from(response.data).toString('base64');
 
         const { error } = await supabase.from('composed').upsert([{
           user_profile_id: user?.id,
           resume_link_filepath: filePath,
-          resume_link: publicUrl
+          resume_link: publicUrl,
+          resume_link_pdfcontent: pdfContent
         }])
 
         if (error) {
