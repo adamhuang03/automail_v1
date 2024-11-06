@@ -25,6 +25,7 @@ export type Composed = {
     composed_template: string
     resume_link_filepath: string | null
     resume_link: string | null
+    resume_link_pdfcontent: string | null
     created_at: string
   }
 

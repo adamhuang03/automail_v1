@@ -14,6 +14,7 @@ import { User } from '@supabase/supabase-js'
 import { getFileUrl } from '@/utils/getFile'
 import { EyeIcon, HandHelping, HelpCircle, HelpCircleIcon, Trash } from "lucide-react"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@radix-ui/react-hover-card"
+import axios from "axios"
 
 type PageProps = {
   user: User | null
@@ -127,7 +128,7 @@ export default function ComposedPage({
         alert("Error removing resume, please try again later.")
       } else {
         await supabase.from('composed')
-        .update({ resume_link: null, resume_link_filepath: null })
+        .update({ resume_link: null, resume_link_filepath: null, resume_link_pdfcontent: null })
         .eq('user_profile_id', user?.id);
       }
       setResumeFilePath(null)
@@ -147,7 +148,7 @@ export default function ComposedPage({
         alert("Error removing resume, please try again later.")
       } else {
         await supabase.from('composed')
-        .update({ resume_link: null, resume_link_filepath: null })
+        .update({ resume_link: null, resume_link_filepath: null, resume_link_pdfcontent: null })
         .eq('user_profile_id', user?.id);
       }
       setResumeFilePath(null)
@@ -186,6 +187,8 @@ export default function ComposedPage({
           .from('resume_link')
           .upload(filePath, file);
         const publicUrl = await getFileUrl(filePath, "resume_link")
+        const response = await axios.get(publicUrl || "", { responseType: 'arraybuffer' });
+        const pdfContent = Buffer.from(response.data).toString('base64');
 
         if (error) {
           alert("Code F4: File replace error. Please try again later.")
@@ -193,7 +196,8 @@ export default function ComposedPage({
           const { error } = await supabase.from('composed').upsert([{
             user_profile_id: user?.id,
             resume_link_filepath: filePath,
-            resume_link: publicUrl
+            resume_link: publicUrl,
+            resume_link_pdfcontent: pdfContent
           }])
           if (error) {
             alert("Code F5: File replace error. Please try again later.")

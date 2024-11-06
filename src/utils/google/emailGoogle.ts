@@ -65,7 +65,7 @@ export const sendEmailWithPdfFromUrl = async (
 
     const p3 = Date.now();
     const d3 = (p3 - p2)/1000
-    console.log("d2: ", d3)
+    console.log("d3: ", d3)
 
     // Construct the raw email message with attachment
     console.log("processGmail: begin compiling message")
@@ -94,7 +94,7 @@ export const sendEmailWithPdfFromUrl = async (
 
     const p4 = Date.now();
     const d4 = (p4 - p3)/1000
-    console.log("d2: ", d4)
+    console.log("d4: ", d4)
 
     // Base64 encode the raw message and format it
     console.log("processGmail: encoding message")
@@ -106,7 +106,7 @@ export const sendEmailWithPdfFromUrl = async (
 
     const p5 = Date.now();
     const d5 = (p5 - p4)/1000
-    console.log("d2: ", d5)
+    console.log("d5: ", d5)
 
     // Send the email
     console.log("processGmail: preparing to send email")
