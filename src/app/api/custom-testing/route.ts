@@ -5,10 +5,18 @@ import { supabase } from '@/lib/db/supabase';
 import { OutreachUser } from '@/utils/types';
 import { sendEmailWithPdfFromUrl, sendEmail, refreshAccessToken } from '@/utils/google/emailGoogleV2';
 import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from '@/utils/ms/emailMs';
+import { logThis } from '@/utils/saveLog';
 
 export async function POST() {
-  const response = await processTestEmails();
+  const response = await testLogger();
   return NextResponse.json(response, { status: response.status });
+}
+
+async function testLogger () {
+
+  logThis('Test')
+
+  return { message: 'Executed', status: 200 };
 }
 
 async function processTestEmails () {

@@ -5,6 +5,7 @@ import { supabase } from '@/lib/db/supabase';
 import { OutreachUser } from '@/utils/types';
 import { sendEmailWithPdfFromUrl, sendEmail, refreshAccessToken } from '@/utils/google/emailGoogleV2';
 import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from '@/utils/ms/emailMs';
+import { logThis } from '@/utils/saveLog';
 
 export async function POST() {
   const response = await processScheduledEmails();
@@ -13,7 +14,7 @@ export async function POST() {
 
 async function processScheduledEmails() {
   const currentTime = new Date().toISOString().slice(0, 16);
-  console.log("1 Time Check: ", currentTime)
+  logThis(`1 Time Check: ", currentTime`)
 
   // Fetch scheduled emails
   const { data: emails, error }: { data: OutreachUser[] | null; error: any } = await supabase
@@ -30,7 +31,7 @@ async function processScheduledEmails() {
   
   // === Update sending all at once
 
-  console.log("2 Data Check: ", emails)
+  logThis(`2 Data Check: ", emails`)
   
   if (error) {
     console.error('Error fetching emails:', error);
@@ -48,7 +49,7 @@ async function processScheduledEmails() {
     }
     await supabase.from('outreach').update({ status: 'Sending' }).in('id', idsList);
 
-    console.log("3 Email Loop Check Point:")
+    logThis(`3 Email Loop Check Point:`)
     for (const email of emails) {
 
       console.log('Email Copy: ', email)
@@ -74,17 +75,17 @@ async function processGmail(email: OutreachUser) {
   const refreshToken = email.user_profile.provider_refresh_token;
 
   const p1 = Date.now();
-  console.log("Sending email p1: ", p1)
+  logThis(`Sending email p01: ${p1}`)
   const oAuth2Client = new google.auth.OAuth2();
   // oAuth2Client.setCredentials({ access_token: accessToken });
   const p02 = Date.now();
   const d02 = (p02 - p1)/1000
-  console.log("d02: ", d02)
+  logThis(`d02: ${d02}`)
 
   // try {
-  //   console.log("trying processGmail: ", email)
+  //   logThis(`trying processGmail: ", email)
   //   if (resumeLink && pdfContent) {
-  //     console.log("processGmail: ResumeLink")
+  //     logThis(`processGmail: ResumeLink")
   //     await sendEmailWithPdfFromUrl(
   //       oAuth2Client, 
   //       email.to_email, 
@@ -107,7 +108,7 @@ async function processGmail(email: OutreachUser) {
       const newAccessToken = await refreshAccessToken(refreshToken);
       const p03 = Date.now();
       const d03 = (p03 - p02)/1000
-      console.log("d03: ", d03)
+      logThis(`d03: ${d03}`)
 
       const { error } = await supabase
         .from('user_profile')
@@ -116,12 +117,12 @@ async function processGmail(email: OutreachUser) {
       if (error) console.error("Error: ", error)
       const p04 = Date.now();
       const d04 = (p04 - p03)/1000
-      console.log("d04: ", d04)
+      logThis(`d04: ${d04}`)
 
       oAuth2Client.setCredentials({ access_token: newAccessToken });
       const p05 = Date.now();
       const d05 = (p05 - p04)/1000
-      console.log("d05: ", d05)
+      logThis(`d05: ${d05}`)
 
       if (resumeLink && pdfContent) {
         await sendEmailWithPdfFromUrl(
