@@ -47,14 +47,14 @@ export const sendEmailWithPdfFromUrl = async (
   pdfUrl: string,
   pdfContent: string
 ) => {
-  logThis(`processGmail: Grabbing gmail`)
+  // logThis(`processGmail: Grabbing gmail`)
   const p1 = Date.now();
   logThis(`Sending email p1: ${p1}`)
   const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
   
   try {
     // Download the PDF from the URL
-    logThis(`processGmail: trying pdf download`)
+    // logThis(`processGmail: trying pdf download`)
 
     const p2 = Date.now();
     const d2 = (p2 - p1)/1000
@@ -67,7 +67,7 @@ export const sendEmailWithPdfFromUrl = async (
     logThis(`d3: ${d3}`)
 
     // Construct the raw email message with attachment
-    logThis(`processGmail: begin compiling message`)
+    // logThis(`processGmail: begin compiling message`)
     const rawMessage = [
       `To: ${to}`,
       `Subject: ${subject}`,
@@ -96,7 +96,7 @@ export const sendEmailWithPdfFromUrl = async (
     logThis(`d4: ${d4}`)
 
     // Base64 encode the raw message and format it
-    logThis(`processGmail: encoding message`)
+    // logThis(`processGmail: encoding message`)
     const encodedMessage = Buffer.from(rawMessage)
       .toString('base64')
       .replace(/\+/g, '-')
@@ -108,7 +108,7 @@ export const sendEmailWithPdfFromUrl = async (
     logThis(`d5: ${d5}`)
 
     // Send the email
-    logThis(`processGmail: preparing to send email`)
+    // logThis(`processGmail: preparing to send email`)
     const result = await gmail.users.messages.send({
       userId: 'me',
       requestBody: {

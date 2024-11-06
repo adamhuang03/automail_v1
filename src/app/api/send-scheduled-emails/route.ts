@@ -14,7 +14,7 @@ export async function POST() {
 
 async function processScheduledEmails() {
   const currentTime = new Date().toISOString().slice(0, 16);
-  logThis(`1 Time Check: ", currentTime`)
+  // logThis(`1 Time Check: ", currentTime`)
 
   // Fetch scheduled emails
   const { data: emails, error }: { data: OutreachUser[] | null; error: any } = await supabase
@@ -31,7 +31,7 @@ async function processScheduledEmails() {
   
   // === Update sending all at once
 
-  logThis(`2 Data Check: ", emails`)
+  // logThis(`2 Data Check: ", emails`)
   
   if (error) {
     console.error('Error fetching emails:', error);
@@ -49,7 +49,7 @@ async function processScheduledEmails() {
     }
     await supabase.from('outreach').update({ status: 'Sending' }).in('id', idsList);
 
-    logThis(`3 Email Loop Check Point:`)
+    // logThis(`3 Email Loop Check Point:`)
     for (const email of emails) {
 
       console.log('Email Copy: ', email)
