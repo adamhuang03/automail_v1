@@ -73,8 +73,13 @@ async function processGmail(email: OutreachUser) {
   const pdfContent = email.user_profile.composed.resume_link_pdfcontent;
   const refreshToken = email.user_profile.provider_refresh_token;
 
+  const p1 = Date.now();
+  console.log("Sending email p1: ", p1)
   const oAuth2Client = new google.auth.OAuth2();
-  oAuth2Client.setCredentials({ access_token: accessToken });
+  // oAuth2Client.setCredentials({ access_token: accessToken });
+  const p02 = Date.now();
+  const d02 = (p02 - p1)/1000
+  console.log("d02: ", d02)
 
   // try {
   //   console.log("trying processGmail: ", email)
@@ -100,13 +105,23 @@ async function processGmail(email: OutreachUser) {
     try {
       // await supabase.from('outreach').update({ status: 'Refreshing' }).eq('id', email.id);
       const newAccessToken = await refreshAccessToken(refreshToken);
+      const p03 = Date.now();
+      const d03 = (p03 - p02)/1000
+      console.log("d03: ", d03)
 
       await supabase
         .from('user_profile')
         .update({ provider_token: newAccessToken })
         .eq('id', email.user_profile_id);
+      const p04 = Date.now();
+      const d04 = (p04 - p03)/1000
+      console.log("d04: ", d04)
 
       oAuth2Client.setCredentials({ access_token: newAccessToken });
+      const p05 = Date.now();
+      const d05 = (p05 - p04)/1000
+      console.log("d05: ", d05)
+
       if (resumeLink && pdfContent) {
         await sendEmailWithPdfFromUrl(
           oAuth2Client, 
