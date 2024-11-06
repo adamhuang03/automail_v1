@@ -76,26 +76,26 @@ async function processGmail(email: OutreachUser) {
   const oAuth2Client = new google.auth.OAuth2();
   oAuth2Client.setCredentials({ access_token: accessToken });
 
-  try {
-    console.log("trying processGmail: ", email)
-    if (resumeLink && pdfContent) {
-      console.log("processGmail: ResumeLink")
-      await sendEmailWithPdfFromUrl(
-        oAuth2Client, 
-        email.to_email, 
-        email.subject_generated, 
-        email.email_generated,
-        resumeLink,
-        pdfContent
-      );
-      await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
-      console.log(`Email w attachment sent to ${email.to_email}`);
-    } else {
-      await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
-      await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
-      console.log(`Email sent to ${email.to_email}`);
-    }
-  } catch (error) {
+  // try {
+  //   console.log("trying processGmail: ", email)
+  //   if (resumeLink && pdfContent) {
+  //     console.log("processGmail: ResumeLink")
+  //     await sendEmailWithPdfFromUrl(
+  //       oAuth2Client, 
+  //       email.to_email, 
+  //       email.subject_generated, 
+  //       email.email_generated,
+  //       resumeLink,
+  //       pdfContent
+  //     );
+  //     await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
+  //     console.log(`Email w attachment sent to ${email.to_email}`);
+  //   } else {
+  //     await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
+  //     await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
+  //     console.log(`Email sent to ${email.to_email}`);
+  //   }
+  // } catch (error) {
     console.log('Access token expired. Refreshing...');
     try {
       // await supabase.from('outreach').update({ status: 'Refreshing' }).eq('id', email.id);
@@ -127,7 +127,7 @@ async function processGmail(email: OutreachUser) {
     } catch (refreshError) {
       console.error(`Failed to refresh access token for ${email.user_profile_id}:`, refreshError);
     }
-  }
+  // }
 }
 
 async function processMs(email: OutreachUser) {

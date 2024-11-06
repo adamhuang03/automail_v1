@@ -12,8 +12,10 @@ export default function AuthCallback() {
     const params = new URLSearchParams(hash.substring(1));
     
     window.history.replaceState({}, document.title, window.location.pathname);
+    console.log(hash)
 
     const accessToken = params.get('access_token');
+    // const accessTokenExpiry = params.get('expire_at');
     const refreshToken = params.get('refresh_token');
     const providerRefreshToken = params.get('provider_refresh_token');
     const providerToken = params.get('provider_token');
@@ -45,9 +47,9 @@ export default function AuthCallback() {
           }
         }
 
-        router.replace('/home');
+        // router.replace('/home');
       } else {
-        router.replace('/login');
+        // router.replace('/login');
       }
     })();
   }, [router]);
