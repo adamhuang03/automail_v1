@@ -109,10 +109,11 @@ async function processGmail(email: OutreachUser) {
       const d03 = (p03 - p02)/1000
       console.log("d03: ", d03)
 
-      await supabase
+      const { error } = await supabase
         .from('user_profile')
         .update({ provider_token: newAccessToken })
         .eq('id', email.user_profile_id);
+      if (error) console.error("Error: ", error)
       const p04 = Date.now();
       const d04 = (p04 - p03)/1000
       console.log("d04: ", d04)
