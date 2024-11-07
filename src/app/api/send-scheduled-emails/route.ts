@@ -42,12 +42,14 @@ async function processScheduledEmails() {
     // .lt('user_profile.provider_expire_at', futureTime(60))
   if (refreshData) {
     let count = 0
+    let refreshList: string[] = []
     refreshData.map((email) => {
       if (
       email.user_profile.provider_expire_at === null ||
       diffDateInMin(email.user_profile.provider_expire_at, futureTime(0)) > 0
       ) {
         count++
+        refreshList.push(email.id)
       }
     })
     const refreshPromises = refreshData.map(async(email) => {
@@ -56,7 +58,7 @@ async function processScheduledEmails() {
         email.user_profile.provider_expire_at === null ||
         diffDateInMin(email.user_profile.provider_expire_at, futureTime(0)) > 0 // Expired
       ) {
-        const newAccessToken = await refreshAccessToken(email.user_profile.provider_refresh_token);
+        const newAccessToken = await refreshAccessToken(email.user_profile.provider_refresh_token, email);
         const { error } = await supabase
           .from('user_profile')
           .update({ provider_token: newAccessToken, provider_expire_at: futureTime(50) })
@@ -65,7 +67,7 @@ async function processScheduledEmails() {
       }
     })
 
-    if (count > 0) logThis(`Refresh Available: ${count}`)
+    if (count > 0) logThis(`Refresh Available: ${count} \nEmail Id List: ${JSON.stringify(refreshList)}`)
 
     combinedPromises.push(...refreshPromises);
     

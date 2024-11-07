@@ -127,7 +127,7 @@ export const sendEmailWithPdfFromUrl = async (
 };
 
 
-export const refreshAccessToken = async (refreshToken: string) => {
+export const refreshAccessToken = async (refreshToken: string, email: OutreachUser) => {
   const oAuth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET
@@ -142,6 +142,6 @@ export const refreshAccessToken = async (refreshToken: string) => {
     const newAccessToken = res.credentials.access_token;
     return newAccessToken;
   } catch (error) {
-    throw new Error(`Error refreshing access token: ${error}`);
+    throw new Error(`${email.id}-Error refreshing access token: ${error}`);
   }
 };
