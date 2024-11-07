@@ -50,9 +50,8 @@ async function processScheduledEmails() {
     await supabase.from('outreach').update({ status: 'Sending' }).in('id', idsList);
 
     // logThis(`3 Email Loop Check Point:`)
-    for (const email of emails) {
+    const refreshPromises = emails.map(async (email) => {
 
-      console.log('Email Copy: ', email)
       if (email.provider_name === 'azure') {
         console.log('Processing ms')
         processMs(email)
@@ -60,8 +59,10 @@ async function processScheduledEmails() {
         console.log('Processing gmail')
         processGmail(email)
       }
-      
-    }
+    })
+    console.log("Preparing for batch send");
+    await Promise.all(refreshPromises);
+    console.log("Email Batch Sent");
   }
 
   return { message: 'Scheduled emails processed', status: 200 };
