@@ -39,6 +39,7 @@ export type OutreachUser = {
       }
       provider_token: string
       provider_refresh_token: string
+      provider_expire_at: string
     }
     user_profile_id: string
     to_name: string
