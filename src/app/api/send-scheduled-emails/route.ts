@@ -42,7 +42,7 @@ async function processScheduledEmails() {
     // .lt('user_profile.provider_expire_at', futureTime(60))
   
   if (refreshData) {
-    logThis("Refresh Available")
+    
     const refreshPromises = refreshData.map(async(email) => {
       if (
         email.user_profile.provider_expire_at === null ||
@@ -56,6 +56,8 @@ async function processScheduledEmails() {
         if (error) await logThis(`${email.id}-Error: ${error}`)
       }
     })
+
+    if (refreshPromises.length > 0) logThis("Refresh Available")
 
     combinedPromises.push(...refreshPromises);
     
