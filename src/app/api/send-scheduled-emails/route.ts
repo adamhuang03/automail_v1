@@ -37,7 +37,7 @@ async function processScheduledEmails() {
     `) // auth_user:auth__user!id(email)
     .eq('status', 'Scheduled')            
     .lte('scheduled_datetime_utc', futureTime(30))
-    .gte('scheduled_datetime_utc', futureTime(5))
+    .gte('scheduled_datetime_utc', futureTime(3))
     // .or(`user_profile.provider_expire_at.lt.${futureTime(60)},user_profile.provider_expire_at.is.null`);
     // .lt('user_profile.provider_expire_at', futureTime(60))
   if (refreshData) {

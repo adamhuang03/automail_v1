@@ -39,6 +39,7 @@ type Prospect = {
     utcTime: string
     localTime: string
   }
+  timeError: string | null
 }
 
 type FirmGroup = {
@@ -90,10 +91,15 @@ export default function ColdOutreachUI() {
   }
 
   const addProspect = (firmIndex: number) => {
-    const currentDate = utcToLocal(new Date().toISOString())
+    const currentDate = utcToLocal(new Date(Date.now() + 15 * 60 * 1000).toISOString())
     const currentDateUtc = new Date(currentDate).toISOString().slice(0, 16);
     const updatedFirmGroups = [...firmGroups]
-    updatedFirmGroups[firmIndex].prospects.push({ name: '', email: '', scheduledTime: {utcTime: currentDateUtc, localTime: currentDate} })
+    if (firmEmails) {
+      // const firmId = firmGroups[firmIndex].firmId
+      // const firmEnding = firmEmails[firmId][1]
+      updatedFirmGroups[firmIndex].prospects.push({ name: '', email: `` 
+        , scheduledTime: {utcTime: currentDateUtc, localTime: currentDate}, timeError: null })
+    }
     setFirmGroups(updatedFirmGroups)
   }
 
@@ -156,16 +162,24 @@ export default function ColdOutreachUI() {
     } 
     
     if (field === 'scheduledTime' && currentFirmGroup.firm) {
-      
-    
-      const localDate = new Date(value); // Creates a Date object in local time
-      const isoString = localDate.toISOString();
-      const isoUntilMinute = isoString.slice(0, 16)
-      currentProspect[field] = {
-        utcTime: isoUntilMinute,
-        localTime: value
-      };
-    
+      const selectedTime = new Date(new Date(value).toISOString())
+      // const minAllowedTime = new Date(minTime).getTime();
+
+      if (selectedTime < minTime) {
+        console.log("error", selectedTime, minTime)
+        currentProspect.timeError = "Please select a time at least 5 minutes from now."
+        
+      } else {
+        console.log("pass")
+        currentProspect.timeError = null
+        const localDate = new Date(value); // Creates a Date object in local time
+        const isoString = localDate.toISOString();
+        const isoUntilMinute = isoString.slice(0, 16)
+        currentProspect[field] = {
+          utcTime: isoUntilMinute,
+          localTime: value
+        };
+      }
     }
 
     setFirmGroups(updatedFirmGroups)
@@ -219,7 +233,7 @@ export default function ColdOutreachUI() {
     firmGroups.forEach(firmGroup => {
       let prospects = firmGroup.prospects
       prospects.forEach(prospect => {
-        if (firmEmails && user && firmGroup.userPrivate === 0) {
+        if (firmEmails && user && firmGroup.userPrivate === 0 && !prospect.timeError) {
           const draft = generateDraft(prospect, firmGroup.firm)
           data.push({
             status: "Scheduled",
@@ -249,7 +263,7 @@ export default function ColdOutreachUI() {
           //     provider_name: user.app_metadata.provider || ''
           //   }
           // )
-        } else if (firmEmails && user && firmGroup.userPrivate === 1) {
+        } else if (firmEmails && user && firmGroup.userPrivate === 1 && !prospect.timeError) {
           const draft = generateDraft(prospect, firmGroup.firm)
           data.push({
             status: "Scheduled",
@@ -277,6 +291,8 @@ export default function ColdOutreachUI() {
           //   scheduled_datetime_utc: prospect.scheduledTime.utcTime,
           //   provider_name: user.app_metadata.provider || ''
           // })
+        } else {
+          alert("An error has occured. Likely that there are scheduled time issues.")
         }
       })
     })
@@ -441,6 +457,19 @@ export default function ColdOutreachUI() {
 
     setPageLoadingComplete(true)
   }, [user])
+
+  const [minTime, setMinTime] = useState(
+    new Date(Date.now() + 5 * 60 * 1000)
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMinTime(new Date(Date.now() + 5 * 60 * 1000));
+    }, 60000); // Update every minute
+    console.log(new Date(Date.now() + 5 * 60 * 1000))
+
+    return () => clearInterval(interval); // Clean up interval on unmount
+  }, []);
 
   return (
     <div className="flex h-screen bg-white">
@@ -622,7 +651,7 @@ export default function ColdOutreachUI() {
                       <TableBody>
                         {firmGroup.prospects.map((prospect, prospectIndex) => {
                           return (
-                          <TableRow key={prospectIndex}>
+                          <TableRow key={prospectIndex} >
                             <TableCell>
                               <Input
                                 placeholder="First name Last name"
@@ -640,6 +669,9 @@ export default function ColdOutreachUI() {
                                 disabled={firmGroup.firm === ""}
                                 onChange={(e) => {updateProspect(firmIndex, prospectIndex, 'scheduledTime', e.target.value)}}
                               />
+                              {prospect.timeError && (
+                              <p style={{ color: "red", visibility: prospect.timeError ? "visible" : "hidden", margin: 0 }}>{prospect.timeError}</p>
+                              )}
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-2">
@@ -674,6 +706,7 @@ export default function ColdOutreachUI() {
                                 </Button>
                               </div>
                             </TableCell>
+                            
                           </TableRow>
                         )}
                       )}
