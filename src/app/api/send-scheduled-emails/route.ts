@@ -37,13 +37,13 @@ async function processScheduledEmails() {
     // .lt('user_profile.provider_expire_at', futureTime(60))
   
   if (refreshData) {
-    const refreshPromises = refreshData.map(async(unit) => {
-      const newAccessToken = await refreshAccessToken(unit.user_profile.provider_refresh_token);
+    const refreshPromises = refreshData.map(async(email) => {
+      const newAccessToken = await refreshAccessToken(email.user_profile.provider_refresh_token);
       const { error } = await supabase
         .from('user_profile')
-        .update({ provider_token: newAccessToken })
-        .eq('id', unit.user_profile_id);
-      if (error) await logThis(`Error: ${error}`)
+        .update({ provider_token: newAccessToken, provider_expire_at: futureTime(50) })
+        .eq('id', email.user_profile_id);
+      if (error) await logThis(`${email.id}-Error: ${error}`)
     })
 
     combinedPromises.push(...refreshPromises);
@@ -94,7 +94,7 @@ async function processScheduledEmails() {
   logThis("All scheduled tasks processed");
 
   return { message: 'Scheduled emails processed', status: 200 };
-}
+} // Add logic where if <5 min and need token refresh (or not refreshed, just refresh it or check when the expireation is)
 
 async function processGmail(email: OutreachUser) {
   // This for loop need to be refactored to allow for MS and Google seperate flows based on account
