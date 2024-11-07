@@ -41,7 +41,15 @@ async function processScheduledEmails() {
     // .or(`user_profile.provider_expire_at.lt.${futureTime(60)},user_profile.provider_expire_at.is.null`);
     // .lt('user_profile.provider_expire_at', futureTime(60))
   if (refreshData) {
-    
+    let count = 0
+    refreshData.map((email) => {
+      if (
+      email.user_profile.provider_expire_at === null ||
+      diffDateInMin(email.user_profile.provider_expire_at, futureTime(0)) > 0
+      ) {
+        count++
+      }
+    })
     const refreshPromises = refreshData.map(async(email) => {
       // make sure you refresh not per email but per user
       if (
@@ -57,7 +65,7 @@ async function processScheduledEmails() {
       }
     })
 
-    if (refreshPromises.length > 0) logThis(`Refresh Available: ${refreshPromises.length}`)
+    if (count > 0) logThis(`Refresh Available: ${count}`)
 
     combinedPromises.push(...refreshPromises);
     
