@@ -47,7 +47,7 @@ async function processScheduledEmails() {
       // make sure you refresh not per email but per user
       if (
         email.user_profile.provider_expire_at === null ||
-        diffDateInMin(futureTime(0), email.user_profile.provider_expire_at) < 0
+        diffDateInMin(email.user_profile.provider_expire_at, futureTime(0)) > 0 // Expired
       ) {
         const newAccessToken = await refreshAccessToken(email.user_profile.provider_refresh_token);
         const { error } = await supabase

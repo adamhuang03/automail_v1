@@ -31,23 +31,23 @@ async function testRefreshData () {
       provider_token, provider_refresh_token, provider_expire_at, composed!user_profile_id(resume_link, resume_link_pdfcontent)
       )
   `) // auth_user:auth__user!id(email)
-  .eq('status', 'Test')
+  .eq('status', 'Scheduled')
   .lte('scheduled_datetime_utc', futureTime(30))
-  .gte('scheduled_datetime_utc', futureTime(10))
+  .gte('scheduled_datetime_utc', futureTime(5))
   
   const lst: OutreachUser[] = []
 
   refreshData?.map((email) => {
     if (
       email.user_profile.provider_expire_at === null ||
-      diffDateInMin(email.user_profile.provider_expire_at, futureTime(60)) < 50
+      diffDateInMin(email.user_profile.provider_expire_at, futureTime(0)) > 0 // Expired
     ) lst.push(email)
     
   })
 
   
   
-  console.log(refreshData, lst, futureTime(60))
+  console.log(lst, futureTime(60))
   return { message: 'Scheduled emails processed', status: 200 };
 
 }
