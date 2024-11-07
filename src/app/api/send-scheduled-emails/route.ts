@@ -41,6 +41,7 @@ async function processScheduledEmails() {
     // .or(`user_profile.provider_expire_at.lt.${futureTime(60)},user_profile.provider_expire_at.is.null`);
     // .lt('user_profile.provider_expire_at', futureTime(60))
   
+  let count = 0
   if (refreshData) {
     
     const refreshPromises = refreshData.map(async(email) => {
@@ -55,10 +56,11 @@ async function processScheduledEmails() {
           .update({ provider_token: newAccessToken, provider_expire_at: futureTime(50) })
           .eq('id', email.user_profile_id);
         if (error) await logThis(`${email.id}-Error: ${error}`)
+        count++
       }
     })
 
-    if (refreshPromises.length > 0) logThis("Refresh Available")
+    if (count > 0) logThis(`Refresh Available: ${count}`)
 
     combinedPromises.push(...refreshPromises);
     
