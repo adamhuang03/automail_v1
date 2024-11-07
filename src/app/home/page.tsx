@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 import { supabase } from '@/lib/db/supabase'
 import { User } from '@supabase/supabase-js'
-import { Composed, OutreachUser } from '@/utils/types'
+import { Composed, Outreach, OutreachUser } from '@/utils/types'
 import { useRouter } from 'next/navigation'
 import { ManagePage } from './managePage'
 import { getFileUrl } from '@/utils/getFile'
@@ -58,6 +58,7 @@ export default function ColdOutreachUI() {
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
   const [firmEmails, setFirmEmails] = useState<Record<string, (string | number)[]> | null>(null)
   const [addTempMap, setAddTempMap] = useState<{ [id: number]: string }>({});
+  const [draftCount, setDraftCount] = useState<number>(0);
 
   const [user, setUser] = useState<User | null>(null)
   const [fullName, setFullName] = useState<string | null>(null) // in case metadata not avail
@@ -451,6 +452,16 @@ export default function ColdOutreachUI() {
           setFirmEmails(sortedFirmEmailsDict);
         }
 
+        const { data: draftedEmails, error: draftedEmailError }: {data: Outreach[] | null, error: any} = await supabase.from('outreach')
+        .select('*')
+        .or('status.eq.Scheduled, status.eq.Editing, status.eq.Sending, status.eq.Refreshing, status.eq.Sent w Attachment, status.eq.Sent') // spaces work here
+        .eq('user_profile_id', user.id)
+        if (draftedEmails) {
+          const drafts = draftedEmails
+              .filter(email => email.status === 'Scheduled' || email.status === 'Editing' || email.status === 'Sending' || email.status === 'Refreshing')
+          setDraftCount(drafts.length)
+        }
+
       }
 
     })();
@@ -501,11 +512,16 @@ export default function ColdOutreachUI() {
           </Button>
           <Button
             variant={activeTab === 'manage' ? 'outline' : 'ghost'}
-            className="w-full justify-start mb-2"
+            className="flex flex-row justify-between w-full mb-2"
             onClick={() => handleActiveTab('manage')}
           >
-            <InboxIcon className="mr-2 h-4 w-4" />
-            Manage
+            {/* <div className='flex flex-row justify-between'> */}
+              <div className='flex flex-row'>
+                <InboxIcon className="mr-2 h-4 w-4" />
+                Manage
+              </div>
+              ({draftCount})
+            {/* </div> */}
           </Button>
           <Button
             variant={activeTab === 'settings' ? 'outline' : 'ghost'}
@@ -774,7 +790,10 @@ export default function ColdOutreachUI() {
               setFirmEmails={setFirmEmails}
               setActiveTab={setActiveTab}
             />}
-          {activeTab === 'manage' && <ManagePage />}
+          {activeTab === 'manage' && 
+            <ManagePage 
+              setDraftCount={setDraftCount}
+            />}
         </main>
       </div>
     </div>

@@ -11,7 +11,13 @@ import { supabase } from "@/lib/db/supabase"
 import { useRouter } from "next/navigation"
 import { Dot, Eye, PencilIcon, RefreshCcwDot, RefreshCw, RefreshCwIcon, SaveIcon, Trash2Icon } from "lucide-react"
 
-export function ManagePage () {
+type PageProps = {
+  setDraftCount: React.Dispatch<React.SetStateAction<number>>
+};
+
+export function ManagePage ({
+  setDraftCount
+}: PageProps) {
   const [draftedEmails, setDraftedEmails] = useState<Outreach[]>([]);
   const [localTimeMap, setLocalTimeMap] = useState<{ [id: string]: string }>({});
   const [editableMap, setEditableMap] = useState<{ [id: string]: boolean }>({});
@@ -90,7 +96,7 @@ export function ManagePage () {
           const drafts = data
             .filter(email => email.status === 'Scheduled' || email.status === 'Editing' || email.status === 'Sending' || email.status === 'Refreshing')
             .sort((a, b) => new Date(a.scheduled_datetime_utc).getTime() - new Date(b.scheduled_datetime_utc).getTime()); // Sort drafts by date
-
+          setDraftCount(drafts.length)
           const sent = data
             .filter(email => email.status === 'Sent w Attachment' || email.status === 'Sent')
             .sort((a, b) => new Date(b.scheduled_datetime_utc).getTime() - new Date(a.scheduled_datetime_utc).getTime()); // Sort sent emails by date
@@ -98,6 +104,7 @@ export function ManagePage () {
           setDraftedEmails([...drafts, ...sent])
           console.log(drafts)
           setRefreshBool(false)
+          
         }
 
       } else if (!session) {
