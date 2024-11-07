@@ -60,9 +60,9 @@ async function processScheduledEmails() {
         processGmail(email)
       }
     })
-    console.log("Preparing for batch send");
+    logThis("Preparing for batch send");
     await Promise.all(refreshPromises);
-    console.log("Email Batch Sent");
+    logThis("Email Batch Sent");
   }
 
   return { message: 'Scheduled emails processed', status: 200 };
