@@ -19,6 +19,10 @@ async function processScheduledEmails() {
     date.setMinutes(date.getMinutes() + mins)
     return date.toISOString().slice(0, 16)
   }
+  const diffDateInMin = (d1: string, d2: string) => {
+    const differenceInMs = new Date(d2).getTime() - new Date(d1).getTime();
+    return differenceInMs / (1000 * 60);
+  }
 
   const combinedPromises: Promise<any>[] = [];
 
@@ -32,18 +36,23 @@ async function processScheduledEmails() {
     `) // auth_user:auth__user!id(email)
     .eq('status', 'Scheduled')            
     .lte('scheduled_datetime_utc', futureTime(30))
-    .gte('scheduled_datetime_utc', futureTime(10))
-    .or(`user_profile.provider_expire_at.lt.${futureTime(60)},user_profile.provider_expire_at.is.null`);
+    .gte('scheduled_datetime_utc', futureTime(5))
+    // .or(`user_profile.provider_expire_at.lt.${futureTime(60)},user_profile.provider_expire_at.is.null`);
     // .lt('user_profile.provider_expire_at', futureTime(60))
   
   if (refreshData) {
     const refreshPromises = refreshData.map(async(email) => {
-      const newAccessToken = await refreshAccessToken(email.user_profile.provider_refresh_token);
-      const { error } = await supabase
-        .from('user_profile')
-        .update({ provider_token: newAccessToken, provider_expire_at: futureTime(50) })
-        .eq('id', email.user_profile_id);
-      if (error) await logThis(`${email.id}-Error: ${error}`)
+      if (
+        email.user_profile.provider_expire_at === null ||
+        diffDateInMin(email.user_profile.provider_expire_at, futureTime(60)) < 50
+      ) {
+        const newAccessToken = await refreshAccessToken(email.user_profile.provider_refresh_token);
+        const { error } = await supabase
+          .from('user_profile')
+          .update({ provider_token: newAccessToken, provider_expire_at: futureTime(50) })
+          .eq('id', email.user_profile_id);
+        if (error) await logThis(`${email.id}-Error: ${error}`)
+      }
     })
 
     combinedPromises.push(...refreshPromises);

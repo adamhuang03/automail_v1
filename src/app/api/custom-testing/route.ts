@@ -8,8 +8,48 @@ import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from
 import { logThis } from '@/utils/saveLog';
 
 export async function POST() {
-  const response = await testLogger();
+  const response = await testRefreshData();
   return NextResponse.json(response, { status: response.status });
+}
+
+async function testRefreshData () {
+  const futureTime = (mins: number) => {
+    const date = new Date()
+    date.setMinutes(date.getMinutes() + mins)
+    return date.toISOString() //.slice(0, 16)
+  }
+
+  const diffDateInMin = (d1: string, d2: string) => {
+    const differenceInMs = new Date(d2).getTime() - new Date(d1).getTime();
+    return differenceInMs / (1000 * 60);
+  }
+  const { data: refreshData, error:refreshError }: { data: OutreachUser[] | null; error: any } = await supabase
+  .from('outreach')
+  .select(`
+      *,
+      user_profile!user_profile_id (
+      provider_token, provider_refresh_token, provider_expire_at, composed!user_profile_id(resume_link, resume_link_pdfcontent)
+      )
+  `) // auth_user:auth__user!id(email)
+  .eq('status', 'Test')
+  .lte('scheduled_datetime_utc', futureTime(30))
+  .gte('scheduled_datetime_utc', futureTime(10))
+  
+  const lst: OutreachUser[] = []
+
+  refreshData?.map((email) => {
+    if (
+      email.user_profile.provider_expire_at === null ||
+      diffDateInMin(email.user_profile.provider_expire_at, futureTime(60)) < 50
+    ) lst.push(email)
+    
+  })
+
+  
+  
+  console.log(refreshData, lst, futureTime(60))
+  return { message: 'Scheduled emails processed', status: 200 };
+
 }
 
 async function testLogger () {
