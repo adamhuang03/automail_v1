@@ -13,6 +13,7 @@ export async function POST() {
 }
 
 async function processScheduledEmails() {
+  logThis("Starting")
   const currentTime = new Date().toISOString().slice(0, 16);
   const futureTime = (mins: number) => {
     const date = new Date()
@@ -41,6 +42,7 @@ async function processScheduledEmails() {
     // .lt('user_profile.provider_expire_at', futureTime(60))
   
   if (refreshData) {
+    logThis("Refresh Available")
     const refreshPromises = refreshData.map(async(email) => {
       if (
         email.user_profile.provider_expire_at === null ||
@@ -76,7 +78,7 @@ async function processScheduledEmails() {
   }
 
   if (emails && emails.length > 0) {
-    
+    logThis("Email Available")
     // Mass update id
     const idsList = []
     for (const email of emails) {
