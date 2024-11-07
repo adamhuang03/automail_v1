@@ -98,7 +98,7 @@ export function ManagePage ({
             .sort((a, b) => new Date(a.scheduled_datetime_utc).getTime() - new Date(b.scheduled_datetime_utc).getTime()); // Sort drafts by date
           setDraftCount(drafts.length)
           const sent = data
-            .filter(email => email.status === 'Sent w Attachment' || email.status === 'Sent')
+            .filter(email => email.status === 'Sent w Attachment' || email.status === 'Sent' || email.status === 'Error')
             .sort((a, b) => new Date(b.scheduled_datetime_utc).getTime() - new Date(a.scheduled_datetime_utc).getTime()); // Sort sent emails by date
 
           setDraftedEmails([...drafts, ...sent])
@@ -176,7 +176,12 @@ export function ManagePage ({
                 {draftedEmails.map((draft) => {
                   var isEditable = draft.status === 'Editing' ? true : editableMap[draft.id] || false; // Default to false if not set
                   return (
-                  <TableRow key={draft.id} className={`${draft.status === "Sending" || draft.status === "Refreshing" ? 'bg-gray-100' : ""}`}>
+                  <TableRow key={draft.id} className={`${
+                    draft.status === "Sending" || draft.status === "Refreshing" ? 'bg-gray-100' 
+                    : draft.status === "Error" ? 'bg-red-100' : ""
+                    
+                  }`}
+                  >
                     <TableCell className="px-2">
                       <div className="flex items-center justify-center">
                         {(!draft.status.includes('Sent') && !draft.status.includes('Sending')) && 

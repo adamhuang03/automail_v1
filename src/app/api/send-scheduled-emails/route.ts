@@ -26,6 +26,12 @@ async function processScheduledEmails() {
   }
 
   const combinedPromises: Promise<any>[] = [];
+  const errorLogs: string[] = []; // Array to collect errors
+
+  let refreshCount = 0
+  const refreshList: string[] = []
+  let emailCount = 0
+  const emailList: string[] = []
 
   const { data: refreshData, error:refreshError }: { data: OutreachUser[] | null; error: any } = await supabase
     .from('outreach')
@@ -41,33 +47,37 @@ async function processScheduledEmails() {
     // .or(`user_profile.provider_expire_at.lt.${futureTime(60)},user_profile.provider_expire_at.is.null`);
     // .lt('user_profile.provider_expire_at', futureTime(60))
   if (refreshData) {
-    let count = 0
-    let refreshList: string[] = []
+    
     refreshData.map((email) => {
       if (
-      email.user_profile.provider_expire_at === null ||
-      diffDateInMin(email.user_profile.provider_expire_at, futureTime(0)) > 0
+        (
+          email.user_profile.provider_expire_at === null ||
+          diffDateInMin(email.user_profile.provider_expire_at, futureTime(0)) > 0
+        ) && email.provider_name === 'google'
       ) {
-        count++
+        refreshCount++
         refreshList.push(email.id)
       }
     })
-    const refreshPromises = refreshData.map(async(email) => {
-      // make sure you refresh not per email but per user
-      if (
-        email.user_profile.provider_expire_at === null ||
-        diffDateInMin(email.user_profile.provider_expire_at, futureTime(0)) > 0 // Expired
-      ) {
-        const newAccessToken = await refreshAccessToken(email.user_profile.provider_refresh_token, email);
-        const { error } = await supabase
-          .from('user_profile')
-          .update({ provider_token: newAccessToken, provider_expire_at: futureTime(50) })
-          .eq('id', email.user_profile_id);
-        if (error) await logThis(`${email.id}-Error: ${error}`)
+    const refreshPromises = refreshData.map(async (email) => {
+      try {
+        if (
+          (
+            email.user_profile.provider_expire_at === null ||
+            diffDateInMin(email.user_profile.provider_expire_at, futureTime(0)) > 0
+          ) && email.provider_name === 'google'
+        ) {
+          const newAccessToken = await refreshAccessToken(email.user_profile.provider_refresh_token, email);
+          const { error } = await supabase
+            .from('user_profile')
+            .update({ provider_token: newAccessToken, provider_expire_at: futureTime(50) })
+            .eq('id', email.user_profile_id);
+          if (error) errorLogs.push(`Supabase Error (${email.id}): ${JSON.stringify(error)}`);
+        }
+      } catch (error) {
+        errorLogs.push(`Refresh Error (${email.id}): ${JSON.stringify(error)}`);
       }
-    })
-
-    if (count > 0) logThis(`Refresh Available: ${count} \nEmail Id List: ${JSON.stringify(refreshList)}`)
+    });
 
     combinedPromises.push(...refreshPromises);
     
@@ -85,92 +95,77 @@ async function processScheduledEmails() {
     .lte('scheduled_datetime_utc', currentTime);
   
   if (error) {
-    console.error('Error fetching emails:', error);
+    // console.error('Error fetching emails:', error);
+    errorLogs.push(`Supabase Error (Failed to get drafted emails): ${JSON.stringify(error)}`);
     return { message: 'Error fetching scheduled emails', error, status: 500 };
   }
 
   if (emails && emails.length > 0) {
     logThis("Email Available")
     // Mass update id
-    const idsList = []
     for (const email of emails) {
-      idsList.push(email.id)
+      emailList.push(email.id)
+      emailCount++
     }
-    await supabase.from('outreach').update({ status: 'Sending' }).in('id', idsList);
+    await supabase.from('outreach').update({ status: 'Sending' }).in('id', emailList);
 
     // logThis(`3 Email Loop Check Point:`)
     const emailPromises = emails.map(async (email) => {
-
-      if (email.provider_name === 'azure') {
-        console.log('Processing ms')
-        await processMs(email)
-      } else if (email.provider_name === 'google') {
-        console.log('Processing gmail')
-        await processGmail(email)
+      try {
+        if (email.provider_name === 'azure') {
+          await processMs(email);
+        } else if (email.provider_name === 'google') {
+          await processGmail(email);
+        }
+      } catch (error) {
+        errorLogs.push(`Send Email Error (${email.id}): ${JSON.stringify(error)}`);
       }
-    })
+    });
     combinedPromises.push(...emailPromises);
   }
 
-  logThis("Preparing for combined batch processing");
+  
   await Promise.all(combinedPromises); // Wait for both refresh and email send processes to complete
-  logThis("All scheduled tasks processed");
-
+  if (emailCount + refreshCount > 0) {
+    logThis(
+      `Batch Processing Begins\n\n` +
+      `Refresh Count: ${refreshCount} -> List: ${JSON.stringify(refreshList)}\n\n` +
+      `Email Sent Count: ${emailCount} -> List: ${JSON.stringify(emailList)}` +
+      `${errorLogs.join('\n')}`
+    );
+  }
   return { message: 'Scheduled emails processed', status: 200 };
 } // Add logic where if <5 min and need token refresh (or not refreshed, just refresh it or check when the expireation is)
 
 async function processGmail(email: OutreachUser) {
   // This for loop need to be refactored to allow for MS and Google seperate flows based on account
-  const accessToken = email.user_profile.provider_token;
+  // const accessToken = email.user_profile.provider_token;
   const resumeLink = email.user_profile.composed.resume_link;
   const pdfContent = email.user_profile.composed.resume_link_pdfcontent;
-  const refreshToken = email.user_profile.provider_refresh_token;
+  // const refreshToken = email.user_profile.provider_refresh_token;
 
+  // const logList: string[] = [] // because we are batch promising
   const p1 = Date.now();
-  logThis(`Sending email p01: ${p1}`)
+  
   const oAuth2Client = new google.auth.OAuth2();
   // oAuth2Client.setCredentials({ access_token: accessToken });
-  const p02 = Date.now();
-  const d02 = (p02 - p1)/1000
-  logThis(`d02: ${d02}`)
+  // const p02 = Date.now();
+  // const d02 = (p02 - p1)/1000
+  // logList.push(`Auth Duration: ${d02}`)
 
-  // try {
-  //   logThis(`trying processGmail: ", email)
-  //   if (resumeLink && pdfContent) {
-  //     logThis(`processGmail: ResumeLink")
-  //     await sendEmailWithPdfFromUrl(
-  //       oAuth2Client, 
-  //       email.to_email, 
-  //       email.subject_generated, 
-  //       email.email_generated,
-  //       resumeLink,
-  //       pdfContent
-  //     );
-  //     await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
-  //     console.log(`Email w attachment sent to ${email.to_email}`);
-  //   } else {
-  //     await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
-  //     await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
-  //     console.log(`Email sent to ${email.to_email}`);
-  //   }
-  // } catch (error) {
-    // console.log('Access token expired. Refreshing...');
     try {
       // await supabase.from('outreach').update({ status: 'Refreshing' }).eq('id', email.id);
       // const newAccessToken = await refreshAccessToken(refreshToken);
-      const p03 = Date.now();
-      const d03 = (p03 - p02)/1000
-      logThis(`d03: ${d03}`)
+      // const p03 = Date.now();
+      // const d03 = (p03 - p02)/1000
 
       
-      const p04 = Date.now();
-      const d04 = (p04 - p03)/1000
-      logThis(`d04: ${d04}`)
+      // const p04 = Date.now();
+      // const d04 = (p04 - p03)/1000
 
       oAuth2Client.setCredentials({ access_token: email.user_profile.provider_token });
-      const p05 = Date.now();
-      const d05 = (p05 - p04)/1000
-      logThis(`d05: ${d05}`)
+      // const p05 = Date.now();
+      // const d05 = (p05 - p04)/1000
 
       if (resumeLink && pdfContent) {
         await sendEmailWithPdfFromUrl(
@@ -182,15 +177,19 @@ async function processGmail(email: OutreachUser) {
           pdfContent
         );
         await supabase.from('outreach').update({ status: 'Sent w Attachment' }).eq('id', email.id);
-        logThis(`${email.id}: Email w attachment sent to ${email.to_email} after refreshing token`);
+        const p05 = Date.now();
+        const d05 = (p05 - p1)/1000
+        logThis(`${email.id}: Email w attachment sent to ${email.to_email}\nDuration: ${d05}secs`);
       } else {
         await sendEmail(oAuth2Client, email.to_email, email.subject_generated, email.email_generated);
         await supabase.from('outreach').update({ status: 'Sent' }).eq('id', email.id);
-        logThis(`${email.id}: Email sent to ${email.to_email} after refreshing token`);
+        const p05 = Date.now();
+        const d05 = (p05 - p1)/1000
+        logThis(`${email.id}: Email sent to ${email.to_email}\nDuration: ${d05}secs`);
       }
 
     } catch (refreshError) {
-      logThis(`${email.id}: Failed to refresh access token for ${email.user_profile_id}: ${refreshError}`);
+      console.log(`${email.id}: Failed to refresh access token for ${email.user_profile_id}: ${refreshError}`);
     }
   // }
 }
