@@ -89,7 +89,7 @@ export function ManagePage ({
       if (session && refreshBool) {
         const { data, error }: {data: Outreach[] | null, error: any} = await supabase.from('outreach')
         .select('*')
-        .or('status.eq.Scheduled, status.eq.Editing, status.eq.Sending, status.eq.Refreshing, status.eq.Sent w Attachment, status.eq.Sent') // spaces work here
+        .or('status.eq.Scheduled, status.eq.Editing, status.eq.Sending, status.eq.Refreshing, status.eq.Sent w Attachment, status.eq.Sent, status.eq.Error') // spaces work here
         .eq('user_profile_id', session.user.id)
 
         if (data) {

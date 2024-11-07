@@ -119,6 +119,7 @@ async function processScheduledEmails() {
         }
       } catch (error) {
         errorLogs.push(`Send Email Error (${email.id}): ${JSON.stringify(error)}`);
+        await supabase.from('outreach').update({ status: 'Error' }).eq('id', email.id);
       }
     });
     combinedPromises.push(...emailPromises);
