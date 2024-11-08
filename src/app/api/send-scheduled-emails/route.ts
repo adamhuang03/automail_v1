@@ -1,7 +1,8 @@
 // app/api/send-scheduled-emails/route.ts
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
-import { supabase, supabaseServer } from '@/lib/db/supabase';
+import { supabase } from '@/lib/db/supabase';
+import { supabaseServer } from '@/lib/db/supabaseServer';
 import { OutreachUser } from '@/utils/types';
 import { sendEmailWithPdfFromUrl, sendEmail, refreshAccessToken } from '@/utils/google/emailGoogleV2';
 import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from '@/utils/ms/emailMsV2';

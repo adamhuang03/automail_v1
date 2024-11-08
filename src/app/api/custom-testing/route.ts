@@ -1,7 +1,8 @@
 // app/api/send-scheduled-emails/route.ts
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
-import { supabase, supabaseServer } from '@/lib/db/supabase';
+import { supabase } from '@/lib/db/supabase';
+import { supabaseServer } from '@/lib/db/supabaseServer';
 import { OutreachUser } from '@/utils/types';
 import { sendEmailWithPdfFromUrl, sendEmail, refreshAccessToken } from '@/utils/google/emailGoogleV2';
 import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from '@/utils/ms/emailMs';
@@ -149,7 +150,7 @@ async function processTestEmails () {
 async function createMsTestEmails () {
   const template = (userProfileId: string, toEmail: string, scheduledTime: Date, providerName: string) => {
     return {
-        status: 'Test',
+        status: 'Scheduled',
         user_profile_id: userProfileId, // adamhuangshuo@outlook.com
         to_name: 'Test Email',
         to_email: toEmail,
@@ -189,56 +190,56 @@ async function createMsTestEmails () {
   // 1 gmail 2 hour since last email, 1 outlooks 2 hours since last email with and without attachement
 
   const listToSend = [
-    prepEmail(1, 2, futureTime(15)),
-    prepEmail(2, 3, futureTime(15)),
-
-    // // Time test + provider test
-    // // gmail to outlook works, outlook to gmail works (same time)
-    // // gmail to outlook works, outlook to gmail works (different time)
-    // // if ok, azure can send to googl and google and send to azure at same and different times
     // prepEmail(1, 2, futureTime(15)),
-    // prepEmail(4, 3, futureTime(15)),
+    // prepEmail(2, 3, futureTime(15)),
 
-    // prepEmail(1, 2, futureTime(20)),
-    // prepEmail(4, 3, futureTime(25)),
+    // Time test + provider test
+    // gmail to outlook works, outlook to gmail works (same time)
+    // gmail to outlook works, outlook to gmail works (different time)
+    // if ok, azure can send to googl and google and send to azure at same and different times
+    prepEmail(1, 2, futureTime(15)),
+    prepEmail(4, 3, futureTime(15)),
 
-    // // self provider test w attachment and without
-    // // Gmail to gmail w attachment
-    // // outlook to outlook w attachment
-    // // both without attachment
-    // // if ok, providers can send to each other with and without attachment
-    // prepEmail(3, 1, futureTime(60)),
-    // prepEmail(4, 2, futureTime(60)),
-    // prepEmail(1, 3, futureTime(65)),
-    // prepEmail(2, 4, futureTime(65)),
+    prepEmail(1, 2, futureTime(20)),
+    prepEmail(4, 3, futureTime(25)),
 
-    // // 2 hour apart sending test for (no attachment) -- proven attachment alr
-    // // outlookt to gmail
-    // // gmail to outlook
-    // // if ok, refresh token is working
-    // prepEmail(2, 4, futureTime(300)),
-    // prepEmail(1, 3, futureTime(300)),
+    // self provider test w attachment and without
+    // Gmail to gmail w attachment
+    // outlook to outlook w attachment
+    // both without attachment
+    // if ok, providers can send to each other with and without attachment
+    prepEmail(3, 1, futureTime(60)),
+    prepEmail(4, 2, futureTime(60)),
+    prepEmail(1, 3, futureTime(65)),
+    prepEmail(2, 4, futureTime(65)),
 
-    // // mass spam test 3 emails sending out at once no attachment
-    // // outlook test
-    // // attachment test
-    // // cross send test
-    // // if ok, ...
-    // // 1) sending out 12 emails executes <1 min
-    // // 2) multiple with attachments can send out at once
-    // // ...3) can cross send at same time -> less important
-    // prepEmail(1, 2, futureTime(180)), // google no attachment
-    // prepEmail(1, 3, futureTime(180)),
-    // prepEmail(1, 4, futureTime(180)),
-    // prepEmail(2, 1, futureTime(180)), // azure no attachment
-    // prepEmail(2, 3, futureTime(180)),
-    // prepEmail(2, 4, futureTime(180)),
-    // prepEmail(3, 1, futureTime(180)), // google w attachment
-    // prepEmail(3, 2, futureTime(180)),
-    // prepEmail(3, 4, futureTime(180)),
-    // prepEmail(4, 1, futureTime(180)), // azure w attachment
-    // prepEmail(4, 2, futureTime(180)),
-    // prepEmail(4, 3, futureTime(180)),
+    // 2 hour apart sending test for (no attachment) -- proven attachment alr
+    // outlookt to gmail
+    // gmail to outlook
+    // if ok, refresh token is working
+    prepEmail(2, 4, futureTime(300)),
+    prepEmail(1, 3, futureTime(300)),
+
+    // mass spam test 3 emails sending out at once no attachment
+    // outlook test
+    // attachment test
+    // cross send test
+    // if ok, ...
+    // 1) sending out 12 emails executes <1 min
+    // 2) multiple with attachments can send out at once
+    // ...3) can cross send at same time -> less important
+    prepEmail(1, 2, futureTime(180)), // google no attachment
+    prepEmail(1, 3, futureTime(180)),
+    prepEmail(1, 4, futureTime(180)),
+    prepEmail(2, 1, futureTime(180)), // azure no attachment
+    prepEmail(2, 3, futureTime(180)),
+    prepEmail(2, 4, futureTime(180)),
+    prepEmail(3, 1, futureTime(180)), // google w attachment
+    prepEmail(3, 2, futureTime(180)),
+    prepEmail(3, 4, futureTime(180)),
+    prepEmail(4, 1, futureTime(180)), // azure w attachment
+    prepEmail(4, 2, futureTime(180)),
+    prepEmail(4, 3, futureTime(180)),
   ]
   // console.log(listToSend)
 
