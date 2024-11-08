@@ -40,7 +40,7 @@ export default function AuthCallback() {
 
         if (session) {
           const { error } = await supabase.from('user_profile')
-          .update({ provider_token: providerToken, provider_refresh_token: providerRefreshToken})
+          .update({ provider_token: providerToken, provider_refresh_token: providerRefreshToken, provider_refresh_error: 0})
           .eq('id', session.user.id);
           if (error) {
             console.error(error)

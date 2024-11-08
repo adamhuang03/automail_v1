@@ -174,7 +174,9 @@ export function ManagePage ({
               </TableHeader>
               <TableBody>
                 {draftedEmails.map((draft) => {
-                  var isEditable = draft.status === 'Editing' ? true : editableMap[draft.id] || false; // Default to false if not set
+                  var isEditable = editableMap[draft.id] ? editableMap[draft.id] : 
+                  draft.status === 'Editing' ? editableMap[draft.id] = true : 
+                  draft.status === 'Scheduled' ? editableMap[draft.id] = false : false // Default to false if not set
                   return (
                   <TableRow key={draft.id} className={`${
                     draft.status === "Sending" || draft.status === "Refreshing" ? 'bg-gray-100' 
@@ -186,6 +188,7 @@ export function ManagePage ({
                       <div className="flex items-center justify-center">
                         {(!draft.status.includes('Sent') && !draft.status.includes('Sending')) && 
                           <Button variant="outline" size="sm" className="w-10 px-0 justify-center" onClick={() => {
+                              console.log(isEditable)
                               toggleEditable(draft.id)
                               if (isEditable && draft.status === 'Editing') {
                                 draft.status = 'Scheduled'
