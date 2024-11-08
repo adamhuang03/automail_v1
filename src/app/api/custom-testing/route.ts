@@ -8,10 +8,11 @@ import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from
 import { logThis } from '@/utils/saveLog';
 
 export async function POST() {
-  const response = await testRefreshData();
+  const response = await createMsTestEmails();
   return NextResponse.json(response, { status: response.status });
 }
 
+// ===========================================================================
 async function testRefreshData () {
   const futureTime = (mins: number) => {
     const date = new Date()
@@ -52,6 +53,7 @@ async function testRefreshData () {
 
 }
 
+// ===========================================================================
 async function testLogger () {
 
   logThis('Test')
@@ -59,6 +61,7 @@ async function testLogger () {
   return { message: 'Executed', status: 200 };
 }
 
+// ===========================================================================
 async function processTestEmails () {
   
   const { data, error } = await supabase.from('outreach')
@@ -93,6 +96,27 @@ async function processTestEmails () {
     if (error1) console.log(error1)
   }
 
+
+  return { message: 'Scheduled emails processed', status: 200 };
+}
+
+// ============================================================================
+async function createMsTestEmails () {
+  const { error: error1 } = await supabase.from('outreach').insert(
+    {
+      status: 'Test',
+      user_profile_id: 'abc0e75d-7efb-4ea6-b8ca-bca77d874abd', // adamhuangshuo@outlook.com
+      to_name: 'Adam Huang',
+      to_email: 'adam.huang@mail.utoronto.ca',
+      to_firm: 'University of Toronto',
+      firm_email_id: 'a77d1062-eb02-4424-832a-3002cbf44de2',
+      firm_email_user_id: null,
+      subject_generated: 'Testing Azure',
+      email_generated: 'Testing Azure Body',
+      scheduled_datetime_utc: new Date(Date() + 10 * 60 * 1000),
+      provider_name: 'azure'
+    }
+  )
 
   return { message: 'Scheduled emails processed', status: 200 };
 }
