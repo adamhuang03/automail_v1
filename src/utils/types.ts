@@ -37,9 +37,11 @@ export type OutreachUser = {
         resume_link: string
         resume_link_pdfcontent: string
       }
+      full_name: string
       provider_token: string
       provider_refresh_token: string
       provider_expire_at: string
+      provider_refresh_error: number
     }
     user_profile_id: string
     to_name: string

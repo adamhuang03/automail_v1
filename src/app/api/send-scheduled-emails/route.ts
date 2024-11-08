@@ -1,13 +1,14 @@
 // app/api/send-scheduled-emails/route.ts
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
-import { supabase } from '@/lib/db/supabase';
+import { supabase, supabaseServer } from '@/lib/db/supabase';
 import { OutreachUser } from '@/utils/types';
 import { sendEmailWithPdfFromUrl, sendEmail, refreshAccessToken } from '@/utils/google/emailGoogleV2';
 import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from '@/utils/ms/emailMsV2';
 import { logThis } from '@/utils/saveLog';
+import { sendAutomailEmail } from '@/utils/google/sendAutomailEmail';
 
-const status = 'Scheduled'
+const status = 'Test'
 
 export async function POST() {
   const response = await processScheduledEmails();
@@ -40,7 +41,7 @@ async function processScheduledEmails() {
     .select(`
         *,
         user_profile!user_profile_id (
-        provider_token, provider_refresh_token, provider_expire_at, composed!user_profile_id(resume_link, resume_link_pdfcontent)
+        full_name, provider_token, provider_refresh_token, provider_expire_at, provider_refresh_error, composed!user_profile_id(resume_link, resume_link_pdfcontent)
         )
     `) // auth_user:auth__user!id(email)
     .eq('status', status)            
@@ -75,6 +76,7 @@ async function processScheduledEmails() {
             .update({ provider_token: newAccessToken, provider_expire_at: futureTime(50) })
             .eq('id', email.user_profile_id);
           if (error) errorLogs.push(`Supabase Error Google(${email.id}): ${JSON.stringify(error)}`);
+          await supabase.from('user_profile').update({ provider_refresh_error: 0 }).eq('id', email.user_profile_id);
         } 
         
         else if (
@@ -89,9 +91,29 @@ async function processScheduledEmails() {
             .update({ provider_token: newAccessToken, provider_expire_at: futureTime(50) })
             .eq('id', email.user_profile_id);
           if (error) errorLogs.push(`Supabase Error Azure (${email.id}): ${JSON.stringify(error)}`);
+          await supabase.from('user_profile').update({ provider_refresh_error: 0 }).eq('id', email.user_profile_id);
         }
       } catch (error) {
         errorLogs.push(`Refresh Error (${email.id}): ${JSON.stringify(error)}`);
+        await supabase.from('outreach').update({ status: 'Editing' }).eq('id', email.id);
+        if (email.user_profile.provider_refresh_error === 0) {
+          await supabase.from('user_profile').update({ provider_refresh_error: 1 }).eq('id', email.user_profile_id);
+          const { data: userData } =  await supabaseServer.auth.admin.getUserById(email.user_profile_id)
+          const { success } = await sendAutomailEmail(
+            userData.user?.email as string,
+            "automail alert ... come refresh account :)",
+            "",
+            `<p>hey <b>${email.user_profile.full_name.split(' ')[0]}</b>, this is <b>adam</b> from the automail team!</p>
+            <p>we noticed some of your emails were backlogged due to account inactivity...</p>
+            <p>
+              so come join us back on 
+              <a href="https://automail-v1.vercel.app" target="_blank" style="color: #1a73e8;">Automail</a>
+              to confirm and re-schedule your emails! thanks for being patient and happy cold emailing :)</p>
+            <p>automail</p>`
+          )
+          if (!success) logThis(`${email.id} - (${userData.user?.email as string}) Email to refresh token could not be sent...`)
+          else logThis(`${email.id} - Refresh request sent (${userData.user?.email as string})`)
+        } else logThis(`${email.id} - Already refresh requested`)
       }
     });
 
