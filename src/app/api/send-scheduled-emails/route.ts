@@ -8,7 +8,7 @@ import { sendOutlookEmailWithPdfFromUrl, sendOutlookEmail, getAccessToken } from
 import { logThis } from '@/utils/saveLog';
 import { sendAutomailEmail } from '@/utils/google/sendAutomailEmail';
 
-const status = 'Test'
+const status = 'Scheduled'
 
 export async function POST() {
   const response = await processScheduledEmails();
