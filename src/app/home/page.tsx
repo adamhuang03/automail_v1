@@ -460,7 +460,7 @@ export default function ColdOutreachUI() {
             return acc;
           }, {});
 
-          const firstKey = Object.keys(firmEmailsDict)[0]
+          const firstKey = 'a77d1062-eb02-4424-832a-3002cbf44de2'
 
           setFirmGroups([{
             firm: firmEmailsDict[firstKey][0],
