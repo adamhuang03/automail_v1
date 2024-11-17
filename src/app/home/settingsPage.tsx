@@ -52,9 +52,12 @@ export default function SettingsPage({
     // Save to supabase -- don't let them leave unless they save
     e.preventDefault()
 
+    const listToUpdate: [string, string][] = []
+
     // Inserting Process
     const addedFirmFormats = Object.entries(userFirmFormats).reduce((acc, [uuid, firmFormatInfo ]) => {
       if (firmFormatInfo.added && !firmFormatInfo.cleared && user) {
+          listToUpdate.push([uuid, firmFormatInfo.firmEnding])
           acc.push({
             user_profile_id: user.id,
             firm_name: firmFormatInfo.firmName,
@@ -73,6 +76,33 @@ export default function SettingsPage({
       return;
     }
 
+    const { data: newData, error: newError } = await supabase
+      .from('firm_email_user')
+      .select('id, email_ending')
+      .in('email_ending', listToUpdate.map((item) => item[1]))
+
+    // if (newData) {
+    //   for (const row of newData) {
+    //     const oldId = listToUpdate.filter(item => item[1] === row.email_ending)[0][0]
+    //     const newId = row.id
+    //     console.log(oldId, newId)
+
+    //     setFirmEmails((prev) => {
+    //       console.log('here', prev)
+    //       if (!prev) return {}
+    //       console.log('continue')
+        
+    //       // Destructure the old key and set the new key
+    //       const { [oldId]: oldData, ...rest } = prev;
+        
+    //       return {
+    //         ...rest, // Retain other keys
+    //         [newId]: oldData
+    //       };
+    //     });
+    //   }
+    // }
+
     // Inserting Process
     const clearedFirmFormatUUIDs = Object.entries(userFirmFormats).reduce((acc, [uuid, firmFormatInfo ]) => {
       if (firmFormatInfo.cleared && !firmFormatInfo.added && !uuid.includes('temp') && user) {
@@ -82,7 +112,8 @@ export default function SettingsPage({
     }, [] as string[])
 
     deleteMultipleRecords(clearedFirmFormatUUIDs)
-    setActiveTab('outreach')
+    // setActiveTab('outreach')
+    window.location.reload()
 
   }
 
@@ -108,7 +139,7 @@ export default function SettingsPage({
     //Feed back to Outreach -- you cannot see if you tried logging?
     setFirmEmails((prev) => ({
       ...prev,
-      [`temp-${uuid}`]: [firmName, emailEnding, 1],
+      [`${uuid}`]: [firmName, emailEnding, 1],
     }));
     
     //Prepare for database update
@@ -217,7 +248,10 @@ export default function SettingsPage({
       <Card className="w-full max-w-2xl bg-gray-50">
         <CardHeader>
           <div className="flex justify-between">
-            <CardTitle className="text-2xl font-bold">Settings</CardTitle>
+            <div className="flex flex-col">
+              <CardTitle className="text-2xl font-bold">Settings</CardTitle>
+              <p className="text-sm text-gray-500 mt-2"><i>Note: Page will refresh after saving ... the <b>Outreach Tab</b> may rest.</i></p>
+            </div>
             <Button variant='default' type="submit" onClick={handleSave}>
               Save
             </Button>

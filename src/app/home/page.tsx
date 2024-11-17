@@ -31,9 +31,11 @@ import {
 } from "@/components/ui/command"
 import { PopoverContent } from '@radix-ui/react-popover'
 import { cn } from '@/lib/utils'
+import { SelectSeparator } from '@radix-ui/react-select'
 
 type Prospect = {
   name: string
+  emailInput: string
   email: string
   scheduledTime: {
     utcTime: string
@@ -55,6 +57,23 @@ export default function ColdOutreachUI() {
   const [emailTemplate, setEmailTemplate] = useState('')
   const [resumeFilePath, setResumeFilePath] = useState<string | null>(null)
   const [resumeFileUrl, setResumeFileUrl] = useState<string | null>(null)
+  // const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([
+  //   {
+  //     firm: "University of Toronto (Sample)",
+  //     firmId: "a77d1062-eb02-4424-832a-3002cbf44de2",
+  //     userPrivate: 0,
+  //     prospects: [{
+  //       name: 'Adam Huang',
+  //       email: 'adam.huang@mail.utoronto.ca',
+  //       scheduledTime: {
+  //         utcTime: "",
+  //         localTime: "",
+  //       },
+  //       timeError: ""
+  //     }]
+  //   }
+  // ])
+
   const [firmGroups, setFirmGroups] = useState<FirmGroup[]>([])
   const [firmEmails, setFirmEmails] = useState<Record<string, (string | number)[]> | null>(null)
   const [addTempMap, setAddTempMap] = useState<{ [id: number]: string }>({});
@@ -91,14 +110,17 @@ export default function ColdOutreachUI() {
     setFirmGroups(updatedFirmGroups)
   }
 
-  const addProspect = (firmIndex: number) => {
+  const addProspect = (firmIndex: number, emailEnding?: string) => {
     const currentDate = utcToLocal(new Date(Date.now() + 15 * 60 * 1000).toISOString())
     const currentDateUtc = new Date(currentDate).toISOString().slice(0, 16);
     const updatedFirmGroups = [...firmGroups]
-    if (firmEmails) {
+    if (firmEmails && emailEnding) {
       // const firmId = firmGroups[firmIndex].firmId
       // const firmEnding = firmEmails[firmId][1]
-      updatedFirmGroups[firmIndex].prospects.push({ name: '', email: `` 
+      updatedFirmGroups[firmIndex].prospects.push({ name: '', emailInput: '', email: `@${emailEnding}` 
+        , scheduledTime: {utcTime: currentDateUtc, localTime: currentDate}, timeError: null })
+    } else if (firmEmails) {
+      updatedFirmGroups[firmIndex].prospects.push({ name: '', emailInput: '', email: `@${firmEmails[updatedFirmGroups[firmIndex].firmId][1]}` 
         , scheduledTime: {utcTime: currentDateUtc, localTime: currentDate}, timeError: null })
     }
     setFirmGroups(updatedFirmGroups)
@@ -114,9 +136,10 @@ export default function ColdOutreachUI() {
   }
 
   const updateFirm = (firmIndex: number, newFirmId: string) => {
+    console.log(firmEmails)
     // Add prospect after selected a firm, only if previous firm === ''; using firmGroups so a copy is made after
-    if (firmGroups[firmIndex].firm === '') {
-      addProspect(firmIndex)
+    if (firmGroups[firmIndex].firm === '' && firmEmails && typeof firmEmails[newFirmId][1] === 'string') {
+      addProspect(firmIndex, firmEmails[newFirmId][1])
     }
 
     const updatedFirmGroups = [...firmGroups]
@@ -132,7 +155,9 @@ export default function ColdOutreachUI() {
       
       updatedFirmGroups[firmIndex].userPrivate = firmEmails[newFirmId][2]
       updatedFirmGroups[firmIndex].prospects.forEach(prospect => {
-        if (firmEmails) {
+        if (firmEmails && prospect.emailInput) {
+          prospect.email = `${prospect.emailInput}@${firmEmails[newFirmId][1]}`
+        } else if (firmEmails && !prospect.emailInput) {
           prospect.email = `@${firmEmails[newFirmId][1]}`
         }
       })
@@ -148,17 +173,25 @@ export default function ColdOutreachUI() {
     const updatedFirmGroups = [...firmGroups]
     const currentFirmGroup = updatedFirmGroups[firmIndex]
     const currentProspect = currentFirmGroup.prospects[prospectIndex]
+    console.log(currentFirmGroup.firmId)
 
     if (field === 'name' && currentFirmGroup.firm && firmEmails) {
       currentProspect[field] = value
-      const [firstName, lastName] = value.split(' ')
-      if (firstName && lastName) {
-        currentProspect.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${firmEmails[currentFirmGroup.firmId][1]}`
-      } else if (firstName) {
-        currentProspect.email = `${firstName.toLowerCase()}@${firmEmails[currentFirmGroup.firmId][1]}`
-      } else {
-        currentProspect.email = `@${firmEmails[currentFirmGroup.firmId][1]}`
-      }
+    }
+
+    if (field === 'emailInput' && currentFirmGroup.firm && firmEmails) {
+      currentProspect[field] = value
+      // const [firstName, lastName] = value.split(' ')
+      // if (firstName && lastName) {
+      //   currentProspect.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${firmEmails[currentFirmGroup.firmId][1]}`
+      // } else if (firstName) {
+      //   currentProspect.email = `${firstName.toLowerCase()}@${firmEmails[currentFirmGroup.firmId][1]}`
+      // } else {
+      //   currentProspect.email = `@${firmEmails[currentFirmGroup.firmId][1]}`
+      // }
+      console.log(currentFirmGroup.firmId)
+      currentProspect.email = `${value}@${firmEmails[currentFirmGroup.firmId][1]}`
+
 
     } 
     
@@ -418,7 +451,7 @@ export default function ColdOutreachUI() {
         }
 
         const { data: publicFirmData, error: errorPublic } = await supabase.from('firm_email')
-          .select('id, firm_name, email_ending');
+          .select('id, firm_name, email_ending').eq('show', true);
 
         if (publicFirmData) {
           // Initialize with public data
@@ -426,6 +459,28 @@ export default function ColdOutreachUI() {
             acc[item.id] = [item.firm_name, item.email_ending, 0];
             return acc;
           }, {});
+
+          const firstKey = Object.keys(firmEmailsDict)[0]
+
+          setFirmGroups([{
+            firm: firmEmailsDict[firstKey][0],
+            firmId: firstKey,
+            userPrivate: 0,
+            prospects: [{
+              name: 'Adam Huang',
+              emailInput: 'adam.huang',
+              email: 'adam.huang@mail.utoronto.ca',
+              scheduledTime: {
+                utcTime: "",
+                localTime: "",
+              },
+              timeError: ""
+            }]
+          }])
+          setAddTempMap((prev) => ({
+            ...prev,
+            [0]: "1",
+          }))
 
           const { data: privateFirmData, error: errorPrivate } = await supabase.from('firm_email_user')
             .select('id, user_profile_id, firm_name, email_ending')
@@ -570,9 +625,21 @@ export default function ColdOutreachUI() {
             /> 
           )}
           {activeTab === 'outreach' && (
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-xl font-semibold mb-2">Outreach Campaign</h2>
-              <p className="text-sm text-gray-400 mb-8 italic">Note: Custom emails can be edited on the "Manage" tab after scheduling</p>
+            <div className="max-w-7xl mx-auto">
+              <div className='flex flex-row flex-grow justify-between'>
+                <div className='flex flex-col'>
+                  <h2 className="text-xl font-semibold mb-2">Outreach Campaign</h2>
+                  <p className="text-sm text-gray-400 mb-8 italic">Note: Custom emails can be edited on the "Manage" tab after scheduling</p>
+                </div>
+                <div className='flex'>
+                  <Button 
+                    variant={'outline'}
+                    onClick={() => setActiveTab('settings')}
+                  >
+                    Add Custom Format
+                  </Button>
+                </div>
+              </div>
               <div className="space-y-8">
                 {firmGroups.map((firmGroup, firmIndex) => (
                   <div key={firmIndex} className="border p-4 rounded-lg">
@@ -622,12 +689,14 @@ export default function ColdOutreachUI() {
                       <Select
                         value={firmGroup.firmId} // some reason, id will work here as it will find the firmEmails for me????
                         onValueChange={(value) => updateFirm(firmIndex, value)}
-                        disabled={firmGroup.prospects.some(p => p.name !== '')}
+                        // disabled={firmGroup.prospects.some(p => p.name !== '')}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select firm" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem className="mt-2" value='reminder' disabled>Can't find a format ... Navigate top right to 'Add Custom Format'</SelectItem>
+                          <hr className="dashed mt-2 mb-2"/>
                           {firmEmails && Object.keys(firmEmails).map((firmId) => ( // flex in className for selectItem is the issue
                             <SelectItem key={firmId} value={firmId} className='notFlex'>
                                 <div className='flex flex-row flex-grow w-full justify-between'>  
@@ -658,7 +727,8 @@ export default function ColdOutreachUI() {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Name</TableHead>
-                            <TableHead>Email</TableHead>
+                            <TableHead>Email Input</TableHead>
+                            <TableHead>Formatted Email</TableHead>
                             <TableHead>Scheduled Time</TableHead>
                             <TableHead className="w-[80px]">View Draft</TableHead>
                           </TableRow>
@@ -676,7 +746,14 @@ export default function ColdOutreachUI() {
                               />
                             </TableCell>
                             <TableCell>
-                              <Input value={prospect.email} readOnly />
+                              <Input
+                                placeholder="Format before '@'"
+                                value={prospect.emailInput}
+                                onChange={(e) => updateProspect(firmIndex, prospectIndex, 'emailInput', e.target.value)}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input value={prospect.email} disabled={true} readOnly />
                             </TableCell>
                             <TableCell>
                               <Input
