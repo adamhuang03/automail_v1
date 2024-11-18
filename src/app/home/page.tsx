@@ -32,6 +32,7 @@ import {
 import { PopoverContent } from '@radix-ui/react-popover'
 import { cn } from '@/lib/utils'
 import { SelectSeparator } from '@radix-ui/react-select'
+import { Switch } from '@/components/ui/switch'
 
 type Prospect = {
   name: string
@@ -41,6 +42,7 @@ type Prospect = {
     utcTime: string
     localTime: string
   }
+  switch: boolean
   timeError: string | null
 }
 
@@ -118,10 +120,10 @@ export default function ColdOutreachUI() {
       // const firmId = firmGroups[firmIndex].firmId
       // const firmEnding = firmEmails[firmId][1]
       updatedFirmGroups[firmIndex].prospects.push({ name: '', emailInput: '', email: `@${emailEnding}` 
-        , scheduledTime: {utcTime: currentDateUtc, localTime: currentDate}, timeError: null })
+        , scheduledTime: {utcTime: currentDateUtc, localTime: currentDate}, switch: false, timeError: null })
     } else if (firmEmails) {
       updatedFirmGroups[firmIndex].prospects.push({ name: '', emailInput: '', email: `@${firmEmails[updatedFirmGroups[firmIndex].firmId][1]}` 
-        , scheduledTime: {utcTime: currentDateUtc, localTime: currentDate}, timeError: null })
+        , scheduledTime: {utcTime: currentDateUtc, localTime: currentDate}, switch: false, timeError: null })
     }
     setFirmGroups(updatedFirmGroups)
   }
@@ -169,7 +171,7 @@ export default function ColdOutreachUI() {
     }
   }
 
-  const updateProspect = (firmIndex: number, prospectIndex: number, field: keyof Prospect, value: string) => {
+  const updateProspect = (firmIndex: number, prospectIndex: number, field: keyof Prospect, value: any) => {
     const updatedFirmGroups = [...firmGroups]
     const currentFirmGroup = updatedFirmGroups[firmIndex]
     const currentProspect = currentFirmGroup.prospects[prospectIndex]
@@ -178,8 +180,11 @@ export default function ColdOutreachUI() {
     if (field === 'name' && currentFirmGroup.firm && firmEmails) {
       currentProspect[field] = value
     }
+    if (field === 'switch' && currentFirmGroup.firm && firmEmails) {
+      currentProspect[field] = value
+    }
 
-    if (field === 'emailInput' && currentFirmGroup.firm && firmEmails) {
+    if (field === 'emailInput' && currentFirmGroup.firm && currentProspect.switch && firmEmails) {
       currentProspect[field] = value
       // const [firstName, lastName] = value.split(' ')
       // if (firstName && lastName) {
@@ -193,7 +198,21 @@ export default function ColdOutreachUI() {
       currentProspect.email = `${value}@${firmEmails[currentFirmGroup.firmId][1]}`
 
 
-    } 
+    }
+    
+    if (field === 'name' && currentFirmGroup.firm && !currentProspect.switch && firmEmails) {
+      currentProspect[field] = value
+      const [firstName, lastName] = value.split(' ')
+      if (firstName && lastName) {
+        currentProspect.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${firmEmails[currentFirmGroup.firmId][1]}`
+      } else if (firstName) {
+        currentProspect.email = `${firstName.toLowerCase()}@${firmEmails[currentFirmGroup.firmId][1]}`
+      } else {
+        currentProspect.email = `@${firmEmails[currentFirmGroup.firmId][1]}`
+      }
+
+
+    }
     
     if (field === 'scheduledTime' && currentFirmGroup.firm) {
       const selectedTime = new Date(new Date(value).toISOString())
@@ -462,21 +481,36 @@ export default function ColdOutreachUI() {
 
           const firstKey = 'a77d1062-eb02-4424-832a-3002cbf44de2'
 
-          setFirmGroups([{
+          setFirmGroups([
+            {
             firm: firmEmailsDict[firstKey][0],
             firmId: firstKey,
             userPrivate: 0,
-            prospects: [{
-              name: 'Adam Huang',
-              emailInput: 'adam.huang',
-              email: 'adam.huang@mail.utoronto.ca',
-              scheduledTime: {
-                utcTime: "",
-                localTime: "",
+            prospects: [
+              {
+                name: 'Adam Huang',
+                emailInput: '',
+                email: 'adam.huang@mail.utoronto.ca',
+                scheduledTime: {
+                  utcTime: "",
+                  localTime: "",
+                },
+                switch: false,
+                timeError: ""
               },
-              timeError: ""
-            }]
-          }])
+              {
+                name: 'Adam Huang',
+                emailInput: 'adam.huang',
+                email: 'adam.huang@mail.utoronto.ca',
+                scheduledTime: {
+                  utcTime: "",
+                  localTime: "",
+                },
+                switch: true,
+                timeError: ""
+              }
+            ]}
+          ])
           setAddTempMap((prev) => ({
             ...prev,
             [0]: "1",
@@ -735,7 +769,7 @@ export default function ColdOutreachUI() {
                         </TableHeader>
                       }
                       <TableBody>
-                        {firmGroup.prospects.map((prospect, prospectIndex) => {
+                        {firmGroup.prospects.map((prospect, prospectIndex) => { 
                           return (
                           <TableRow key={prospectIndex} >
                             <TableCell>
@@ -745,10 +779,19 @@ export default function ColdOutreachUI() {
                                 onChange={(e) => updateProspect(firmIndex, prospectIndex, 'name', e.target.value)}
                               />
                             </TableCell>
-                            <TableCell>
+                            <TableCell className='flex flex-row items-center gap-2'>
+                              <Switch 
+                                checked={prospect.switch}
+                                onCheckedChange={() => {
+                                  updateProspect(firmIndex, prospectIndex, 'switch', !prospect.switch)
+                                  updateProspect(firmIndex, prospectIndex, 'name', prospect.name)
+                                  updateProspect(firmIndex, prospectIndex, 'emailInput', prospect.emailInput)
+                                }}
+                              />
                               <Input
                                 placeholder="Format before '@'"
                                 value={prospect.emailInput}
+                                disabled={!prospect.switch}
                                 onChange={(e) => updateProspect(firmIndex, prospectIndex, 'emailInput', e.target.value)}
                               />
                             </TableCell>
