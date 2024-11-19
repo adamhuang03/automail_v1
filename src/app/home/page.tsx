@@ -140,7 +140,7 @@ export default function ColdOutreachUI() {
   const updateFirm = (firmIndex: number, newFirmId: string) => {
     console.log(firmEmails)
     // Add prospect after selected a firm, only if previous firm === ''; using firmGroups so a copy is made after
-    if (firmGroups[firmIndex].firm === '' && firmEmails && typeof firmEmails[newFirmId][1] === 'string') {
+    if (firmGroups[firmIndex].firm === '' && firmGroups[firmIndex].prospects.length === 0 && firmEmails && typeof firmEmails[newFirmId][1] === 'string') {
       addProspect(firmIndex, firmEmails[newFirmId][1])
     }
 
@@ -408,7 +408,9 @@ export default function ColdOutreachUI() {
 
   const handleActiveTab = (tab: string) => {
     console.log(composedChanged)
-    if (tab !== 'composed' && composedChanged > 1) {
+    if (tab !== 'composed' && activeTab === 'composed' && composedChanged > 1) {
+      setPopupChanged(true)
+    } else if (tab !== 'settings' && activeTab === 'settings' && composedChanged > 1) {
       setPopupChanged(true)
     } else {
       setActiveTab(tab)
@@ -906,7 +908,11 @@ export default function ColdOutreachUI() {
           {activeTab === 'settings' && 
             <SettingsPage 
               user={user}
+              activeTab={activeTab}
               firmEmails={firmEmails}
+              popupChanged={popupChanged}
+              setPopupChanged={setPopupChanged}
+              setComposedChanged={setComposedChanged}
               setFirmEmails={setFirmEmails}
               setActiveTab={setActiveTab}
             />}

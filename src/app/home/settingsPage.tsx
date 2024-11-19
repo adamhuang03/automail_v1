@@ -11,6 +11,8 @@ import { supabase } from "@/lib/db/supabase"
 import { siIterm2 } from "simple-icons"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FirmEmailUserInsert } from "@/utils/types"
+import { Dialog } from "@radix-ui/react-dialog"
+import { DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 interface Firm {
   name: string
@@ -20,8 +22,12 @@ interface Firm {
 type PageProps = {
   user: User | null
   firmEmails: Record<string, (string | number)[]> | null
+  activeTab: string
+  setComposedChanged: React.Dispatch<React.SetStateAction<number>>
   setFirmEmails: React.Dispatch<React.SetStateAction<Record<string, (string | number)[]> | null>>
   setActiveTab: React.Dispatch<React.SetStateAction<string>>
+  popupChanged: boolean
+  setPopupChanged: React.Dispatch<React.SetStateAction<boolean>>
 };
 
 interface OutreachFirmEmailModified {
@@ -38,6 +44,10 @@ interface OutreachFirmEmailModified {
 export default function SettingsPage({
   user,
   firmEmails,
+  activeTab,
+  setComposedChanged,
+  popupChanged,
+  setPopupChanged,
   setFirmEmails,
   setActiveTab
 }: PageProps) {
@@ -47,10 +57,12 @@ export default function SettingsPage({
   const [userFirmFormats, setUserFirmFormats] = useState<OutreachFirmEmailModified>({})
   const [selectAll, setSelectAll] = useState(false)
   const [error, setError] = useState("")
+  // const [changeDetected, setChangeDetected] = useState<Boolean>(false)
 
   const handleSave = async(e: React.FormEvent) => {
     // Save to supabase -- don't let them leave unless they save
     e.preventDefault()
+    setComposedChanged(1)
 
     const listToUpdate: [string, string][] = []
 
@@ -238,6 +250,12 @@ export default function SettingsPage({
       setInitLoad(true)
     }
   }, [firmEmails])
+
+  useEffect(() => {
+    if (initLoad) {
+      setComposedChanged((prev) => prev + 2)
+    }
+  }, [userFirmFormats])
   
   const logger = (num: number) => {
     console.log(num, "userFirmFormats: ", userFirmFormats, "\nfirmEmails: ", firmEmails,)
@@ -360,6 +378,42 @@ export default function SettingsPage({
           <CardTitle className="text-lg font-bold">More preferences are coming soon...</CardTitle>
         </CardHeader>
       </Card>
+      <Dialog open={popupChanged} onOpenChange={setPopupChanged}>
+        <DialogContent className="sm:max-w-[425px] hideClose">
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+          </DialogHeader>
+          <div className="mt-2 space-y-2">
+            <p className="text-sm">
+              Before switching tabs, We noticed you forgot to save.
+            </p>
+            <p className="text-sm">
+              Confirm below to save.
+            </p>
+          </div>
+          <div className="flex flex-row flex-grow mt-4 items-center gap-2">
+            <DialogTrigger asChild>
+              <Button
+                variant='default'
+                size="sm"
+                className="w-full"
+                onClick={(e) => handleSave(e)}
+              >
+                Confirm
+              </Button>
+            </DialogTrigger>
+            <DialogTrigger asChild>
+              <Button
+                variant='outline'
+                size="sm"
+                className="w-full"
+              >
+                Cancel
+              </Button>
+            </DialogTrigger>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
